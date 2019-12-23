@@ -1,4 +1,4 @@
-
+﻿
 # pragma once
 # include "Common.hpp"
 #include"Kyokumen.hpp"

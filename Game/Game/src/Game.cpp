@@ -1,4 +1,4 @@
-
+﻿
 # include "Game.hpp"
 
 Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_, const double komaDai_) noexcept

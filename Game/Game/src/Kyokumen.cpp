@@ -1,4 +1,4 @@
-#include "Kyokumen.hpp"
+﻿#include "Kyokumen.hpp"
 
 Kyokumen::Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_)
 : m_kingSelfPos(0)
@@ -28,4 +28,8 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_,
     }
 
     InitControl();
+}
+
+void Kyokumen::InitControl() {
+    
 }
