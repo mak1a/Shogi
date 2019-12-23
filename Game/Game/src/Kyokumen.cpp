@@ -37,7 +37,7 @@ void Kyokumen::InitControl() {
     for (uint32 suji{1}; suji <= 9; ++suji) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
             if (m_ban[suji + dan] & Enemy) {
-                for (uint32 i{}, b{1}, bj{1 << 16}; i <= 11; ++i, b <= 1, bj <= 1) {
+                for (uint32 i{}, b{1}, bj{1 << 16}; i <= 11; ++i, b <<= 1, bj <<= 1) {
                     if (CanJump[i][m_ban[dan + suji]]) {
                         uint32 j{dan + suji};
 
@@ -53,7 +53,7 @@ void Kyokumen::InitControl() {
                 }
             }
             else if (m_ban[suji + dan] & Self) {
-                for (uint32 i{}, b{1}, bj{1 << 16}; i <= 11; ++i, b <= 1, bj <= 1) {
+                for (uint32 i{}, b{1}, bj{1 << 16}; i <= 11; ++i, b <<= 1, bj <<= 1) {
                     if (CanJump[i][m_ban[dan + suji]]) {
                         uint32 j{dan + suji};
 
@@ -70,4 +70,181 @@ void Kyokumen::InitControl() {
             }
         }
     }
+}
+
+void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
+    if (te_.GetFrom() > 1) {
+        for (uint32 dir{}, b{1}, bj{1 << 16}; dir <= 11; ++dir, b <<= 1, bj <<= 1) {
+            if (te_.GetFrom() + Direct[dir] < 0) {
+                continue;
+            }
+
+            if (isSelfOrEnemy_ == Self) {
+                m_controlSelf[te_.GetFrom() + Direct[dir]] &= ~b;
+            }
+            else {
+                m_controlEnemy[te_.GetFrom() + Direct[dir]] &= ~b;
+            }
+            if (CanJump[dir][te_.GetKoma()]) {
+                int32 j{te_.GetFrom()};
+
+                do {
+                    j += Direct[dir];
+                    if (isSelfOrEnemy_ == Self) {
+                        m_controlSelf[j] &= ~bj;
+                    }
+                    else {
+                        m_controlEnemy[j] &= ~bj;
+                    }
+                }
+                while (m_ban[j] == Empty);
+            }
+        }
+
+        m_ban[te_.GetFrom()] = Empty;
+
+        for (uint32 i{}, bj{1 << 16}; i < 8; ++i, bj <<= 1) {
+            int32 dir{Direct[i]};
+
+            if (m_controlSelf[te_.GetFrom()] & bj) {
+                int32 j{te_.GetFrom()};
+
+                do {
+                    j += dir;
+                    m_controlSelf[j] |= bj;
+                }
+                while (m_ban[j] == Empty);
+            }
+
+            if (m_controlEnemy[te_.GetFrom()] & bj) {
+                int32 j{te_.GetFrom()};
+
+                do {
+                    j += dir;
+                    m_controlEnemy[j] |= bj;
+                }
+                while (m_ban[j] == Empty);
+            }
+        }
+    }
+    else {
+        --m_holdingKomas[te_.GetKoma()];
+
+        m_value -= HandValue[te_.GetKoma()];
+        m_value += KomaValue[te_.GetKoma()];
+    }
+
+    if (m_ban[te_.GetTo()] != Empty) {
+        m_value -= KomaValue[m_ban[te_.GetTo()]];
+        m_value += HandValue[isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy)];
+
+        ++m_holdingKomas[isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy)];
+
+        if (isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy) == 0) {
+            ++m_holdingKomas[Eou];
+        }
+
+        for (uint32 i{}, b{1}, bj{1 << 16}; i < 12; ++i, b <<= 1, bj <<= 1) {
+            int32 dir{Direct[i]};
+
+            if (CanJump[i][m_ban[te_.GetTo()]]) {
+                int32 j{te_.GetTo()};
+
+                do {
+                    j += dir;
+
+                    if (isSelfOrEnemy_ == Self) {
+                        m_controlEnemy[j] &= ~bj;
+                    }
+                    else {
+                        m_controlSelf[j] &= ~bj;
+                    }
+                }
+                while (m_ban[j] == Empty);
+            }
+            else {
+                int32 j{te_.GetTo() + dir};
+
+                if (j < 0) {
+                    continue;
+                }
+
+                if (isSelfOrEnemy_ == Self) {
+                    m_controlEnemy[j] &= ~b;
+                }
+                else {
+                    m_controlSelf[j] &= ~b;
+                }
+            }
+        }
+    }
+    else {
+        for (uint32 i{}, bj{1 << 16}; i < 8; ++i, bj <<= 1) {
+            int32 dir = Direct[i];
+
+            if (m_controlSelf[te_.GetTo()] & bj) {
+                int32 j{te_.GetTo()};
+
+                do {
+                    j += dir;
+                    m_controlSelf[te_.GetTo()] &= ~bj;
+                }
+                while (m_ban[j] == Empty);
+            }
+
+            if (m_controlEnemy[te_.GetTo()] & bj) {
+                int32 j{te_.GetTo()};
+
+                do {
+                    j += dir;
+                    m_controlEnemy[j] &= ~bj;
+                }
+                while (m_ban[j] == Empty);
+            }
+        }
+    }
+
+    if (te_.GetPromote()) {
+        m_value -= KomaValue[te_.GetKoma()];
+        m_value += KomaValue[te_.GetKoma() | Promote];
+        m_ban[te_.GetTo()] = te_.GetKoma() | Promote;
+    }
+    else {
+        m_ban[te_.GetTo()] = te_.GetKoma();
+    }
+
+    for (uint32 i{}, b{1}, bj{1 << 16}; i < 12; ++i, b <<= 1, bj <<= 1) {
+        if (CanJump[i][m_ban[te_.GetTo()]]) {
+            int32 j{te_.GetTo()};
+
+            do {
+                j += Direct[i];
+
+                if (isSelfOrEnemy_ == Self) {
+                    m_controlSelf[j] |= bj;
+                }
+                else {
+                    m_controlEnemy[j] |= bj;
+                }
+            }
+            while (m_ban[i] == Empty);
+        }
+        else if (CanMove[i][m_ban[te_.GetTo()]]) {
+            if (isSelfOrEnemy_ == Self) {
+                m_controlSelf[te_.GetTo() + Direct[i]] |= b;
+            }
+            else {
+                m_controlEnemy[te_.GetTo() + Direct[i]] |= b;
+            }
+        }
+    }
+
+    if (te_.GetKoma() == Sou) {
+        m_kingSelfPos = te_.GetTo();
+    }
+    if (te_.GetKoma() == Eou) {
+        m_kingEnemyPos = te_.GetTo();
+    }
+
+    ++m_tesu;
 }
