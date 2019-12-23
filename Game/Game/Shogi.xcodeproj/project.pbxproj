@@ -43,7 +43,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2C1778841CE0A9EA00BB8AD0 /* Game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Game.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C1778841CE0A9EA00BB8AD0 /* Shogi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shogi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C1778921CE0A9EA00BB8AD0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C1778991CE0AA7C00BB8AD0 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
 		2C1778A21CE0B65500BB8AD0 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
@@ -137,7 +137,7 @@
 		2C1778851CE0A9EA00BB8AD0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2C1778841CE0A9EA00BB8AD0 /* Game.app */,
+				2C1778841CE0A9EA00BB8AD0 /* Shogi.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -193,9 +193,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2C1778831CE0A9EA00BB8AD0 /* Game */ = {
+		2C1778831CE0A9EA00BB8AD0 /* Shogi */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C1778931CE0A9EA00BB8AD0 /* Build configuration list for PBXNativeTarget "Game" */;
+			buildConfigurationList = 2C1778931CE0A9EA00BB8AD0 /* Build configuration list for PBXNativeTarget "Shogi" */;
 			buildPhases = (
 				2C1778801CE0A9EA00BB8AD0 /* Sources */,
 				2C1778811CE0A9EA00BB8AD0 /* Frameworks */,
@@ -205,9 +205,9 @@
 			);
 			dependencies = (
 			);
-			name = Game;
+			name = Shogi;
 			productName = empty;
-			productReference = 2C1778841CE0A9EA00BB8AD0 /* Game.app */;
+			productReference = 2C1778841CE0A9EA00BB8AD0 /* Shogi.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -223,7 +223,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2C17787D1CE0A9D800BB8AD0 /* Build configuration list for PBXProject "Game" */;
+			buildConfigurationList = 2C17787D1CE0A9D800BB8AD0 /* Build configuration list for PBXProject "Shogi" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -236,7 +236,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2C1778831CE0A9EA00BB8AD0 /* Game */,
+				2C1778831CE0A9EA00BB8AD0 /* Shogi */,
 			);
 		};
 /* End PBXProject section */
@@ -489,7 +489,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2C17787D1CE0A9D800BB8AD0 /* Build configuration list for PBXProject "Game" */ = {
+		2C17787D1CE0A9D800BB8AD0 /* Build configuration list for PBXProject "Shogi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2C17787E1CE0A9D800BB8AD0 /* Debug */,
@@ -498,7 +498,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2C1778931CE0A9EA00BB8AD0 /* Build configuration list for PBXNativeTarget "Game" */ = {
+		2C1778931CE0A9EA00BB8AD0 /* Build configuration list for PBXNativeTarget "Shogi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2C1778941CE0A9EA00BB8AD0 /* Debug */,

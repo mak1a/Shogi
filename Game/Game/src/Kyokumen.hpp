@@ -1,20 +1,29 @@
-#pragma once
+﻿#pragma once
 
-#include<Siv3D.hpp>
 #include"Koma.hpp"
 
 
-// 手のクラス
+/// <summary>
+/// 手のクラス
+/// </summary>
 class Te {
 private:
-    // どこからどこへはそれぞれ1バイトで表せる
-    // 詳しくはKyokumenクラスを参照
+    /// <summary>
+    /// どこからどこへはそれぞれ1バイトで表せる
+    /// </summary>
+    /// <summary>
+    /// 詳しくはKyokumenクラスを参照
+    /// </summary>
     uint32 m_from, m_to;
     
-    // 動かした駒
+    /// <summary>
+    /// 動かした駒
+    /// </summary>
     uint32 m_koma;
     
-    // 取った駒
+    /// <summary>
+    /// 取った駒
+    /// </summary>
     uint32 m_capture;
     
     // 成/不成
@@ -28,7 +37,7 @@ private:
     int32 m_value;
     
 public:
-    [[nodiscard]] inline bool IsNull() const noexcept {
+    [[nodiscard]] bool IsNull() const noexcept {
         return m_from == 0 && m_to == 0;
     }
     
@@ -68,7 +77,9 @@ public:
 
 class Kyokumen {
 private:
-    // ２次元配列だと遅いので、1次元配列を使う
+    /// <summary>
+    /// ２次元配列だと遅いので、1次元配列を使う
+    /// </summary>
     array<uint32, 11 * 11> m_ban;
     
     // 駒の利きを保持する
@@ -107,5 +118,46 @@ private:
 
     [[nodiscard]] uint32 CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_);
 
-    void AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 pin_, const int32 rPin_);
+    void AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 pin_, const int32 rPin_ = 0);
+
+    void AddStraight(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 dir_, const int32 pin_, const int32 rPin_ = 0);
+
+    void AddMove(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 diff_, const int32 pin_, const int32 rPin_ = 0);
+
+    bool IsCorrectMove(Te* te_);
+
+    int32 EvalMin(Array<Te>& moveSelf_, Array<Te>& moveEnemy_);
+
+    int32 EvalMax(Array<Te>& moveSelf_, Array<Te>& moveEnemy_);
+
+    int32 Eval(const uint32 pos_);
+
+public:
+    Kyokumen() = default;
+    
+    Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_) noexcept;
+
+    [[nodiscard]] inline uint32 Search(uint32 pos_, int32 dir_) const noexcept {
+        do {
+            if (pos_ + dir_ < 0) {
+                break;
+            }
+            pos_ += dir_;
+        } 
+        while (m_ban[pos_] == Empty);
+        
+        return pos_;
+    }
+
+    void MakePinInfo(array<int32, 11 * 11>& pin);
+
+    uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
+
+    uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_, array<int32, 11 * 11>& pin_);
+
+    uint32 AntiCheck(const uint32 isSelfOrEnemy_, array<int32, 11 * 11>& pin_, uint32 control_);
+
+    void Move(const uint32 isSelfOrEnemy_, const Te& te_);
+
+    int32 BestEval(const uint32 isSelfOrEnemy_);
 };
