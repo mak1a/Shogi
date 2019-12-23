@@ -31,5 +31,43 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_,
 }
 
 void Kyokumen::InitControl() {
-    
+    m_controlSelf.fill(0);
+    m_controlEnemy.fill(0);
+
+    for (uint32 suji{1}; suji <= 9; ++suji) {
+        for (uint32 dan{1}; dan <= 9; ++dan) {
+            if (m_ban[suji + dan] & Enemy) {
+                for (uint32 i{}, b{1}, bj{1 << 16}; i <= 11; ++i, b <= 1, bj <= 1) {
+                    if (CanJump[i][m_ban[dan + suji]]) {
+                        uint32 j{dan + suji};
+
+                        do {
+                            j += Direct[i];
+                            m_controlEnemy[j] |= bj;
+                        }
+                        while (m_ban[j] == Empty);
+                    }
+                    else if (CanMove[i][m_ban[dan + suji]]) {
+                        m_controlEnemy[dan + suji + Direct[i]] |= b;
+                    }
+                }
+            }
+            else if (m_ban[suji + dan] & Self) {
+                for (uint32 i{}, b{1}, bj{1 << 16}; i <= 11; ++i, b <= 1, bj <= 1) {
+                    if (CanJump[i][m_ban[dan + suji]]) {
+                        uint32 j{dan + suji};
+
+                        do {
+                            j += Direct[i];
+                            m_controlSelf[j] |= bj;
+                        }
+                        while (m_ban[j] == Empty);
+                    }
+                    else if (CanMove[i][m_ban[dan + suji]]) {
+                        m_controlSelf[dan + suji + Direct[i]] |= b;
+                    }
+                }
+            }
+        }
+    }
 }
