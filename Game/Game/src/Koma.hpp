@@ -1,6 +1,9 @@
 # pragma once
 #include"Common.hpp"
 
+/// <summary>
+/// 駒の種類
+/// </summary>
 enum KomaType {
     // 何もない
     Empty = 0,
@@ -62,11 +65,17 @@ enum KomaType {
     Eou = Enemy + Ou,
 };
 
+/// <summary>
+/// 駒がどこにあるか
+/// </summary>
 enum class KomaState {
     Ban,
     Dai
 };
 
+/// <summary>
+/// 平手盤
+/// </summary>
 constexpr array<const array<const uint32, 9>, 9> HirateBan {
     {
         {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
@@ -81,6 +90,9 @@ constexpr array<const array<const uint32, 9>, 9> HirateBan {
     }
 };
 
+/// <summary>
+/// 台に置く際の駒の場所
+/// </summary>
 namespace KomaPos {
     constexpr Vec2 selfFu = Vec2(920.0, 570.0);
     constexpr Vec2 enemyFu = Vec2(300.0, 90.0);
@@ -103,9 +115,15 @@ namespace KomaPos {
     constexpr Vec2 selfHi = Vec2(1040.0, 390.0);
     constexpr Vec2 enemyHi = Vec2(180.0, 270.0);
 
+    /// <summary>
+    /// 自分の持ち駒の場所
+    /// </summary>
     constexpr array<const Vec2, 7> selfDaiPoses = {
         selfFu, selfKyo, selfKei, selfGin, selfKin, selfKaku, selfHi
     };
+    /// <summary>
+    /// 敵の持ち駒の場所
+    /// </summary>
     constexpr array<const Vec2, 7> enemyDaiPoses = {
         enemyFu, enemyKyo, enemyKei, enemyGin, enemyKin, enemyKaku, enemyHi
     };
