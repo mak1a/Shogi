@@ -6,6 +6,7 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_,
 , m_tesu(tesu_)
 , m_value(0) {
     m_ban.fill(Wall);
+    m_pin.fill(Wall);
 
     for (uint32 dan{1}; dan <= 9; ++dan) {
         for (uint32 suji{1}; suji <= 9; ++suji) {
@@ -142,6 +143,7 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
         if (isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy) == 0) {
             ++m_holdingKomas[Eou];
+            m_kingEnemyPos = 0;
         }
 
         for (uint32 i{}, b{1}, bj{1 << 16}; i < 12; ++i, b <<= 1, bj <<= 1) {
@@ -247,4 +249,38 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
     }
 
     ++m_tesu;
+}
+
+void Kyokumen::MakePinInfo(array<int32, 11 * 11>& pin) {
+    for (uint32 i{11}; i <= 99; ++i) {
+        m_pin[i] = 0;
+    }
+
+    if (m_kingSelfPos) {
+        for (uint32 i{}; i < 8; ++i) {
+            uint32 p{Search(m_kingSelfPos, -Direct[i])};
+
+            if (m_ban[p] == Wall || m_ban[p] & Enemy) {
+                continue;
+            }
+
+            if (m_controlEnemy[p] & (1 << (16 + i))) {
+                m_pin[p] = Direct[i];
+            }
+        }
+    }
+
+    if (m_kingEnemyPos) {
+        for (uint32 i{}; i < 8; ++i) {
+            uint32 p{Search(m_kingEnemyPos, -Direct[i])};
+
+            if (m_ban[p] == Wall || m_ban[p] & Self) {
+                continue;
+            }
+
+            if (m_controlSelf[p] & (1 << (16 + i))) {
+                m_pin[p] = Direct[i];
+            }
+        }
+    }
 }
