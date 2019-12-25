@@ -451,3 +451,41 @@ void Kyokumen::AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const i
         break;
     }
 }
+
+uint32 Kyokumen::CountControlSelf(const uint32 pos_) {
+    uint32 ret{};
+    
+    for (uint32 i{}, b{1}, bj{1 << 16}; i < 12; b <<= 1, bj <<= 1) {
+        if (pos_ - Direct[i] < 0 || pos_ - Direct[i] >= 121) {
+            continue;
+        }
+
+        if (CanMove[i][m_ban[pos_ - Direct[i]]] && m_ban[pos_ - Direct[i]] & Self) {
+            ret |= bj;
+        }
+        else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && m_ban[Search(pos_, -Direct[i])] & Self) {
+            ret |= bj;
+        }
+    }
+
+    return ret;
+}
+
+uint32 Kyokumen::CountControlEnemy(const uint32 pos_) {
+    uint32 ret{};
+    
+    for (uint32 i{}, b{1}, bj{1 << 16}; i < 12; b <<= 1, bj <<= 1) {
+        if (pos_ - Direct[i] < 0 || pos_ - Direct[i] >= 121) {
+            continue;
+        }
+
+        if (CanMove[i][m_ban[pos_ - Direct[i]]] && m_ban[pos_ - Direct[i]] & Enemy) {
+            ret |= bj;
+        }
+        else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && m_ban[Search(pos_, -Direct[i])] & Enemy) {
+            ret |= bj;
+        }
+    }
+
+    return ret;
+}
