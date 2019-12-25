@@ -6,6 +6,7 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_,
 , m_tesu(tesu_)
 , m_value(0) {
     m_ban.fill(Wall);
+    m_pin.fill(Wall);
 
     for (uint32 dan{1}; dan <= 9; ++dan) {
         for (uint32 suji{1}; suji <= 9; ++suji) {
@@ -142,6 +143,7 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
         if (isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy) == 0) {
             ++m_holdingKomas[Eou];
+            m_kingEnemyPos = 0;
         }
 
         for (uint32 i{}, b{1}, bj{1 << 16}; i < 12; ++i, b <<= 1, bj <<= 1) {
@@ -247,4 +249,205 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
     }
 
     ++m_tesu;
+}
+
+void Kyokumen::MakePinInfo() {
+    for (uint32 i{11}; i <= 99; ++i) {
+        m_pin[i] = 0;
+    }
+
+    if (m_kingSelfPos) {
+        for (uint32 i{}; i < 8; ++i) {
+            uint32 p{Search(m_kingSelfPos, -Direct[i])};
+
+            if (m_ban[p] == Wall || m_ban[p] & Enemy) {
+                continue;
+            }
+
+            if (m_controlEnemy[p] & (1 << (16 + i))) {
+                m_pin[p] = Direct[i];
+            }
+        }
+    }
+
+    if (m_kingEnemyPos) {
+        for (uint32 i{}; i < 8; ++i) {
+            uint32 p{Search(m_kingEnemyPos, -Direct[i])};
+
+            if (m_ban[p] == Wall || m_ban[p] & Self) {
+                continue;
+            }
+
+            if (m_controlSelf[p] & (1 << (16 + i))) {
+                m_pin[p] = Direct[i];
+            }
+        }
+    }
+}
+
+uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
+    MakePinInfo();
+
+    if (isSelfOrEnemy_ == Self && m_controlEnemy[m_kingSelfPos] != 0) {
+        return AntiCheck(isSelfOrEnemy_, m_controlEnemy[m_kingSelfPos]);
+    }
+
+    if (isSelfOrEnemy_ == Enemy && m_controlSelf[m_kingEnemyPos] != 0) {
+        return AntiCheck(isSelfOrEnemy_, m_controlSelf[m_kingEnemyPos]);
+    }
+
+    for (uint32 suji{1}; suji <= 9; ++suji) {
+        for (uint32 dan{1}; dan <= 9; ++dan) {
+            if (m_ban[suji + dan] & isSelfOrEnemy_) {
+                AddMoves(isSelfOrEnemy_, suji + dan, m_pin[suji + dan]);
+            }
+        }
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0) {
+        for (uint32 suji{1}; suji <= 9; ++suji) {
+            bool nifu{false};
+            for (uint32 dan{1}; dan <= 9; ++dan) {
+                if (m_ban[suji + dan] == (isSelfOrEnemy_ | Fu)) {
+                    nifu = true;
+                    break;
+                }
+            }
+
+            if (nifu) {
+                continue;
+            }
+
+            uint32 startDan{(isSelfOrEnemy_ == Self) ? 2 : 1};
+            uint32 endDan{(isSelfOrEnemy_ == Self) ? 9 : 8};
+
+            for (uint32 dan{startDan}; dan <= endDan; ++dan) {
+                if (m_ban[dan + suji] == Empty && !Uchifudume(isSelfOrEnemy_, dan + suji)) {
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Fu, Empty);
+                }
+            }
+        }
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0) {
+        for (uint32 suji{1}; suji <= 9; ++suji) {
+            uint32 startDan{(isSelfOrEnemy_ == Self) ? 2 : 1};
+            uint32 endDan{(isSelfOrEnemy_ == Self) ? 9 : 8};
+
+            for (uint32 dan{startDan}; dan <= endDan; ++dan) {
+                if (m_ban[dan + suji] == Empty) {
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ky, Empty);
+                }
+            }
+        }
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Ke]) {
+        for (uint32 suji{1}; suji <= 9; ++suji) {
+            uint32 startDan{(isSelfOrEnemy_ == Self) ? 3 : 1};
+            uint32 endDan{(isSelfOrEnemy_ == Self) ? 9 : 7};
+
+            for (uint32 dan{startDan}; dan <= endDan; ++dan) {
+                if (m_ban[dan + suji] == Empty) {
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ke, Empty);
+                }
+            }
+        }
+    }
+
+    for (uint32 koma{Gi}; koma <= Hi; ++koma) {
+        if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
+            for (uint32 suji{1}; suji <= 9; ++suji) {
+                for (uint32 dan{1}; dan <= 9; ++dan) {
+                    if (m_ban[dan + suji] == Empty) {
+                        m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | koma, Empty);
+                    }
+                }
+            }
+        }
+    }
+
+    return m_teValid.size();
+}
+
+void Kyokumen::AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 pin_, const int32 rPin_) {
+    switch (m_ban[from_]) {
+    case Sfu:
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        break;
+    case Efu:
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        break;
+    case Sky:
+        AddStraight(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        break;
+    case Eky:
+        AddStraight(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        break;
+    case Ske:
+        AddMove(isSelfOrEnemy_, from_, +8, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -12, pin_, rPin_);
+        break;
+    case Eke:
+        AddMove(isSelfOrEnemy_, from_, -8, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +12, pin_, rPin_);
+        break;
+    case Sgi:
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, 11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        break;
+    case Egi:
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        break;
+    case Ski:case Sto:case Sny:case Snk:case Sng:
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+        break;
+    case Eki:case Eto:case Eny:case Enk:case Eng:
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        break;
+    case Sry:case Ery:
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+    case Shi:case Ehi:
+        AddStraight(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+        break;
+    case Sum:case Eum:
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+    case Ska:case Eka:
+        AddStraight(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        break;
+    case Sou:case Eou:
+        MoveKing(isSelfOrEnemy_, 0);
+        break;
+    default:
+        break;
+    }
 }
