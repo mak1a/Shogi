@@ -369,3 +369,85 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
 
     return m_teValid.size();
 }
+
+void Kyokumen::AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 pin_, const int32 rPin_) {
+    switch (m_ban[from_]) {
+    case Sfu:
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        break;
+    case Efu:
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        break;
+    case Sky:
+        AddStraight(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        break;
+    case Eky:
+        AddStraight(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        break;
+    case Ske:
+        AddMove(isSelfOrEnemy_, from_, +8, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -12, pin_, rPin_);
+        break;
+    case Eke:
+        AddMove(isSelfOrEnemy_, from_, -8, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +12, pin_, rPin_);
+        break;
+    case Sgi:
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, 11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        break;
+    case Egi:
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        break;
+    case Ski:case Sto:case Sny:case Snk:case Sng:
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+        break;
+    case Eki:case Eto:case Eny:case Enk:case Eng:
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        break;
+    case Sry:case Ery:
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+    case Shi:case Ehi:
+        AddStraight(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+        break;
+    case Sum:case Eum:
+        AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+    case Ska:case Eka:
+        AddStraight(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        break;
+    case Sou:case Eou:
+        MoveKing(isSelfOrEnemy_, 0);
+        break;
+    default:
+        break;
+    }
+}
