@@ -512,3 +512,52 @@ uint32 Kyokumen::CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_) {
 
     return ret;
 }
+
+bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
+    if (isSelfOrEnemy_ == Self) {
+		if (m_kingEnemyPos + 1 != to_) {
+			return false;
+		}
+	}
+    else {
+        if (m_kingSelfPos - 1 != to_) {
+            return false;
+        }
+    }
+
+    m_ban[to_] = Fu | isSelfOrEnemy_;
+    if (isSelfOrEnemy_ == Self) {
+        if (m_controlSelf[to_] && CountMove(Enemy, to_) == (1 << 1)) {
+            for (uint32 i{}; i < 8; ++i) {
+                uint32 koma{m_ban[m_kingEnemyPos + Direct[i]]};
+                if (!(koma & Enemy) && !CountControlSelf(m_kingEnemyPos + Direct[i])) {
+                    m_ban[to_] = Empty;
+                    return false;
+                }
+            }
+
+            m_ban[to_] = Empty;
+            return true;
+        }
+
+        m_ban[to_] = Empty;
+        return false;
+    }
+    else {
+        if (m_controlEnemy[to_] && CountMove(Self, to_) == (1 << 6)) {
+            for (uint32 i{}; i < 8; ++i) {
+                uint32 koma{m_ban[m_kingSelfPos + Direct[i]]};
+                if (!(koma & Self) && !CountControlEnemy(m_kingSelfPos + Direct[i])) {
+                    m_ban[to_] = Empty;
+                    return false;
+                }
+            }
+
+            m_ban[to_] = Empty;
+            return true;
+        }
+
+        m_ban[to_] = Empty;
+        return false;
+    }
+}
