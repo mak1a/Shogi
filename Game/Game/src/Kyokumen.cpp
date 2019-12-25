@@ -251,7 +251,7 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
     ++m_tesu;
 }
 
-void Kyokumen::MakePinInfo(array<int32, 11 * 11>& pin) {
+void Kyokumen::MakePinInfo() {
     for (uint32 i{11}; i <= 99; ++i) {
         m_pin[i] = 0;
     }
@@ -283,4 +283,89 @@ void Kyokumen::MakePinInfo(array<int32, 11 * 11>& pin) {
             }
         }
     }
+}
+
+uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
+    MakePinInfo();
+
+    if (isSelfOrEnemy_ == Self && m_controlEnemy[m_kingSelfPos] != 0) {
+        return AntiCheck(isSelfOrEnemy_, m_controlEnemy[m_kingSelfPos]);
+    }
+
+    if (isSelfOrEnemy_ == Enemy && m_controlSelf[m_kingEnemyPos] != 0) {
+        return AntiCheck(isSelfOrEnemy_, m_controlSelf[m_kingEnemyPos]);
+    }
+
+    for (uint32 suji{1}; suji <= 9; ++suji) {
+        for (uint32 dan{1}; dan <= 9; ++dan) {
+            if (m_ban[suji + dan] & isSelfOrEnemy_) {
+                AddMoves(isSelfOrEnemy_, suji + dan, m_pin[suji + dan]);
+            }
+        }
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0) {
+        for (uint32 suji{1}; suji <= 9; ++suji) {
+            bool nifu{false};
+            for (uint32 dan{1}; dan <= 9; ++dan) {
+                if (m_ban[suji + dan] == (isSelfOrEnemy_ | Fu)) {
+                    nifu = true;
+                    break;
+                }
+            }
+
+            if (nifu) {
+                continue;
+            }
+
+            uint32 startDan{(isSelfOrEnemy_ == Self) ? 2 : 1};
+            uint32 endDan{(isSelfOrEnemy_ == Self) ? 9 : 8};
+
+            for (uint32 dan{startDan}; dan <= endDan; ++dan) {
+                if (m_ban[dan + suji] == Empty && !Uchifudume(isSelfOrEnemy_, dan + suji)) {
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Fu, Empty);
+                }
+            }
+        }
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0) {
+        for (uint32 suji{1}; suji <= 9; ++suji) {
+            uint32 startDan{(isSelfOrEnemy_ == Self) ? 2 : 1};
+            uint32 endDan{(isSelfOrEnemy_ == Self) ? 9 : 8};
+
+            for (uint32 dan{startDan}; dan <= endDan; ++dan) {
+                if (m_ban[dan + suji] == Empty) {
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ky, Empty);
+                }
+            }
+        }
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Ke]) {
+        for (uint32 suji{1}; suji <= 9; ++suji) {
+            uint32 startDan{(isSelfOrEnemy_ == Self) ? 3 : 1};
+            uint32 endDan{(isSelfOrEnemy_ == Self) ? 9 : 7};
+
+            for (uint32 dan{startDan}; dan <= endDan; ++dan) {
+                if (m_ban[dan + suji] == Empty) {
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ke, Empty);
+                }
+            }
+        }
+    }
+
+    for (uint32 koma{Gi}; koma <= Hi; ++koma) {
+        if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
+            for (uint32 suji{1}; suji <= 9; ++suji) {
+                for (uint32 dan{1}; dan <= 9; ++dan) {
+                    if (m_ban[dan + suji] == Empty) {
+                        m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | koma, Empty);
+                    }
+                }
+            }
+        }
+    }
+
+    return m_teValid.size();
 }

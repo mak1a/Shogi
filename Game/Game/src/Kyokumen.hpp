@@ -149,13 +149,13 @@ public:
         return pos_;
     }
 
-    void MakePinInfo(array<int32, 11 * 11>& pin);
+    void MakePinInfo();
 
     uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
 
-    uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_, array<int32, 11 * 11>& pin_);
+    // uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
 
-    uint32 AntiCheck(const uint32 isSelfOrEnemy_, array<int32, 11 * 11>& pin_, uint32 control_);
+    uint32 AntiCheck(const uint32 isSelfOrEnemy_, uint32 control_);
 
     void Move(const uint32 isSelfOrEnemy_, const Te& te_);
 
