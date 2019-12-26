@@ -561,3 +561,41 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
         return false;
     }
 }
+
+void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
+    int32 dan{pos_ % 10};
+
+    if (isSelfOrEnemy_ == Enemy) {
+        dan = 10 - dan;
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0 && dan > 1) {
+        int32 suji{pos_ / 10};
+        bool nifu{false};
+
+        for (uint32 d{1}; d <= 9; ++d) {
+            if (m_ban[suji + d] == (isSelfOrEnemy_ | Fu)) {
+                nifu = true;
+                break;
+            }
+        }
+
+        if (!nifu && !Uchifudume(isSelfOrEnemy_, pos_)) {
+            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Fu), Empty);
+        }
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0 && dan > 1) {
+        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ky), Empty);
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Ke] > 0 && dan > 2) {
+        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ke), Empty);
+    }
+
+    for (uint32 koma{Gi}; koma <= Hi; ++koma) {
+        if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
+            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | koma), Empty);
+        }
+    }
+}
