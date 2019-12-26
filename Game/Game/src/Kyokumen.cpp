@@ -323,7 +323,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
 
             for (uint32 dan{startDan}; dan <= endDan; ++dan) {
                 if (m_ban[dan + suji] == Empty && !Uchifudume(isSelfOrEnemy_, dan + suji)) {
-                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Fu, Empty);
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Fu);
                 }
             }
         }
@@ -336,7 +336,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
 
             for (uint32 dan{startDan}; dan <= endDan; ++dan) {
                 if (m_ban[dan + suji] == Empty) {
-                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ky, Empty);
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ky);
                 }
             }
         }
@@ -349,7 +349,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
 
             for (uint32 dan{startDan}; dan <= endDan; ++dan) {
                 if (m_ban[dan + suji] == Empty) {
-                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ke, Empty);
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ke);
                 }
             }
         }
@@ -360,7 +360,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
             for (uint32 suji{1}; suji <= 9; ++suji) {
                 for (uint32 dan{1}; dan <= 9; ++dan) {
                     if (m_ban[dan + suji] == Empty) {
-                        m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | koma, Empty);
+                        m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | koma);
                     }
                 }
             }
@@ -581,21 +581,21 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
         }
 
         if (!nifu && !Uchifudume(isSelfOrEnemy_, pos_)) {
-            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Fu), Empty);
+            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Fu));
         }
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0 && dan > 1) {
-        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ky), Empty);
+        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ky));
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Ke] > 0 && dan > 2) {
-        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ke), Empty);
+        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ke));
     }
 
     for (uint32 koma{Gi}; koma <= Hi; ++koma) {
         if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
-            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | koma), Empty);
+            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | koma));
         }
     }
 }
@@ -686,5 +686,42 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
                 AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[i], 0);
             }
         }
+    }
+}
+
+void Kyokumen::AddMove(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 diff_, const int32 pin_, const int32 rPin_) {
+    if (rPin_ == diff_ || rPin_ == -diff_) {
+        return;
+    }
+
+    const int32 to{from_ + diff_};
+    const int32 dan{to % 10};
+    const int32 fromDan{from_ % 10};
+
+    if ((pin_ != 0 && pin_ != diff_ && pin_ != -diff_) || m_ban[to] & isSelfOrEnemy_) {
+        return;
+    }
+
+    if (m_ban[from_] == Ske && dan <= 2) {
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+    }
+    else if ((m_ban[from_] == Sfu || m_ban[from_] == Sky) && dan <= 1) {
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+    }
+    else if (m_ban[from_] == Eke && dan >= 8) {
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+    }
+    else if ((m_ban[from_] == Efu || m_ban[from_] == Eky) && dan >= 9) {
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+    }
+    else {
+        if (isSelfOrEnemy_ == Self && (fromDan <= 3 || dan <= 3) && CanPromote[m_ban[from_]]) {
+            m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+        }
+        else if (isSelfOrEnemy_ == Enemy && (fromDan >= 7 || dan >= 7) && CanPromote[m_ban[from_]]) {
+            m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+        }
+
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 0);
     }
 }
