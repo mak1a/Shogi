@@ -599,3 +599,38 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
         }
     }
 }
+
+uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
+    if ((control_ & (control_ - 1)) != 0) {
+        MoveKing(isSelfOrEnemy_, control_);
+    }
+    else {
+        uint32 king{(isSelfOrEnemy_ == Self) ? m_kingSelfPos : m_kingEnemyPos};
+
+        uint32 id{};
+
+        for (; id <= 32; ++id) {
+            if (control_ == (1u << id)) {
+                break;
+            }
+        }
+
+        uint32 check{(id < 16) ? king - Direct[id] : Search(king, -Direct[id - 16])};
+
+        MoveTo(isSelfOrEnemy_, check);
+
+        MoveKing(isSelfOrEnemy_, control_);
+
+        if (id >= 16) {
+            for (int32 i{king - Direct[id - 16]}; m_ban[i] == Empty; i -= Direct[id - 16]) {
+                MoveTo(isSelfOrEnemy_, i);
+            }
+
+            for (int32 i{king - Direct[id - 16]}; m_ban[i] == Empty; i -= Direct[id - 16]) {
+                PutTo(isSelfOrEnemy_, i);
+            }
+        }
+    }
+
+    return m_teValid.size();
+}
