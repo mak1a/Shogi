@@ -634,3 +634,57 @@ uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
 
     return m_teValid.size();
 }
+
+void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
+    int32 id{-1};
+
+    for (uint32 i{}; i < 8; ++i) {
+        if (kiki_ & (1 << i)) {
+            id = i;
+            break;
+        }
+    }
+
+    if (id >= 0) {
+        if (isSelfOrEnemy_ == Self) {
+            uint32 koma{m_ban[m_kingSelfPos - Direct[id]]};
+
+            if ((koma == Empty || koma & Enemy)
+                && !CountControlEnemy(m_kingSelfPos - Direct[id])
+                && !(kiki_ & (1 << (23 - id)))) {
+                AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[id], 0);
+            }
+        }
+        else {
+            uint32 koma{m_ban[m_kingEnemyPos - Direct[id]]};
+
+            if ((koma == Empty || koma & Self)
+                && !CountControlSelf(m_kingEnemyPos - Direct[id])
+                && !(kiki_ & (1 << (23 - id)))) {
+                AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[id], 0);
+            }
+        }
+
+    }
+    for (uint32 i{}; i < 8; ++i) {
+        if (i == id) {
+            continue;
+        }
+        if (isSelfOrEnemy_ == Self) {
+            uint32 koma{m_ban[m_kingSelfPos - Direct[i]]};
+            if ((koma == Empty || koma & Enemy)
+                && !CountControlEnemy(m_kingSelfPos - Direct[i])
+                && !(kiki_ & (1 << (23 - i)))) {
+                AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[i], 0);
+            }
+        }
+        else {
+            uint32 koma{m_ban[m_kingEnemyPos - Direct[i]]};
+            if ((koma == Empty || koma & Self)
+                && !CountControlSelf(m_kingEnemyPos - Direct[i])
+                && !(kiki_ & (1 << 23 - i))) {
+                AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[i], 0);
+            }
+        }
+    }
+}
