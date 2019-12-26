@@ -561,3 +561,130 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
         return false;
     }
 }
+
+void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
+    int32 dan{pos_ % 10};
+
+    if (isSelfOrEnemy_ == Enemy) {
+        dan = 10 - dan;
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0 && dan > 1) {
+        int32 suji{pos_ / 10};
+        bool nifu{false};
+
+        for (uint32 d{1}; d <= 9; ++d) {
+            if (m_ban[suji + d] == (isSelfOrEnemy_ | Fu)) {
+                nifu = true;
+                break;
+            }
+        }
+
+        if (!nifu && !Uchifudume(isSelfOrEnemy_, pos_)) {
+            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Fu), Empty);
+        }
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0 && dan > 1) {
+        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ky), Empty);
+    }
+
+    if (m_holdingKomas[isSelfOrEnemy_ | Ke] > 0 && dan > 2) {
+        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ke), Empty);
+    }
+
+    for (uint32 koma{Gi}; koma <= Hi; ++koma) {
+        if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
+            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | koma), Empty);
+        }
+    }
+}
+
+uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
+    if ((control_ & (control_ - 1)) != 0) {
+        MoveKing(isSelfOrEnemy_, control_);
+    }
+    else {
+        uint32 king{(isSelfOrEnemy_ == Self) ? m_kingSelfPos : m_kingEnemyPos};
+
+        uint32 id{};
+
+        for (; id <= 32; ++id) {
+            if (control_ == (1u << id)) {
+                break;
+            }
+        }
+
+        uint32 check{(id < 16) ? king - Direct[id] : Search(king, -Direct[id - 16])};
+
+        MoveTo(isSelfOrEnemy_, check);
+
+        MoveKing(isSelfOrEnemy_, control_);
+
+        if (id >= 16) {
+            for (int32 i{king - Direct[id - 16]}; m_ban[i] == Empty; i -= Direct[id - 16]) {
+                MoveTo(isSelfOrEnemy_, i);
+            }
+
+            for (int32 i{king - Direct[id - 16]}; m_ban[i] == Empty; i -= Direct[id - 16]) {
+                PutTo(isSelfOrEnemy_, i);
+            }
+        }
+    }
+
+    return m_teValid.size();
+}
+
+void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
+    int32 id{-1};
+
+    for (uint32 i{}; i < 8; ++i) {
+        if (kiki_ & (1 << i)) {
+            id = i;
+            break;
+        }
+    }
+
+    if (id >= 0) {
+        if (isSelfOrEnemy_ == Self) {
+            uint32 koma{m_ban[m_kingSelfPos - Direct[id]]};
+
+            if ((koma == Empty || koma & Enemy)
+                && !CountControlEnemy(m_kingSelfPos - Direct[id])
+                && !(kiki_ & (1 << (23 - id)))) {
+                AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[id], 0);
+            }
+        }
+        else {
+            uint32 koma{m_ban[m_kingEnemyPos - Direct[id]]};
+
+            if ((koma == Empty || koma & Self)
+                && !CountControlSelf(m_kingEnemyPos - Direct[id])
+                && !(kiki_ & (1 << (23 - id)))) {
+                AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[id], 0);
+            }
+        }
+
+    }
+    for (uint32 i{}; i < 8; ++i) {
+        if (i == id) {
+            continue;
+        }
+        if (isSelfOrEnemy_ == Self) {
+            uint32 koma{m_ban[m_kingSelfPos - Direct[i]]};
+            if ((koma == Empty || koma & Enemy)
+                && !CountControlEnemy(m_kingSelfPos - Direct[i])
+                && !(kiki_ & (1 << (23 - i)))) {
+                AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[i], 0);
+            }
+        }
+        else {
+            uint32 koma{m_ban[m_kingEnemyPos - Direct[i]]};
+            if ((koma == Empty || koma & Self)
+                && !CountControlSelf(m_kingEnemyPos - Direct[i])
+                && !(kiki_ & (1 << 23 - i))) {
+                AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[i], 0);
+            }
+        }
+    }
+}

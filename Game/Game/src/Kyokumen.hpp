@@ -155,7 +155,7 @@ public:
 
     // uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
 
-    uint32 AntiCheck(const uint32 isSelfOrEnemy_, uint32 control_);
+    uint32 AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_);
 
     void Move(const uint32 isSelfOrEnemy_, const Te& te_);
 
