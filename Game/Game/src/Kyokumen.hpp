@@ -65,6 +65,9 @@ public:
     [[nodiscard]] uint32 GetPromote() const noexcept {
         return m_promote;
     }
+    void SetPromote(const uint32 promote_) noexcept {
+        m_promote = promote_;
+    }
     [[nodiscard]] uint32 GetCapture() const noexcept {
         return m_capture;
     }

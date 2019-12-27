@@ -888,3 +888,176 @@ int32 Kyokumen::EvalMax(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
     moveSelf_.remove_at(0);
     return Max<int32>(v, EvalMin(moveSelf_, moveEnemy_));
 }
+
+int32 Kyokumen::Eval(const uint32 pos_) {
+    if (m_ban[pos_] == Empty) {
+        return 0;
+    }
+    if (m_ban[pos_] & Self && !m_controlEnemy[pos_]) {
+        return 0;
+    }
+    if (m_ban[pos_] & Enemy && !m_controlSelf[pos_]) {
+        return 0;
+    }
+
+    uint32 toPos{pos_};
+
+    Array<Te> attackSelfTes;
+    Array<Te> attackEnemyTes;
+
+    uint32 pos2{};
+
+    bool promoteSelf{(toPos % 10) <= 3}, promoteEnemy{(toPos % 10) >= 7};
+    uint32 pos{toPos};
+
+    for (uint32 i{}, b{1}, bj{1 << 16}; i < 8; ++i, b <<= 1, bj <<= 1) {
+        pos2 = pos;
+        if (m_controlSelf[pos] & b) {
+            pos2 -= Direct[i];
+            attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
+
+            if ((promoteSelf || (pos2 % 10) <= 3) && CanPromote[attackSelfTes.back().GetKoma()]) {
+                attackSelfTes.back().SetPromote(1);
+            }
+            else {
+                attackSelfTes.back().SetPromote(0);
+            }
+        }
+        else if (m_controlEnemy[pos] & b) {
+            pos2 -= Direct[i];
+            attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
+
+            if ((promoteEnemy || (pos2 % 10) >= 7) && CanPromote[attackEnemyTes.back().GetKoma()]) {
+                attackEnemyTes.back().SetPromote(1);
+            }
+            else {
+                attackEnemyTes.back().SetPromote(0);
+            }
+        }
+
+        if (pos - Direct[i] < 0) {
+            continue;
+        }
+
+        if (m_ban[pos - Direct[i]] != Sou && m_ban[pos - Direct[i]] != Eou) {
+            while ((m_controlSelf[pos2] & bj) || (m_controlEnemy[pos2] & bj)) {
+                do {
+                    pos2 -= Direct[i];
+                    if (pos2 < 0) {
+                        break;
+                    }
+                }
+                while (m_ban[pos2] == Empty);
+
+                if (m_ban[pos2] & Enemy) {
+                    attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
+                    if ((promoteEnemy || (pos2 % 10) >= 7) && CanPromote[attackEnemyTes.back().GetKoma()]) {
+                        attackEnemyTes.back().SetPromote(1);
+                    }
+                    else {
+                        attackEnemyTes.back().SetPromote(0);
+                    }
+                }
+                else if (m_ban[pos2] & Self) {
+                    attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
+                    if ((promoteSelf || (pos2 % 10) >= 7) && CanPromote[attackSelfTes.back().GetKoma()]) {
+                        attackSelfTes.back().SetPromote(1);
+                    }
+                    else {
+                        attackSelfTes.back().SetPromote(0);
+                    }
+                }
+            }
+        }
+    }
+
+    for (uint32 i{8}, b{1 << 8}; i < 12; ++i, b <<= 1) {
+        if (pos - Direct[i] < 0) {
+            continue;
+        }
+
+        if (m_controlSelf[pos] & b) {
+            pos2 = pos - Direct[i];
+            attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
+
+            if (promoteSelf && CanPromote[attackSelfTes.back().GetKoma()]) {
+                attackSelfTes.back().SetPromote(1);
+            }
+            else {
+                attackSelfTes.back().SetPromote(0);
+            }
+        }
+        
+        if (m_controlEnemy[pos] & b) {
+            pos2 = pos - Direct[i];
+            attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
+
+            if (promoteEnemy && CanPromote[attackEnemyTes.back().GetKoma()]) {
+                attackEnemyTes.back().SetPromote(1);
+            }
+            else {
+                attackEnemyTes.back().SetPromote(0);
+            }
+        }
+    }
+
+    if (!attackSelfTes.empty()) {
+        for (uint32 i{}; i < attackSelfTes.size() - 1; ++i) {
+            uint32 max_id{i};
+            int32 max_val{KomaValue[attackSelfTes[i].GetKoma()]};
+
+            for (uint32 j{i + 1}; j < attackSelfTes.size(); ++j) {
+                int32 v{KomaValue[attackSelfTes[j].GetKoma()]};
+                if (v < max_val) {
+                    max_id = j;
+                    max_val = v;
+                }
+                else if (v == max_val) {
+                    if (KomaValue[attackSelfTes[j].GetKoma()] < KomaValue[attackSelfTes[max_id].GetKoma()]) {
+                        max_id = j;
+                    }
+                }
+            }
+
+            if (i != max_id) {
+                std::swap<Te>(attackSelfTes[i], attackSelfTes[max_id]);
+            }
+        }
+    }
+
+    if (!attackEnemyTes.empty()) {
+        for (uint32 i{}; i < attackEnemyTes.size() - 1; ++i) {
+            uint32 max_id{i};
+            int32 max_val{KomaValue[attackEnemyTes[i].GetKoma()]};
+
+            for (uint32 j{i + 1}; j < attackEnemyTes.size(); ++j) {
+                int32 v{KomaValue[attackEnemyTes[j].GetKoma()]};
+                if (v > max_val) {
+                    max_id = j;
+                    max_val = v;
+                }
+                else if (v == max_val) {
+                    if (KomaValue[attackEnemyTes[j].GetKoma()] > KomaValue[attackEnemyTes[max_id].GetKoma()]) {
+                        max_id = j;
+                    }
+                }
+            }
+
+            if (i != max_id) {
+                std::swap<Te>(attackEnemyTes[i], attackEnemyTes[max_id]);
+            }
+        }
+    }
+
+    bool isEnemy{(m_ban[pos_] & Enemy) != 0};
+    bool isSelf{!isEnemy && m_ban[pos_] != Enemy};
+
+    if (isEnemy != 0 && !attackSelfTes.empty()) {
+        return EvalMax(attackSelfTes, attackEnemyTes) - m_value;
+    }
+    if (isSelf != 0 && !attackEnemyTes.empty()) {
+        return EvalMin(attackSelfTes, attackEnemyTes);
+    }
+
+    return 0;
+}
