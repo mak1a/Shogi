@@ -1061,3 +1061,24 @@ int32 Kyokumen::Eval(const uint32 pos_) {
 
     return 0;
 }
+
+int32 Kyokumen::BestEval(const uint32 isSelfOrEnemy_) {
+    int32 best{};
+
+    for (uint32 suji{1}; suji <= 9; ++suji) {
+        for (uint32 dan{1}; dan <= 9; ++dan) {
+            if ((m_ban[suji + dan] & isSelfOrEnemy_) == 0) {
+                int32 value{Eval(suji + dan)};
+                if (value > best) {
+                    best = value;
+                }
+            }
+        }
+    }
+
+    if (isSelfOrEnemy_ == Enemy) {
+        return -best;
+    }
+
+    return best;
+}
