@@ -323,7 +323,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
 
             for (uint32 dan{startDan}; dan <= endDan; ++dan) {
                 if (m_ban[dan + suji] == Empty && !Uchifudume(isSelfOrEnemy_, dan + suji)) {
-                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Fu, Empty);
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Fu);
                 }
             }
         }
@@ -336,7 +336,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
 
             for (uint32 dan{startDan}; dan <= endDan; ++dan) {
                 if (m_ban[dan + suji] == Empty) {
-                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ky, Empty);
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ky);
                 }
             }
         }
@@ -349,7 +349,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
 
             for (uint32 dan{startDan}; dan <= endDan; ++dan) {
                 if (m_ban[dan + suji] == Empty) {
-                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ke, Empty);
+                    m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | Ke);
                 }
             }
         }
@@ -360,7 +360,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
             for (uint32 suji{1}; suji <= 9; ++suji) {
                 for (uint32 dan{1}; dan <= 9; ++dan) {
                     if (m_ban[dan + suji] == Empty) {
-                        m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | koma, Empty);
+                        m_teValid.emplace_back(0, suji + dan, isSelfOrEnemy_ | koma);
                     }
                 }
             }
@@ -581,21 +581,21 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
         }
 
         if (!nifu && !Uchifudume(isSelfOrEnemy_, pos_)) {
-            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Fu), Empty);
+            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Fu));
         }
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0 && dan > 1) {
-        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ky), Empty);
+        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ky));
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Ke] > 0 && dan > 2) {
-        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ke), Empty);
+        m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | Ke));
     }
 
     for (uint32 koma{Gi}; koma <= Hi; ++koma) {
         if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
-            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | koma), Empty);
+            m_teValid.emplace_back(0, pos_, (isSelfOrEnemy_ | koma));
         }
     }
 }
@@ -687,4 +687,398 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             }
         }
     }
+}
+
+void Kyokumen::AddMove(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 diff_, const int32 pin_, const int32 rPin_) {
+    if (rPin_ == diff_ || rPin_ == -diff_) {
+        return;
+    }
+
+    const int32 to{from_ + diff_};
+    const int32 dan{to % 10};
+    const int32 fromDan{from_ % 10};
+
+    if ((pin_ != 0 && pin_ != diff_ && pin_ != -diff_) || m_ban[to] & isSelfOrEnemy_) {
+        return;
+    }
+
+    if (m_ban[from_] == Ske && dan <= 2) {
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+    }
+    else if ((m_ban[from_] == Sfu || m_ban[from_] == Sky) && dan <= 1) {
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+    }
+    else if (m_ban[from_] == Eke && dan >= 8) {
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+    }
+    else if ((m_ban[from_] == Efu || m_ban[from_] == Eky) && dan >= 9) {
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+    }
+    else {
+        if (isSelfOrEnemy_ == Self && (fromDan <= 3 || dan <= 3) && CanPromote[m_ban[from_]]) {
+            m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+        }
+        else if (isSelfOrEnemy_ == Enemy && (fromDan >= 7 || dan >= 7) && CanPromote[m_ban[from_]]) {
+            m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
+        }
+
+        m_teValid.emplace_back(from_, to, m_ban[from_], m_ban[to], 0);
+    }
+}
+
+void Kyokumen::AddStraight(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 dir_, const int32 pin_, const int32 rPin_ = 0) {
+    if (dir_ == rPin_ || dir_ == -rPin_) {
+        return;
+    }
+
+    if (pin_ == 0 || pin_ == dir_ || pin_ == -dir_) {
+        int32 i{};
+
+        for (i = dir_; m_ban[from_ + i] == Empty; i += dir_) {
+            AddMove(isSelfOrEnemy_, from_, i, 0);
+        }
+
+        if (m_ban[from_ + i] & isSelfOrEnemy_) {
+            AddMove(isSelfOrEnemy_, from_, i, 0);
+        }
+    }
+}
+
+void Kyokumen::MoveTo(const uint32 isSelfOrEnemy_, const uint32 to_) {
+    uint32 p{};
+    uint32 koma{};
+
+    for (uint32 i{}; i < 12; ++i) {
+        if (to_ - Direct[i] < 0) {
+            continue;
+        }
+
+        if ((koma = m_ban[to_ - Direct[i]]) == Empty) {
+            p = Search(to_, -Direct[i]);
+            if ((m_ban[p] & isSelfOrEnemy_) && CanJump[i][m_ban[p]]) {
+                AddMove(isSelfOrEnemy_, p, to_ - p, m_pin[p]);
+            }
+        }
+        else {
+            if ((koma & ~isSelfOrEnemy_) != Ou && (koma & isSelfOrEnemy_)
+                && (CanMove[i][koma] || CanJump[i][koma])) {
+                AddMove(isSelfOrEnemy_, to_ - Direct[i], Direct[i], m_pin[to_ - Direct[i]]);
+            }
+        }
+    }
+}
+
+[[nodiscard]] constexpr uint32 Kyori(const uint32 p1_, const uint32 p2_) noexcept {
+    return Max<uint32>(Abs(p1_ / 10 - p2_ / 10), Abs((p1_ % 10) - (p2_ % 10)));
+}
+
+bool Kyokumen::IsCorrectMove(Te* te_) {
+    if (m_ban[te_->GetFrom()] == Sou || m_ban[te_->GetFrom()] == Eou) {
+        if (m_controlEnemy[te_->GetTo()] != 0) {
+            return false;
+        }
+
+        te_->SetCapture(m_ban[te_->GetTo()]);
+        return true;
+    }
+
+    if (m_ban[te_->GetFrom()] == Eou) {
+        if (m_controlSelf[te_->GetTo()] != 0) {
+            return false;
+        }
+
+        te_->SetCapture(m_ban[te_->GetTo()]);
+        return true;
+    }
+
+    if (m_ban[te_->GetFrom()] == Ske || m_ban[te_->GetFrom()] == Eke) {
+        te_->SetCapture(m_ban[te_->GetTo()]);
+        return true;
+    }
+
+    uint32 d{Kyori(te_->GetFrom(), te_->GetTo())};
+    if (d == 0) {
+        return false;
+    }
+
+    if (d == 1) {
+        te_->SetCapture(m_ban[te_->GetTo()]);
+        return true;
+    }
+
+    int32 dir{(te_->GetTo() - te_->GetFrom()) / d};
+
+    for (uint32 i{1}, pos{te_->GetFrom() + dir}; i < d; ++i, pos += dir) {
+        if (pos < 0 || pos >= 121) {
+            continue;
+        }
+
+        if (m_ban[pos] != Empty) {
+            return false;
+        }
+    }
+
+    te_->SetCapture(m_ban[te_->GetTo()]);
+    return true;
+}
+
+int32 Kyokumen::EvalMin(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
+    if (moveEnemy_.empty()) {
+        return m_value;
+    }
+
+    int32 v{m_value};
+    uint32 k{};
+
+    for (; k < moveEnemy_.size(); ++k) {
+        if (IsCorrectMove(&moveEnemy_[k])) {
+            break;
+        }
+    }
+
+    if (k > 0) {
+        if (k >= moveEnemy_.size()) {
+            return v;
+        }
+
+        Te te{moveEnemy_[k]};
+        for (uint32 i{k}; i > 0; --i) {
+            moveEnemy_[i] = moveEnemy_[i - 1];
+        }
+
+        moveEnemy_[0] = te;
+    }
+
+    moveEnemy_[0].SetCapture(m_ban[moveEnemy_[0].GetTo()]);
+    Move(Enemy, moveEnemy_[0]);
+
+    moveEnemy_.remove_at(0);
+    return Min<int32>(v, EvalMax(moveSelf_, moveEnemy_));
+}
+
+int32 Kyokumen::EvalMax(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
+    if (moveSelf_.empty()) {
+        return m_value;
+    }
+
+    int32 v{m_value};
+    uint32 k{};
+
+    for (; k < moveSelf_.size(); ++k) {
+        if (IsCorrectMove(&moveSelf_[k])) {
+            break;
+        }
+    }
+
+    if (k > 0) {
+        if (k >= moveSelf_.size()) {
+            return v;
+        }
+
+        Te t{moveSelf_[k]};
+        for (uint32 i{k}; i > 0; --i) {
+            moveSelf_[i] = moveSelf_[i - 1];
+        }
+        moveSelf_[0] = t;
+    }
+
+    moveSelf_[0].SetCapture(m_ban[moveSelf_[0].GetTo()]);
+    Move(Self, moveSelf_[0]);
+
+    moveSelf_.remove_at(0);
+    return Max<int32>(v, EvalMin(moveSelf_, moveEnemy_));
+}
+
+int32 Kyokumen::Eval(const uint32 pos_) {
+    if (m_ban[pos_] == Empty) {
+        return 0;
+    }
+    if (m_ban[pos_] & Self && !m_controlEnemy[pos_]) {
+        return 0;
+    }
+    if (m_ban[pos_] & Enemy && !m_controlSelf[pos_]) {
+        return 0;
+    }
+
+    uint32 toPos{pos_};
+
+    Array<Te> attackSelfTes;
+    Array<Te> attackEnemyTes;
+
+    uint32 pos2{};
+
+    bool promoteSelf{(toPos % 10) <= 3}, promoteEnemy{(toPos % 10) >= 7};
+    uint32 pos{toPos};
+
+    for (uint32 i{}, b{1}, bj{1 << 16}; i < 8; ++i, b <<= 1, bj <<= 1) {
+        pos2 = pos;
+        if (m_controlSelf[pos] & b) {
+            pos2 -= Direct[i];
+            attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
+
+            if ((promoteSelf || (pos2 % 10) <= 3) && CanPromote[attackSelfTes.back().GetKoma()]) {
+                attackSelfTes.back().SetPromote(1);
+            }
+            else {
+                attackSelfTes.back().SetPromote(0);
+            }
+        }
+        else if (m_controlEnemy[pos] & b) {
+            pos2 -= Direct[i];
+            attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
+
+            if ((promoteEnemy || (pos2 % 10) >= 7) && CanPromote[attackEnemyTes.back().GetKoma()]) {
+                attackEnemyTes.back().SetPromote(1);
+            }
+            else {
+                attackEnemyTes.back().SetPromote(0);
+            }
+        }
+
+        if (pos - Direct[i] < 0) {
+            continue;
+        }
+
+        if (m_ban[pos - Direct[i]] != Sou && m_ban[pos - Direct[i]] != Eou) {
+            while ((m_controlSelf[pos2] & bj) || (m_controlEnemy[pos2] & bj)) {
+                do {
+                    pos2 -= Direct[i];
+                    if (pos2 < 0) {
+                        break;
+                    }
+                }
+                while (m_ban[pos2] == Empty);
+
+                if (m_ban[pos2] & Enemy) {
+                    attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
+                    if ((promoteEnemy || (pos2 % 10) >= 7) && CanPromote[attackEnemyTes.back().GetKoma()]) {
+                        attackEnemyTes.back().SetPromote(1);
+                    }
+                    else {
+                        attackEnemyTes.back().SetPromote(0);
+                    }
+                }
+                else if (m_ban[pos2] & Self) {
+                    attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
+                    if ((promoteSelf || (pos2 % 10) >= 7) && CanPromote[attackSelfTes.back().GetKoma()]) {
+                        attackSelfTes.back().SetPromote(1);
+                    }
+                    else {
+                        attackSelfTes.back().SetPromote(0);
+                    }
+                }
+            }
+        }
+    }
+
+    for (uint32 i{8}, b{1 << 8}; i < 12; ++i, b <<= 1) {
+        if (pos - Direct[i] < 0) {
+            continue;
+        }
+
+        if (m_controlSelf[pos] & b) {
+            pos2 = pos - Direct[i];
+            attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
+
+            if (promoteSelf && CanPromote[attackSelfTes.back().GetKoma()]) {
+                attackSelfTes.back().SetPromote(1);
+            }
+            else {
+                attackSelfTes.back().SetPromote(0);
+            }
+        }
+        
+        if (m_controlEnemy[pos] & b) {
+            pos2 = pos - Direct[i];
+            attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
+
+            if (promoteEnemy && CanPromote[attackEnemyTes.back().GetKoma()]) {
+                attackEnemyTes.back().SetPromote(1);
+            }
+            else {
+                attackEnemyTes.back().SetPromote(0);
+            }
+        }
+    }
+
+    if (!attackSelfTes.empty()) {
+        for (uint32 i{}; i < attackSelfTes.size() - 1; ++i) {
+            uint32 max_id{i};
+            int32 max_val{KomaValue[attackSelfTes[i].GetKoma()]};
+
+            for (uint32 j{i + 1}; j < attackSelfTes.size(); ++j) {
+                int32 v{KomaValue[attackSelfTes[j].GetKoma()]};
+                if (v < max_val) {
+                    max_id = j;
+                    max_val = v;
+                }
+                else if (v == max_val) {
+                    if (KomaValue[attackSelfTes[j].GetKoma()] < KomaValue[attackSelfTes[max_id].GetKoma()]) {
+                        max_id = j;
+                    }
+                }
+            }
+
+            if (i != max_id) {
+                std::swap<Te>(attackSelfTes[i], attackSelfTes[max_id]);
+            }
+        }
+    }
+
+    if (!attackEnemyTes.empty()) {
+        for (uint32 i{}; i < attackEnemyTes.size() - 1; ++i) {
+            uint32 max_id{i};
+            int32 max_val{KomaValue[attackEnemyTes[i].GetKoma()]};
+
+            for (uint32 j{i + 1}; j < attackEnemyTes.size(); ++j) {
+                int32 v{KomaValue[attackEnemyTes[j].GetKoma()]};
+                if (v > max_val) {
+                    max_id = j;
+                    max_val = v;
+                }
+                else if (v == max_val) {
+                    if (KomaValue[attackEnemyTes[j].GetKoma()] > KomaValue[attackEnemyTes[max_id].GetKoma()]) {
+                        max_id = j;
+                    }
+                }
+            }
+
+            if (i != max_id) {
+                std::swap<Te>(attackEnemyTes[i], attackEnemyTes[max_id]);
+            }
+        }
+    }
+
+    bool isEnemy{(m_ban[pos_] & Enemy) != 0};
+    bool isSelf{!isEnemy && m_ban[pos_] != Enemy};
+
+    if (isEnemy != 0 && !attackSelfTes.empty()) {
+        return EvalMax(attackSelfTes, attackEnemyTes) - m_value;
+    }
+    if (isSelf != 0 && !attackEnemyTes.empty()) {
+        return EvalMin(attackSelfTes, attackEnemyTes);
+    }
+
+    return 0;
+}
+
+int32 Kyokumen::BestEval(const uint32 isSelfOrEnemy_) {
+    int32 best{};
+
+    for (uint32 suji{1}; suji <= 9; ++suji) {
+        for (uint32 dan{1}; dan <= 9; ++dan) {
+            if ((m_ban[suji + dan] & isSelfOrEnemy_) == 0) {
+                int32 value{Eval(suji + dan)};
+                if (value > best) {
+                    best = value;
+                }
+            }
+        }
+    }
+
+    if (isSelfOrEnemy_ == Enemy) {
+        return -best;
+    }
+
+    return best;
 }

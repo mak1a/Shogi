@@ -63,7 +63,22 @@ public:
         return m_koma;
     }
     [[nodiscard]] uint32 GetPromote() const noexcept {
+        return m_promote;
+    }
+    void SetPromote(const uint32 promote_) noexcept {
+        m_promote = promote_;
+    }
+    [[nodiscard]] uint32 GetCapture() const noexcept {
         return m_capture;
+    }
+    void SetCapture(const uint32 capture_) noexcept {
+        m_capture = capture_;
+    }
+    [[nodiscard]] uint32 GetKind() const noexcept {
+        return m_kind;
+    }
+    [[nodiscard]] uint32 GetValue() const noexcept {
+        return m_value;
     }
     
     // 手の同一性を比較したい時に使う
@@ -71,6 +86,33 @@ public:
     bool operator==(const Te& te_) const noexcept {
         return te_.GetFrom() == m_from && te_.GetTo() == m_to
             && te_.GetKoma() == m_koma && te_.GetPromote() == m_promote;
+    }
+
+    /// <summary>
+    /// コピーコンストラクタ
+    /// </summary>
+    Te(const Te& te_)
+        : m_from(te_.GetFrom())
+        , m_to(te_.GetTo())
+        , m_koma(te_.GetKoma())
+        , m_capture(te_.GetCapture())
+        , m_promote(te_.GetPromote())
+        , m_kind(te_.GetKind())
+        , m_value(te_.GetValue()) {}
+
+    /// <summary>
+    /// 代入演算子
+    /// </summary>
+    Te &operator=(const Te& te_) {
+        m_from = te_.GetFrom();
+        m_to = te_.GetTo();
+        m_koma = te_.GetKoma();
+        m_capture = te_.GetCapture();
+        m_promote = te_.GetPromote();
+        m_kind = te_.GetKind();
+        m_value = te_.GetValue();
+
+        return *this;
     }
 };
 
