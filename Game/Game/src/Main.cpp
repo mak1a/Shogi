@@ -11,6 +11,7 @@
 # include "Common.hpp"
 # include "Title.hpp"
 # include "Game.hpp"
+# include "GameAI.hpp"
 
 void Main()
 {
@@ -52,10 +53,11 @@ void Main()
 	manager
 		.add<Title>(State::Title)
 		.add<Game>(State::Game)
+		.add<GameAI>(State::GameAI)
 		.setFadeColor(ColorF(1.0));
 
 	// （ゲームシーンから開始する場合はコメントを外す）
-	manager.init(State::Game);
+	manager.init(State::GameAI);
 
 	while (System::Update())
 	{

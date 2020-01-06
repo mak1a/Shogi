@@ -1,8 +1,9 @@
-﻿
-# pragma once
-#include"Koma.hpp"
 
-class Ban {
+# pragma once
+#include"Kyokumen.hpp"
+#include"Sikou.hpp"
+
+class BanSelf {
 private:
     // 将棋盤
     RectF m_shogiBan;
@@ -11,11 +12,13 @@ private:
     // 自分の駒台
     RectF m_komaDaiSelf;
 
+    Kyokumen m_kyokumen;
+
+    Sikou m_sikou;
+
     // どちらの順番か
     Turn m_turn;
-    [[nodiscard]] Turn GetTurn() const noexcept {
-        return m_turn;
-    }
+
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
@@ -35,21 +38,27 @@ private:
     
     void AddHoldKoma(KomaSquare& koma_);
 public:
-    Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
+    BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
     
-    void Update();
+    void SelfUpdate();
+
+    void EnemyUpdate();
     
     void Draw() const;
+
+    [[nodiscard]] Turn GetTurn() const noexcept {
+        return m_turn;
+    }
 };
 
 // ゲームシーン
-class Game : public MyApp::Scene
+class GameAI : public MyApp::Scene
 {
 private:
-    Ban m_ban;
+    BanSelf m_ban;
 public:
 
-	Game(const InitData& init);
+	GameAI(const InitData& init);
 
 	void update() override;
 

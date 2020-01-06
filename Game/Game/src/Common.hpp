@@ -8,7 +8,9 @@ enum class State
 {
 	Title,
 
-	Game
+	Game,
+
+	GameAI
 };
 
 // ゲームデータ
@@ -20,3 +22,8 @@ struct GameData
 
 // シーン管理クラス
 using MyApp = SceneManager<State, GameData>;
+
+enum class Turn {
+    Player,
+    Enemy
+};

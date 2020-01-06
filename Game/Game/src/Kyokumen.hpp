@@ -88,44 +88,25 @@ public:
             && te_.GetKoma() == m_koma && te_.GetPromote() == m_promote;
     }
 
-    /// <summary>
-    /// コピーコンストラクタ
-    /// </summary>
-    Te(const Te& te_)
-        : m_from(te_.GetFrom())
-        , m_to(te_.GetTo())
-        , m_koma(te_.GetKoma())
-        , m_capture(te_.GetCapture())
-        , m_promote(te_.GetPromote())
-        , m_kind(te_.GetKind())
-        , m_value(te_.GetValue()) {}
-
-    /// <summary>
-    /// 代入演算子
-    /// </summary>
-    Te &operator=(const Te& te_) {
-        m_from = te_.GetFrom();
-        m_to = te_.GetTo();
-        m_koma = te_.GetKoma();
-        m_capture = te_.GetCapture();
-        m_promote = te_.GetPromote();
-        m_kind = te_.GetKind();
-        m_value = te_.GetValue();
-
-        return *this;
-    }
 };
 
 
 class Kyokumen {
 private:
     /// <summary>
+    /// 桂馬の利きがbanからはみ出すので、はみ出す分を確保しておく
+    /// C++では、構造体の内部の変数の並び順は宣言した順になることを利用している
+    /// 普通ではあまり使わない「汚い」テクニック
+    /// </summary>
+    array<uint32, 16> m_banPadding;
+
+    /// <summary>
     /// ２次元配列だと遅いので、1次元配列を使う
     /// </summary>
-    array<uint32, 11 * 11> m_ban;
+    array<uint32, 16 * 11> m_ban;
     
     // 駒の利きを保持する
-    array<uint32, 11 * 11> m_controlSelf, m_controlEnemy;
+    array<uint32, 16 * 11> m_controlSelf, m_controlEnemy;
     
     // 持ち駒の数。
     array<uint32, 41> m_holdingKomas;
@@ -139,9 +120,9 @@ private:
     // 局面の評価値
     int32 m_value;
     
-    Array<Te> m_teValid;
+    Array<Te> m_teValids;
     
-    array<uint32, 11 * 11> m_pin;
+    array<uint32, 16 * 11> m_pin;
     
     void InitControl();
     
@@ -177,11 +158,11 @@ private:
 public:
     Kyokumen() = default;
     
-    Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_) noexcept;
+    Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
 
     [[nodiscard]] inline uint32 Search(uint32 pos_, int32 dir_) const noexcept {
         do {
-            if (pos_ + dir_ < 0) {
+            if (pos_ < dir_) {
                 break;
             }
             pos_ += dir_;
@@ -189,6 +170,23 @@ public:
         while (m_ban[pos_] == Empty);
         
         return pos_;
+    }
+
+    [[nodiscard]] bool IsIllegal(const Te& te_) const noexcept {
+        for (uint32 i{}; i < m_teValids.size(); ++i) {
+            if (te_ == m_teValids[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    [[nodiscard]] Array<Te> GetTeValids() const noexcept {
+        return m_teValids;
+    }
+    [[nodiscard]] int32 GetValue() const noexcept {
+        return m_value;
     }
 
     void MakePinInfo();

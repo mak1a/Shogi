@@ -40,6 +40,8 @@
 		2CE5C85B237FDE6000082EEC /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C6906B12298123200A427D0 /* OpenAL.framework */; };
 		2CEACB67233A61C900C6EE98 /* libgif.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEACB65233A61C900C6EE98 /* libgif.a */; };
 		2CEACB68233A61C900C6EE98 /* libutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEACB66233A61C900C6EE98 /* libutil.a */; };
+		645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */; };
+		6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6488705123BA0E120061A0D2 /* Kyokumen.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -81,6 +83,12 @@
 		2CE5C859237FDE5100082EEC /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		2CEACB65233A61C900C6EE98 /* libgif.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgif.a; path = ../../lib/macOS/libgif/libgif.a; sourceTree = "<group>"; };
 		2CEACB66233A61C900C6EE98 /* libutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libutil.a; path = ../../lib/macOS/libgif/libutil.a; sourceTree = "<group>"; };
+		645EC46E23B67E1400B0DBB9 /* GameAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameAI.hpp; sourceTree = "<group>"; };
+		645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameAI.cpp; sourceTree = "<group>"; };
+		6488704E23BA0DE70061A0D2 /* Sikou.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Sikou.hpp; sourceTree = "<group>"; };
+		6488704F23BA0E110061A0D2 /* Kyokumen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Kyokumen.hpp; sourceTree = "<group>"; };
+		6488705023BA0E110061A0D2 /* Koma.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Koma.hpp; sourceTree = "<group>"; };
+		6488705123BA0E120061A0D2 /* Kyokumen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kyokumen.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +159,12 @@
 				2C1778991CE0AA7C00BB8AD0 /* Main.cpp */,
 				2C971A5A239732F900E66570 /* Title.cpp */,
 				2C971A56239732F900E66570 /* Title.hpp */,
+				645EC46E23B67E1400B0DBB9 /* GameAI.hpp */,
+				645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */,
+				6488704E23BA0DE70061A0D2 /* Sikou.hpp */,
+				6488705023BA0E110061A0D2 /* Koma.hpp */,
+				6488705123BA0E120061A0D2 /* Kyokumen.cpp */,
+				6488704F23BA0E110061A0D2 /* Kyokumen.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -260,7 +274,9 @@
 			files = (
 				2C971A5C239732F900E66570 /* Title.cpp in Sources */,
 				2C17789A1CE0AA7C00BB8AD0 /* Main.cpp in Sources */,
+				6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */,
 				2C971A5B239732F900E66570 /* Game.cpp in Sources */,
+				645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
