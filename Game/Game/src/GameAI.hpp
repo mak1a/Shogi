@@ -1,4 +1,4 @@
-
+﻿
 # pragma once
 #include"Kyokumen.hpp"
 #include"Sikou.hpp"
@@ -12,6 +12,12 @@ private:
     // 自分の駒台
     RectF m_komaDaiSelf;
 
+    /// <summary>
+    /// ストップウォッチ
+    /// AIが考えてる風を出すためのもの
+    /// </summary>
+    Stopwatch m_thinkingTimer;
+
     Kyokumen m_kyokumen;
 
     Sikou m_sikou;
@@ -22,6 +28,7 @@ private:
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
+        m_thinkingTimer.restart();
     }
     
     // 盤上のマス目
@@ -29,9 +36,9 @@ private:
     Array<KomaSquare> m_boardSquares;
     
     // 持ち駒（プレイヤー側）
-    Array<KomaSquare> m_havingSelfKoma;
+    Array<Array<KomaSquare>> m_havingSelfKoma;
     // 持ち駒（敵側）
-    Array<KomaSquare> m_havingEnemyKoma;
+    Array<Array<KomaSquare>> m_havingEnemyKoma;
     
     // マウスで駒を保持
     Optional<KomaSquare> m_holdHand;
@@ -41,6 +48,8 @@ public:
     BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
     
     void SelfUpdate();
+
+    void SelfAIUpdate();
 
     void EnemyUpdate();
     

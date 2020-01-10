@@ -188,6 +188,9 @@ public:
     [[nodiscard]] int32 GetValue() const noexcept {
         return m_value;
     }
+    [[nodiscard]] array<uint32, 41> GetHoldingKomas() const noexcept {
+        return m_holdingKomas;
+    }
 
     void MakePinInfo();
 

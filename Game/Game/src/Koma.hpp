@@ -296,21 +296,21 @@ private:
     uint32 m_komaType;
     KomaState m_komaState;
 
-    Vec2 m_coodinate;
+    Point m_coodinate;
 public:
-    constexpr KomaSquare(const double x_, const double y_, const double size_, const uint32 koma_, const Vec2& coodinate_) noexcept
+    constexpr KomaSquare(const double x_, const double y_, const double size_, const uint32 koma_, const Point& coodinate_) noexcept
         : RectF(x_, y_, size_)
         , m_komaType(koma_)
         , m_komaState(KomaState::Ban)
         , m_coodinate(coodinate_) {}
     
-    constexpr KomaSquare(const Vec2 pos_, const double size_, const uint32 koma_, const Vec2& coodinate_) noexcept
+    constexpr KomaSquare(const Vec2 pos_, const double size_, const uint32 koma_, const Point& coodinate_) noexcept
     : RectF(pos_, size_)
     , m_komaType(koma_)
     , m_komaState(KomaState::Ban)
     , m_coodinate(coodinate_) {}
     
-    constexpr KomaSquare(const Vec2 pos_, const double size_, const uint32 koma_, const KomaState state_, const Vec2& coodinate_) noexcept
+    constexpr KomaSquare(const Vec2 pos_, const double size_, const uint32 koma_, const KomaState state_, const Point& coodinate_) noexcept
     : RectF(pos_, size_)
     , m_komaType(koma_)
     , m_komaState(state_)
@@ -330,10 +330,10 @@ public:
         m_komaState = komaState_;
     }
 
-    [[nodiscard]] Vec2 GetKomaCoodinate() const noexcept {
+    [[nodiscard]] Point GetKomaCoodinate() const noexcept {
         return m_coodinate;
     }
-    constexpr void ChangeKomaCoodinate(const Vec2& komaCoodinate_) noexcept  {
+    constexpr void ChangeKomaCoodinate(const Point& komaCoodinate_) noexcept  {
         m_coodinate.set(komaCoodinate_);
     }
     [[nodiscard]] bool IsChangeCoodinate(const KomaSquare& willPutPlace_) const noexcept {
@@ -341,107 +341,107 @@ public:
     }
     
     // 駒を描画する
-    void Draw() const {
+    void Draw(const Vec2& difference_ = Vec2::Zero()) const {
         switch (GetKomaType()) {
             case Sfu:
-                TextureAsset(U"Fu").resized(size).drawAt(center());
+                TextureAsset(U"Fu").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Sto:
-                TextureAsset(U"To").resized(size).drawAt(center());
+                TextureAsset(U"To").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Sky:
-                TextureAsset(U"Kyosha").resized(size).drawAt(center());
+                TextureAsset(U"Kyosha").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Sny:
-                TextureAsset(U"NariKyosha").resized(size).drawAt(center());
+                TextureAsset(U"NariKyosha").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Ske:
-                TextureAsset(U"Keima").resized(size).drawAt(center());
+                TextureAsset(U"Keima").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Snk:
-                TextureAsset(U"NariKeima").resized(size).drawAt(center());
+                TextureAsset(U"NariKeima").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Sgi:
-                TextureAsset(U"Gin").resized(size).drawAt(center());
+                TextureAsset(U"Gin").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Sng:
-                TextureAsset(U"NariGin").resized(size).drawAt(center());
+                TextureAsset(U"NariGin").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Ski:
-                TextureAsset(U"Kin").resized(size).drawAt(center());
+                TextureAsset(U"Kin").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Ska:
-                TextureAsset(U"Kaku").resized(size).drawAt(center());
+                TextureAsset(U"Kaku").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Sum:
-                TextureAsset(U"Uma").resized(size).drawAt(center());
+                TextureAsset(U"Uma").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Shi:
-                TextureAsset(U"Hi").resized(size).drawAt(center());
+                TextureAsset(U"Hi").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Sry:
-                TextureAsset(U"Ryu").resized(size).drawAt(center());
+                TextureAsset(U"Ryu").resized(size).drawAt(center().movedBy(difference_));
                 break;
             case Sou:
-                TextureAsset(U"Ou").resized(size).drawAt(center());
+                TextureAsset(U"Ou").resized(size).drawAt(center().movedBy(difference_));
                 break;
                 
             // ここから敵の駒
             case Efu:
                 TextureAsset(U"Fu").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eto:
                 TextureAsset(U"To").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eky:
                 TextureAsset(U"Kyosha").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eny:
                 TextureAsset(U"NariKyosha").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eke:
                 TextureAsset(U"Keima").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Enk:
                 TextureAsset(U"NariKeima").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Egi:
                 TextureAsset(U"Gin").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eng:
                 TextureAsset(U"NariGin").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eki:
                 TextureAsset(U"Kin").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eka:
                 TextureAsset(U"Kaku").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eum:
                 TextureAsset(U"Uma").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Ehi:
                 TextureAsset(U"Hi").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Ery:
                 TextureAsset(U"Ryu").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             case Eou:
                 TextureAsset(U"Gyoku").resized(size)
-                .rotated(180_deg).drawAt(center());
+                .rotated(180_deg).drawAt(center().movedBy(difference_));
                 break;
             default:
                 break;

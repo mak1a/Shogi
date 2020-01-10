@@ -24,7 +24,7 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const doubl
                 , m_shogiBan.tl().y + y * squareSize
                 , squareSize
                 , static_cast<KomaType>(iniKyokumen_[y][x])
-                , Vec2(x+1, y+1)
+                , Point(x+1, y+1)
             );
         }
     }
@@ -97,7 +97,7 @@ void Ban::Update() {
                 , m_komaDaiSelf.w / 4
                 , m_holdHand.value().GetKomaType()
                 , KomaState::Dai
-                , Vec2(10, 10)
+                , Point(10, 10)
             );
         }
         else {
@@ -106,7 +106,7 @@ void Ban::Update() {
                 , m_komaDaiEnemy.w / 4
                 , m_holdHand.value().GetKomaType()
                 , KomaState::Dai
-                , Vec2(10, 10)
+                , Point(10, 10)
             );
         }
         
@@ -180,7 +180,7 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
             , m_komaDaiEnemy.w / 4
             , static_cast<KomaType>(komaType)
             , KomaState::Dai
-            , Vec2(10, 10)
+            , Point(10, 10)
         );
         return;
     }
@@ -192,7 +192,7 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
         , m_komaDaiSelf.w / 4
         , static_cast<KomaType>(komaType)
         , KomaState::Dai
-        , Vec2(10, 10)
+        , Point(10, 10)
     );
     return;
 }

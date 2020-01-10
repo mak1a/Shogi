@@ -10,7 +10,7 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>,
 
     for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
-            m_ban[suji + dan] = board_[dan - 1][9 - suji/0x10];
+            m_ban[suji + dan] = board_[dan - 1][suji/0x10 - 1];
 
             if (m_ban[suji + dan] == Sou) {
                 m_kingSelfPos = suji + dan;
@@ -141,11 +141,6 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
         ++m_holdingKomas[isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy)];
 
-        if (isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy) == 0) {
-            ++m_holdingKomas[Eou];
-            m_kingEnemyPos = 0;
-        }
-
         for (uint32 i{}, b{1}, bj{1 << 16}; i < 12; ++i, b <<= 1, bj <<= 1) {
             int32 dir{Direct[i]};
 
@@ -255,6 +250,7 @@ void Kyokumen::MakePinInfo() {
     for (uint32 i{0x11}; i <= 0x99; ++i) {
         m_pin[i] = 0;
     }
+    m_teValids.clear();
 
     if (m_kingSelfPos) {
         for (uint32 i{}; i < 8; ++i) {
@@ -274,7 +270,7 @@ void Kyokumen::MakePinInfo() {
         for (uint32 i{}; i < 8; ++i) {
             uint32 p{Search(m_kingEnemyPos, -Direct[i])};
 
-            if (m_ban[p] == Wall || m_ban[p] & Self) {
+            if (m_ban[p] == Wall || !(m_ban[p] & Enemy)) {
                 continue;
             }
 
@@ -671,6 +667,9 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             continue;
         }
         if (isSelfOrEnemy_ == Self) {
+            if (static_cast<int32>(m_kingSelfPos) - Direct[i] < 0) {
+                continue;
+            }
             uint32 koma{m_ban[m_kingSelfPos - Direct[i]]};
             if ((koma == Empty || koma & Enemy)
                 && !CountControlEnemy(m_kingSelfPos - Direct[i])
@@ -679,6 +678,9 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             }
         }
         else {
+            if (static_cast<int32>(m_kingEnemyPos) - Direct[i] < 0) {
+                continue;
+            }
             uint32 koma{m_ban[m_kingEnemyPos - Direct[i]]};
             if ((koma == Empty || koma & Self)
                 && !CountControlSelf(m_kingEnemyPos - Direct[i])
@@ -738,7 +740,7 @@ void Kyokumen::AddStraight(const uint32 isSelfOrEnemy_, const uint32 from_, cons
             AddMove(isSelfOrEnemy_, from_, i, 0);
         }
 
-        if (m_ban[from_ + i] & isSelfOrEnemy_) {
+        if (!(m_ban[from_ + i] & isSelfOrEnemy_)) {
             AddMove(isSelfOrEnemy_, from_, i, 0);
         }
     }
@@ -942,10 +944,10 @@ int32 Kyokumen::Eval(const uint32 pos_) {
         if (m_ban[pos - Direct[i]] != Sou && m_ban[pos - Direct[i]] != Eou) {
             while ((m_controlSelf[pos2] & bj) || (m_controlEnemy[pos2] & bj)) {
                 do {
-                    pos2 -= Direct[i];
-                    if (pos2 < 0) {
+                    if (static_cast<int32>(pos2) - Direct[i] < 0) {
                         break;
                     }
+                    pos2 -= Direct[i];
                 }
                 while (m_ban[pos2] == Empty);
 
@@ -972,7 +974,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
     }
 
     for (uint32 i{8}, b{1 << 8}; i < 12; ++i, b <<= 1) {
-        if (pos - Direct[i] < 0) {
+        if (static_cast<int32>(pos) - Direct[i] < 0) {
             continue;
         }
 
