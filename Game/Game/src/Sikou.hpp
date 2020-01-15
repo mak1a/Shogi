@@ -18,6 +18,10 @@ public:
         int32 bestVal{(isSelfOrEnemy_ == Self) ? -1000000 : +1000000};
 
         for (uint32 i{}; i < teNum; ++i) {
+            if (teValids[i].GetPromote()) {
+                
+            }
+
             Kyokumen k{kyokumen_};
             k.Move(isSelfOrEnemy_, teValids[i]);
 
