@@ -47,9 +47,9 @@ public:
                  const uint32 promote_ = 0, const uint32 kind_ = 0, const int32 value_ = 0) noexcept
         : m_from(from_)
         , m_to(to_)
-        , m_koma(koma_)
         , m_capture(capture_)
         , m_promote(promote_)
+        , m_koma((promote_ == 0) ? koma_ : koma_ | Promote)
         , m_kind(kind_)
         , m_value(value_) {}
     

@@ -37,7 +37,7 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
 }
 
 void BanSelf::EnemyUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 0.5s) {
+    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 1s) {
         return;
     }
 
@@ -52,7 +52,7 @@ void BanSelf::EnemyUpdate() {
         uint32 komaType = m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].GetKomaType();
         m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].ChangeKomaType(te.GetKoma());
         
-        komaType = komaType - Self + Enemy;
+        komaType = ((komaType - Self + Enemy) & ~Promote);
         m_havingEnemyKoma[komaType - Enemy - 1] << KomaSquare(
             KomaPos::enemyDaiPoses[komaType - Enemy - 1]
             , m_komaDaiEnemy.w / 4
@@ -70,7 +70,7 @@ void BanSelf::EnemyUpdate() {
 }
 
 void BanSelf::SelfAIUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 0.5s) {
+    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 1s) {
         return;
     }
 
@@ -85,7 +85,7 @@ void BanSelf::SelfAIUpdate() {
         uint32 komaType = m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].GetKomaType();
         m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].ChangeKomaType(te.GetKoma());
         
-        komaType = komaType - Enemy + Self;
+        komaType = ((komaType - Enemy + Self) & ~Promote);
         m_havingSelfKoma[komaType - Self - 1] << KomaSquare(
             KomaPos::selfDaiPoses[komaType - Self - 1]
             , m_komaDaiSelf.w / 4
@@ -154,6 +154,13 @@ void BanSelf::SelfUpdate() {
         if (m_kyokumen.IsIllegal(te)) {
             Print << m_kyokumen.GetTeValids().size();
             return;
+        }
+
+        if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
+            if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
+                m_holdHand.value().PromoteKoma();
+                te.SetPromote(1);
+            }
         }
         
         ChangeCurrentTurn();
@@ -272,6 +279,14 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
         Print << m_kyokumen.GetTeValids().size();
         return;
     }
+
+    if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
+        if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
+            m_holdHand.value().PromoteKoma();
+            te.SetPromote(1);
+        }
+    }
+
     m_kyokumen.Move(Self, te);
     
     uint32 komaType = koma_.GetKomaType();
@@ -281,7 +296,7 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
     
     // 敵駒にする場合
     if (komaType <= Enemy) {
-        komaType = komaType - Self + Enemy;
+        komaType = ((komaType - Self + Enemy) & ~Promote);
         m_havingEnemyKoma[komaType - Enemy - 1] << KomaSquare(
             KomaPos::enemyDaiPoses[komaType - Enemy - 1]
             , m_komaDaiEnemy.w / 4
@@ -293,7 +308,7 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
     }
     
     // 自駒にする場合
-    komaType = komaType - Enemy + Self;
+    komaType = ((komaType - Enemy + Self) & ~Promote);
     m_havingSelfKoma[komaType - Self - 1] << KomaSquare(
         KomaPos::selfDaiPoses[komaType - Self - 1]
         , m_komaDaiSelf.w / 4
