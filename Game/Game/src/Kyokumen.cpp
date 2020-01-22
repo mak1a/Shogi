@@ -599,6 +599,7 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
 uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
     if ((control_ & (control_ - 1)) != 0) {
         MoveKing(isSelfOrEnemy_, control_);
+        Print << U"両王手";
     }
     else {
         uint32 king{(isSelfOrEnemy_ == Self) ? m_kingSelfPos : m_kingEnemyPos};
@@ -627,7 +628,7 @@ uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
             }
         }
     }
-
+    Print << U"王手";
     return m_teValids.size();
 }
 
@@ -671,7 +672,7 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
                 continue;
             }
             uint32 koma{m_ban[m_kingSelfPos - Direct[i]]};
-            if ((koma == Empty || koma & Enemy)
+            if ((koma == Empty || (koma & Enemy))
                 && !CountControlEnemy(m_kingSelfPos - Direct[i])
                 && !(kiki_ & (1 << (23 - i)))) {
                 AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[i], 0);
@@ -682,7 +683,7 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
                 continue;
             }
             uint32 koma{m_ban[m_kingEnemyPos - Direct[i]]};
-            if ((koma == Empty || koma & Self)
+            if ((koma == Empty || (koma & Self))
                 && !CountControlSelf(m_kingEnemyPos - Direct[i])
                 && !(kiki_ & (1 << (23 - i)))) {
                 AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[i], 0);

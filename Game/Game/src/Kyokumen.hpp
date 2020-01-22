@@ -67,6 +67,7 @@ public:
     }
     void SetPromote(const uint32 promote_) noexcept {
         m_promote = promote_;
+        m_koma = (m_promote == 0) ? m_koma : m_koma | Promote;
     }
     [[nodiscard]] uint32 GetCapture() const noexcept {
         return m_capture;
