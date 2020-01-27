@@ -67,6 +67,7 @@ public:
     }
     void SetPromote(const uint32 promote_) noexcept {
         m_promote = promote_;
+        m_koma = (m_promote == 0) ? m_koma : m_koma | Promote;
     }
     [[nodiscard]] uint32 GetCapture() const noexcept {
         return m_capture;
@@ -162,7 +163,7 @@ public:
 
     [[nodiscard]] inline uint32 Search(uint32 pos_, int32 dir_) const noexcept {
         do {
-            if (pos_ < dir_) {
+            if (static_cast<int32>(pos_) + dir_ < 0) {
                 break;
             }
             pos_ += dir_;
@@ -173,8 +174,8 @@ public:
     }
 
     [[nodiscard]] bool IsIllegal(const Te& te_) const noexcept {
-        for (uint32 i{}; i < m_teValids.size(); ++i) {
-            if (te_ == m_teValids[i]) {
+        for (const auto& te : m_teValids) {
+            if (te_ == te) {
                 return false;
             }
         }

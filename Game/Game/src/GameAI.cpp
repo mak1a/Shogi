@@ -37,7 +37,7 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
 }
 
 void BanSelf::EnemyUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 1s) {
+    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 0.1s) {
         return;
     }
 
@@ -65,12 +65,12 @@ void BanSelf::EnemyUpdate() {
         m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].ChangeKomaType(te.GetKoma());
     }
 
-    Print << (te.GetFrom()/16)*10+(te.GetFrom()%16) << U"->" << (te.GetTo()/16)*10+(te.GetTo()%16);
+    //Print << (te.GetFrom()/16)*10+(te.GetFrom()%16) << U"->" << (te.GetTo()/16)*10+(te.GetTo()%16);
     ChangeCurrentTurn();
 }
 
 void BanSelf::SelfAIUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 1s) {
+    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 0.1s) {
         return;
     }
 
@@ -97,9 +97,8 @@ void BanSelf::SelfAIUpdate() {
     else {
         m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].ChangeKomaType(te.GetKoma());
     }
-
-    Print << (te.GetFrom()/16)*10+(te.GetFrom()%16) << U"->" << (te.GetTo()/16)*10+(te.GetTo()%16);
     ChangeCurrentTurn();
+    //Print << (te.GetFrom()/16)*10+(te.GetFrom()%16) << U"->" << (te.GetTo()/16)*10+(te.GetTo()%16);
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数
@@ -151,16 +150,20 @@ void BanSelf::SelfUpdate() {
         if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
             return;
         }
-        if (m_kyokumen.IsIllegal(te)) {
-            Print << m_kyokumen.GetTeValids().size();
-            return;
-        }
 
         if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
             if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
-                m_holdHand.value().PromoteKoma();
                 te.SetPromote(1);
+                if (m_kyokumen.IsIllegal(te)) {
+                    //Print << m_kyokumen.GetTeValids().size();
+                    return;
+                }
+                m_holdHand.value().PromoteKoma();
             }
+        }
+        if (m_kyokumen.IsIllegal(te)) {
+            //Print << m_kyokumen.GetTeValids().size();
+            return;
         }
         
         ChangeCurrentTurn();
@@ -168,7 +171,6 @@ void BanSelf::SelfUpdate() {
         m_kyokumen.Move(Self, te);
         //Print << m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10 << U"->" << square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 10;
         m_holdHand.reset();
-        ClearPrint();
         return;
     }
     
@@ -270,21 +272,25 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
         return;
     }
 
-    Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType()};
+    Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
         
     if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-        return;
-    }
-    if (m_kyokumen.IsIllegal(te)) {
-        Print << m_kyokumen.GetTeValids().size();
         return;
     }
 
     if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
         if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
-            m_holdHand.value().PromoteKoma();
             te.SetPromote(1);
+            if (m_kyokumen.IsIllegal(te)) {
+                //Print << m_kyokumen.GetTeValids().size();
+                return;
+            }
+            m_holdHand.value().PromoteKoma();
         }
+    }
+    if (m_kyokumen.IsIllegal(te)) {
+        //Print << m_kyokumen.GetTeValids().size();
+        return;
     }
 
     m_kyokumen.Move(Self, te);
@@ -316,7 +322,6 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
         , KomaState::Dai
         , Point(0, 0)
     );
-    ClearPrint();
     return;
 }
 
@@ -332,6 +337,7 @@ void GameAI::update()
         //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
+        ClearPrint();
         m_ban.EnemyUpdate();
         break;
     }
