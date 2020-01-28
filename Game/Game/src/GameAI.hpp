@@ -1,4 +1,4 @@
-﻿
+
 # pragma once
 #include"Kyokumen.hpp"
 #include"Sikou.hpp"
@@ -19,8 +19,6 @@ private:
     Stopwatch m_thinkingTimer;
 
     Kyokumen m_kyokumen;
-
-    Sikou m_sikou;
 
     // どちらの順番か
     Turn m_turn;

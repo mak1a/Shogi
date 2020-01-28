@@ -1,4 +1,4 @@
-﻿
+
 # include "GameAI.hpp"
 
 BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_, const double komaDai_) noexcept
@@ -41,7 +41,7 @@ void BanSelf::EnemyUpdate() {
         return;
     }
 
-    Te te{m_sikou.Think(Enemy, m_kyokumen)};
+    Te te{Sikou::Think(Enemy, m_kyokumen)};
     m_kyokumen.Move(Enemy, te);
 
     if (te.GetFrom() > 0x10) {
@@ -74,7 +74,7 @@ void BanSelf::SelfAIUpdate() {
         return;
     }
 
-    Te te{m_sikou.Think(Self, m_kyokumen)};
+    Te te{Sikou::Think(Self, m_kyokumen)};
     m_kyokumen.Move(Self, te);
 
     if (te.GetFrom() > 0x10) {
