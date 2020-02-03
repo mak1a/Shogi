@@ -3,38 +3,19 @@
 #include"Kyokumen.hpp"
 
 class Sikou {
+private:
+    /// <summary>
+    /// ある深さでの最善手を保持する。
+    /// </summary>
+    std::array<std::array<Te, 32>, 32> m_bestHands;
 public:
-    constexpr Sikou() noexcept {}
+    Sikou() noexcept;
 
-    [[nodiscard]] inline Te Think(const uint32 isSelfOrEnemy_, Kyokumen kyokumen_) noexcept {
-        uint32 teNum{kyokumen_.MakeLegalMoves(isSelfOrEnemy_)};
-        Array<Te> teValids{kyokumen_.GetTeValids()};
+    [[nodiscard]] Te Think(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_) noexcept;
 
-        for (const auto uint32 : step(20)) {
-            teValids.shuffle();
-        }
+    [[nodiscard]] int32 MinMax(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, const uint32 depth_, const uint32 depthMax_) noexcept;
 
-        uint32 best{};
-        int32 bestVal{(isSelfOrEnemy_ == Self) ? -1000000 : +1000000};
+    [[nodiscard]] int32 AlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const uint32 depthMax_) noexcept;
 
-        for (uint32 i{}; i < teNum; ++i) {
-            if (teValids[i].GetPromote()) {
-                
-            }
-
-            Kyokumen k{kyokumen_};
-            k.Move(isSelfOrEnemy_, teValids[i]);
-
-            if (isSelfOrEnemy_ == Self && bestVal < k.GetValue() + k.BestEval(Enemy)) {
-                bestVal = k.GetValue() + k.BestEval(Enemy);
-                best = i;
-            }
-            if (isSelfOrEnemy_ == Enemy && bestVal > k.GetValue() + k.BestEval(Self)) {
-                bestVal = k.GetValue() + k.BestEval(Self);
-                best = i;
-            }
-        }
-
-        return teValids[best];
-    }
+    [[nodiscard]] int32 NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const uint32 depthMax_) noexcept;
 };

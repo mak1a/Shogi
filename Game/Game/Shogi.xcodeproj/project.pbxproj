@@ -40,6 +40,7 @@
 		2CE5C85B237FDE6000082EEC /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C6906B12298123200A427D0 /* OpenAL.framework */; };
 		2CEACB67233A61C900C6EE98 /* libgif.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEACB65233A61C900C6EE98 /* libgif.a */; };
 		2CEACB68233A61C900C6EE98 /* libutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEACB66233A61C900C6EE98 /* libutil.a */; };
+		643A63CB23DF5E1500922771 /* Sikou.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 643A63CA23DF5E1500922771 /* Sikou.cpp */; };
 		645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */; };
 		6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6488705123BA0E120061A0D2 /* Kyokumen.cpp */; };
 /* End PBXBuildFile section */
@@ -83,6 +84,7 @@
 		2CE5C859237FDE5100082EEC /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		2CEACB65233A61C900C6EE98 /* libgif.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgif.a; path = ../../lib/macOS/libgif/libgif.a; sourceTree = "<group>"; };
 		2CEACB66233A61C900C6EE98 /* libutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libutil.a; path = ../../lib/macOS/libgif/libutil.a; sourceTree = "<group>"; };
+		643A63CA23DF5E1500922771 /* Sikou.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sikou.cpp; sourceTree = "<group>"; };
 		645EC46E23B67E1400B0DBB9 /* GameAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameAI.hpp; sourceTree = "<group>"; };
 		645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameAI.cpp; sourceTree = "<group>"; };
 		6488704E23BA0DE70061A0D2 /* Sikou.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Sikou.hpp; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				6488705023BA0E110061A0D2 /* Koma.hpp */,
 				6488705123BA0E120061A0D2 /* Kyokumen.cpp */,
 				6488704F23BA0E110061A0D2 /* Kyokumen.hpp */,
+				643A63CA23DF5E1500922771 /* Sikou.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -277,6 +280,7 @@
 				6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */,
 				2C971A5B239732F900E66570 /* Game.cpp in Sources */,
 				645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */,
+				643A63CB23DF5E1500922771 /* Sikou.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
