@@ -37,11 +37,11 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
 }
 
 void BanSelf::EnemyUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 0.1s) {
+    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 0.5s) {
         return;
     }
 
-    Te te{m_sikou.Think(Enemy, m_kyokumen)};
+    Te te{m_sikou.Think(Enemy, m_kyokumen, SearchType::NegaAlphaBeta)};
     m_kyokumen.Move(Enemy, te);
 
     if (te.GetFrom() > 0x10) {
@@ -70,7 +70,7 @@ void BanSelf::EnemyUpdate() {
 }
 
 void BanSelf::SelfAIUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 0.1s) {
+    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 0.5s) {
         return;
     }
 
@@ -333,8 +333,8 @@ void GameAI::update()
 {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        m_ban.SelfUpdate();
-        //m_ban.SelfAIUpdate();
+        //m_ban.SelfUpdate();
+        m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         ClearPrint();

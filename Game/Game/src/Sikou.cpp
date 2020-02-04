@@ -96,6 +96,10 @@ Sikou::Sikou() noexcept {}
 	}
 
 	Array<Te> teValids{kyokumen_.GetTeValids()};
+	for (const auto i : step(20)) {
+		teValids.shuffle();
+	}
+
 	int32 retVal{-1000000};
 
 	for (const uint32 i : step(teNum)) {
@@ -127,7 +131,7 @@ Sikou::Sikou() noexcept {}
 /// <summary>
 /// クソ雑魚探索
 /// </summary>
-/*[[nodiscard]] Te Sikou::Think(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_) noexcept {
+[[nodiscard]] Te Sikou::Think(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_) noexcept {
 	uint32 teNum{kyokumen_.MakeLegalMoves(isSelfOrEnemy_)};
 	Array<Te> teValids{kyokumen_.GetTeValids()};
 	for (const auto i : step(20)) {
@@ -148,12 +152,31 @@ Sikou::Sikou() noexcept {}
 		}
 	}
 	return teValids[best];
-}*/
+}
 
-[[nodiscard]] Te Sikou::Think(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_) noexcept {
+[[nodiscard]] Te Sikou::Think(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, const SearchType type_) noexcept {
 	const uint32 depthMax{4};
-	int32 bestVal{NegaAlphaBeta(isSelfOrEnemy_, kyokumen_, -999999, 999999, 0, depthMax)};
 
-	Print << bestVal;
+	Print << U"考え中";
+
+	switch (type_)
+	{
+		int32 bestVal;
+	case SearchType::MinMax:
+		bestVal={MinMax(isSelfOrEnemy_, kyokumen_, 0, depthMax)};
+		Print << bestVal;
+		break;
+	case SearchType::AlphaBeta:
+		bestVal={AlphaBeta(isSelfOrEnemy_, kyokumen_, -999999, 999999, 0, depthMax)};
+		Print << bestVal;
+		break;
+	case SearchType::NegaAlphaBeta:
+		bestVal={NegaAlphaBeta(isSelfOrEnemy_, kyokumen_, -999999, 999999, 0, depthMax)};
+		Print << bestVal;
+		break;
+	default:
+		break;
+	}
+
 	return m_bestHands[0][0];
 }

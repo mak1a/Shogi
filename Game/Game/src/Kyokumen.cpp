@@ -628,7 +628,6 @@ uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
             }
         }
     }
-    Print << U"王手";
     return m_teValids.size();
 }
 

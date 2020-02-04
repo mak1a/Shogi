@@ -19,7 +19,7 @@ void Main()
 	//System::SetTerminationTriggers(UserAction::CloseButtonClicked);
 
 	// タイトルを設定
-	Window::SetTitle(U"将棋ゲーム");
+	Window::SetTitle(U"将棋");
     
     // ウィンドウの大きさを設定
     Window::Resize(1280, 720);
