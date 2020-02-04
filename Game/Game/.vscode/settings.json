@@ -1,6 +1,6 @@
 {
     "code-runner.executorMap": {
-        "cpp": "xcodebuild && find . -name \\*.app | xargs open \n",
+        "cpp": "xcodebuild && find . -name \\*.app | xargs open\n",
     },
     "clang.cxxflags": [
         "-std=c++1z"

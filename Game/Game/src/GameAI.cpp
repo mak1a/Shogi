@@ -151,8 +151,24 @@ void BanSelf::SelfUpdate() {
             return;
         }
 
-        if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
-            if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
+        if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
+            if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
+                te.SetPromote(1);
+                if (m_kyokumen.IsIllegal(te)) {
+                    //Print << m_kyokumen.GetTeValids().size();
+                    return;
+                }
+                m_holdHand.value().PromoteKoma();
+            }
+            else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() & 0x0f) <= 1) {
+                te.SetPromote(1);
+                if (m_kyokumen.IsIllegal(te)) {
+                    //Print << m_kyokumen.GetTeValids().size();
+                    return;
+                }
+                m_holdHand.value().PromoteKoma();
+            }
+            else if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
                 te.SetPromote(1);
                 if (m_kyokumen.IsIllegal(te)) {
                     //Print << m_kyokumen.GetTeValids().size();
@@ -278,8 +294,24 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
         return;
     }
 
-    if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
-        if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
+    if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
+        if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
+            te.SetPromote(1);
+            if (m_kyokumen.IsIllegal(te)) {
+                //Print << m_kyokumen.GetTeValids().size();
+                return;
+            }
+            m_holdHand.value().PromoteKoma();
+        }
+        else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() & 0x0f) <= 1) {
+            te.SetPromote(1);
+            if (m_kyokumen.IsIllegal(te)) {
+                //Print << m_kyokumen.GetTeValids().size();
+                return;
+            }
+            m_holdHand.value().PromoteKoma();
+        }
+        else if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
             te.SetPromote(1);
             if (m_kyokumen.IsIllegal(te)) {
                 //Print << m_kyokumen.GetTeValids().size();
@@ -333,8 +365,8 @@ void GameAI::update()
 {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        //m_ban.SelfUpdate();
-        m_ban.SelfAIUpdate();
+        m_ban.SelfUpdate();
+        //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         ClearPrint();
