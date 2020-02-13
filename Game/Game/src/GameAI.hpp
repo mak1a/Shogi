@@ -26,9 +26,29 @@ private:
     // どちらの順番か
     Turn m_turn;
 
+    /// <summary>
+    /// どちらが勝ったか
+    /// </summary>
+    Winner m_winner = Winner::Player;
+
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
+        ClearPrint();
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
+        if (GetTurn() == Turn::Player) {
+            if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
+                Print << U"You Lose!";
+                m_turn = Turn::Tsumi;
+                m_winner = Winner::Enemy;
+            }
+        }
+        else {
+            if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
+                Print << U"プレイヤーの勝利！";
+                m_turn = Turn::Tsumi;
+                m_winner = Winner::Player;
+            }
+        }
         m_thinkingTimer.restart();
     }
     
@@ -59,6 +79,10 @@ public:
     [[nodiscard]] Turn GetTurn() const noexcept {
         return m_turn;
     }
+
+    [[nodiscard]] Winner GetWinner() const noexcept {
+        return m_winner;
+    }
 };
 
 // ゲームシーン
@@ -66,6 +90,8 @@ class GameAI : public MyApp::Scene
 {
 private:
     BanSelf m_ban;
+    
+    void result();
 public:
 
 	GameAI(const InitData& init);

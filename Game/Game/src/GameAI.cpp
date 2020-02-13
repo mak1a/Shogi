@@ -1,4 +1,4 @@
-﻿
+
 # include "GameAI.hpp"
 
 BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_, const double komaDai_) noexcept
@@ -11,7 +11,7 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
         (Scene::CenterF()
             .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2)))
         , komaDai_)
-    , m_turn(Turn::Enemy)
+    , m_turn(Turn::Player)
     , m_kyokumen(0, HirateBan)
 {
     // １マスの大きさ
@@ -33,16 +33,14 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
     
+    m_kyokumen.MakeLegalMoves(Self);
     m_thinkingTimer.start();
 }
 
 void BanSelf::EnemyUpdate() {
-    if (m_thinkingTimer <= 0.1s) {
+    if (m_thinkingTimer <= 0.5s) {
+        ClearPrint();
         Print << U"考え中";
-        return;
-    }
-    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
-        Print << U"プレイヤーの勝利！";
         return;
     }
 
@@ -79,12 +77,9 @@ void BanSelf::EnemyUpdate() {
 }
 
 void BanSelf::SelfAIUpdate() {
-    if (m_thinkingTimer <= 0.1s) {
+    if (m_thinkingTimer <= 0.5s) {
+        ClearPrint();
         Print << U"考え中";
-        return;
-    }
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-        Print << U"You Lose!";
         return;
     }
 
@@ -162,10 +157,6 @@ void BanSelf::SelfUpdate() {
             return;
         }
         
-        if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-            Print << U"You Lose!";
-            return;
-        }
         // 置く場所に何もなかったら、持ってる駒を置く
         Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType()};
 
@@ -205,11 +196,12 @@ void BanSelf::SelfUpdate() {
             return;
         }
         
-        ChangeCurrentTurn();
         square.ChangeKomaType(m_holdHand.value().GetKomaType());
         m_kyokumen.Move(Self, te);
         //Print << m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10 << U"->" << square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 10;
         m_holdHand.reset();
+        
+        ChangeCurrentTurn();
         return;
     }
     
@@ -287,10 +279,6 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
         return;
     }
 
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-        Print << U"You Lose!";
-        return;
-    }
     Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
 
     if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
@@ -365,15 +353,18 @@ GameAI::GameAI(const InitData& init)
 
 void GameAI::update()
 {
-    ClearPrint();
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        //m_ban.SelfUpdate();
-        m_ban.SelfAIUpdate();
+        m_ban.SelfUpdate();
+        //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
-        ClearPrint();
         m_ban.EnemyUpdate();
+        break;
+    case Turn::Tsumi:
+        result();
+        break;
+    default:
         break;
     }
 }
@@ -381,4 +372,20 @@ void GameAI::update()
 void GameAI::draw() const
 {
     m_ban.Draw();
+    
+    if (m_ban.GetTurn() == Turn::Tsumi) {
+        if (m_ban.GetWinner() == Winner::Player) {
+            FontAsset(U"Result")(U"勝利").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Red);
+        }
+        else {
+            FontAsset(U"Result")(U"敗北").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Blue);
+        }
+        FontAsset(U"Explain")(U"画面をクリックでタイトルに戻る").drawAt(Scene::CenterF().movedBy(0, 50), Palette::Darkred);
+    }
+}
+
+void GameAI::result() {
+    if (MouseL.down()) {
+        changeScene(State::Title, 1s);
+    }
 }
