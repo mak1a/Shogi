@@ -1,6 +1,6 @@
 ﻿
 # pragma once
-#include"Koma.hpp"
+#include"Kyokumen.hpp"
 
 class Ban {
 private:
@@ -11,11 +11,10 @@ private:
     // 自分の駒台
     RectF m_komaDaiSelf;
 
+    Kyokumen m_kyokumen;
+
     // どちらの順番か
     Turn m_turn;
-    [[nodiscard]] Turn GetTurn() const noexcept {
-        return m_turn;
-    }
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
@@ -26,9 +25,9 @@ private:
     Array<KomaSquare> m_boardSquares;
     
     // 持ち駒（プレイヤー側）
-    Array<KomaSquare> m_havingSelfKoma;
+    Array<Array<KomaSquare>> m_havingSelfKoma;
     // 持ち駒（敵側）
-    Array<KomaSquare> m_havingEnemyKoma;
+    Array<Array<KomaSquare>> m_havingEnemyKoma;
     
     // マウスで駒を保持
     Optional<KomaSquare> m_holdHand;
@@ -40,6 +39,10 @@ public:
     void Update();
     
     void Draw() const;
+    
+    [[nodiscard]] Turn GetTurn() const noexcept {
+        return m_turn;
+    }
 };
 
 // ゲームシーン

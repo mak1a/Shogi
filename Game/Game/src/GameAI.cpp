@@ -121,6 +121,11 @@ void BanSelf::SelfAIUpdate() {
 
 // GameクラスのUpdate()で呼び出すメンバ関数
 void BanSelf::SelfUpdate() {
+    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
+        Print << U"You Lose!";
+        return;
+    }
+
     // 盤面上の処理
     for (auto& square : m_boardSquares) {
         // 盤面から駒を選んで手に持つ処理
@@ -164,10 +169,6 @@ void BanSelf::SelfUpdate() {
         
         // 置く場所に何もなかったら、持ってる駒を置く
         Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType()};
-        
-        if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-            return;
-        }
 
         if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
             if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
@@ -186,17 +187,22 @@ void BanSelf::SelfUpdate() {
                 }
                 m_holdHand.value().PromoteKoma();
             }
-            else if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
-                te.SetPromote(1);
+            else {
                 if (m_kyokumen.IsIllegal(te)) {
                     //Print << m_kyokumen.GetTeValids().size();
                     return;
                 }
-                m_holdHand.value().PromoteKoma();
+                if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
+                    te.SetPromote(1);
+                    if (m_kyokumen.IsIllegal(te)) {
+                        //Print << m_kyokumen.GetTeValids().size();
+                        return;
+                    }
+                    m_holdHand.value().PromoteKoma();
+                }
             }
         }
         if (m_kyokumen.IsIllegal(te)) {
-            //Print << m_kyokumen.GetTeValids().size();
             return;
         }
         
@@ -216,30 +222,18 @@ void BanSelf::SelfUpdate() {
             return;
         }
         // 何もクリックしてなかったら、処理リターン
-        if (!m_komaDaiSelf.leftClicked()
-            && !m_komaDaiEnemy.leftClicked()) {
+        if (!m_komaDaiSelf.leftClicked()) {
             m_holdHand.value().setCenter(Cursor::PosF());
             return;
         }
         
-        if (m_komaDaiSelf.leftClicked()) {
-            m_havingSelfKoma[m_holdHand.value().GetKomaType() - Self - 1] << KomaSquare(
-                KomaPos::selfDaiPoses[m_holdHand.value().GetKomaType() - Self - 1]
-                , m_komaDaiSelf.w / 4
-                , m_holdHand.value().GetKomaType()
-                , KomaState::Dai
-                , Point(0, 0)
-            );
-        }
-        else {
-            m_havingEnemyKoma[m_holdHand.value().GetKomaType() - Enemy - 1] << KomaSquare(
-                KomaPos::enemyDaiPoses[m_holdHand.value().GetKomaType() - Enemy - 1]
-                , m_komaDaiEnemy.w / 4
-                , m_holdHand.value().GetKomaType()
-                , KomaState::Dai
-                , Point(0, 0)
-            );
-        }
+        m_havingSelfKoma[m_holdHand.value().GetKomaType() - Self - 1] << KomaSquare(
+            KomaPos::selfDaiPoses[m_holdHand.value().GetKomaType() - Self - 1]
+            , m_komaDaiSelf.w / 4
+            , m_holdHand.value().GetKomaType()
+            , KomaState::Dai
+            , Point(0, 0)
+        );
         
         m_holdHand.reset();
         return;
@@ -253,18 +247,6 @@ void BanSelf::SelfUpdate() {
             }
             m_holdHand.emplace(koma);
             havingSelfKoma.remove_at(i);
-            return;
-        }
-    }
-    
-    // 敵の駒台から駒を取る処理
-    for (auto& havingEnemyKoma : m_havingEnemyKoma) {
-        for (auto [i, koma] : IndexedRef(havingEnemyKoma)) {
-            if (!koma.leftClicked()) {
-                continue;
-            }
-            m_holdHand.emplace(koma);
-            havingEnemyKoma.remove_at(i);
             return;
         }
     }
@@ -307,10 +289,6 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
     }
 
     Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
-        
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-        return;
-    }
 
     if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
         if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
@@ -329,20 +307,23 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
             }
             m_holdHand.value().PromoteKoma();
         }
-        else if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
-            te.SetPromote(1);
+        else {
             if (m_kyokumen.IsIllegal(te)) {
-                //Print << m_kyokumen.GetTeValids().size();
                 return;
             }
-            m_holdHand.value().PromoteKoma();
+            if (System::ShowMessageBox(U"成りますか？", MessageBoxButtons::YesNo) == MessageBoxSelection::Yes) {
+                te.SetPromote(1);
+                if (m_kyokumen.IsIllegal(te)) {
+                    return;
+                }
+                m_holdHand.value().PromoteKoma();
+            }
         }
     }
     if (m_kyokumen.IsIllegal(te)) {
-        //Print << m_kyokumen.GetTeValids().size();
         return;
     }
-
+    
     m_kyokumen.Move(Self, te);
     
     uint32 komaType = koma_.GetKomaType();
@@ -384,8 +365,8 @@ void GameAI::update()
     ClearPrint();
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        //m_ban.SelfUpdate();
-        m_ban.SelfAIUpdate();
+        m_ban.SelfUpdate();
+        //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         ClearPrint();
