@@ -456,10 +456,10 @@ uint32 Kyokumen::CountControlSelf(const uint32 pos_) {
             continue;
         }
 
-        if (CanMove[i][m_ban[pos_ - Direct[i]]] && m_ban[pos_ - Direct[i]] & Self) {
+        if (CanMove[i][m_ban[pos_ - Direct[i]]] && (m_ban[pos_ - Direct[i]] & Self)) {
             ret |= moveDir;
         }
-        else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && m_ban[Search(pos_, -Direct[i])] & Self) {
+        else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && (m_ban[Search(pos_, -Direct[i])] & Self)) {
             ret |= jumpDir;
         }
     }
@@ -491,14 +491,14 @@ uint32 Kyokumen::CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_) {
 
     for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 12; ++i, moveDir <<= 1, jumpDir <<= 1) {
         if (CanMove[i][m_ban[pos_ - Direct[i]]]
-            && m_ban[pos_ - Direct[i]] & isSelfOrEnemy_
+            && (m_ban[pos_ - Direct[i]] & isSelfOrEnemy_)
             && (m_pin[pos_ - Direct[i]] == 0
                 || m_pin[pos_ - Direct[i]] == Direct[i]
                 || m_pin[pos_ - Direct[i]] == -Direct[i])) {
             ret |= moveDir;
         }
         else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]]
-            && m_ban[Search(pos_, -Direct[i])] & isSelfOrEnemy_
+            && (m_ban[Search(pos_, -Direct[i])] & isSelfOrEnemy_)
             && (m_pin[Search(pos_, -Direct[i])] == 0
                 || m_pin[Search(pos_, -Direct[i])] == Direct[i]
                 || m_pin[Search(pos_, -Direct[i])] == -Direct[i])) {

@@ -121,11 +121,6 @@ void BanSelf::SelfAIUpdate() {
 
 // GameクラスのUpdate()で呼び出すメンバ関数
 void BanSelf::SelfUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-        Print << U"You Lose!";
-        return;
-    }
-
     // 盤面上の処理
     for (auto& square : m_boardSquares) {
         // 盤面から駒を選んで手に持つ処理
@@ -167,6 +162,10 @@ void BanSelf::SelfUpdate() {
             return;
         }
         
+        if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
+            Print << U"You Lose!";
+            return;
+        }
         // 置く場所に何もなかったら、持ってる駒を置く
         Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType()};
 
@@ -288,6 +287,10 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
         return;
     }
 
+    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
+        Print << U"You Lose!";
+        return;
+    }
     Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
 
     if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
@@ -365,8 +368,8 @@ void GameAI::update()
     ClearPrint();
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        m_ban.SelfUpdate();
-        //m_ban.SelfAIUpdate();
+        //m_ban.SelfUpdate();
+        m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         ClearPrint();
