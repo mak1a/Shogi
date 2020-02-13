@@ -1,4 +1,4 @@
-#include "Kyokumen.hpp"
+﻿#include "Kyokumen.hpp"
 
 Kyokumen::Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_) noexcept
 : m_kingSelfPos(0)
@@ -457,7 +457,7 @@ uint32 Kyokumen::CountControlSelf(const uint32 pos_) {
         }
 
         if (CanMove[i][m_ban[pos_ - Direct[i]]] && m_ban[pos_ - Direct[i]] & Self) {
-            ret |= jumpDir;
+            ret |= moveDir;
         }
         else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && m_ban[Search(pos_, -Direct[i])] & Self) {
             ret |= jumpDir;
@@ -475,10 +475,10 @@ uint32 Kyokumen::CountControlEnemy(const uint32 pos_) {
             continue;
         }
 
-        if (CanMove[i][m_ban[pos_ - Direct[i]]] && m_ban[pos_ - Direct[i]] & Enemy) {
-            ret |= jumpDir;
+        if (CanMove[i][m_ban[pos_ - Direct[i]]] && (m_ban[pos_ - Direct[i]] & Enemy)) {
+            ret |= moveDir;
         }
-        else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && m_ban[Search(pos_, -Direct[i])] & Enemy) {
+        else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && (m_ban[Search(pos_, -Direct[i])] & Enemy)) {
             ret |= jumpDir;
         }
     }
@@ -599,7 +599,6 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
 uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
     if ((control_ & (control_ - 1)) != 0) {
         MoveKing(isSelfOrEnemy_, control_);
-        Print << U"両王手";
     }
     else {
         uint32 king{(isSelfOrEnemy_ == Self) ? m_kingSelfPos : m_kingEnemyPos};
@@ -647,7 +646,7 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
 
             if ((koma == Empty || (koma & Enemy))
                 && !CountControlEnemy(m_kingSelfPos - Direct[id])
-                //&& !(kiki_ & (1 << (23 - id)))
+                && !(kiki_ & (1 << (23 - id)))
                 ) {
                 AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[id], 0);
             }
@@ -657,7 +656,7 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
 
             if ((koma == Empty || (koma & Self))
                 && !CountControlSelf(m_kingEnemyPos - Direct[id])
-                //&& !(kiki_ & (1 << (23 - id)))
+                && !(kiki_ & (1 << (23 - id)))
                 ) {
                 AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[id], 0);
             }

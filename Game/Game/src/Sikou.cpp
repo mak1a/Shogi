@@ -170,15 +170,15 @@ Sikou::Sikou() noexcept {}
 		int32 bestVal;
 	case SearchType::MinMax:
 		bestVal={MinMax(isSelfOrEnemy_, kyokumen_, 0, depthMax)};
-		Print << bestVal;
+		//Print << bestVal;
 		break;
 	case SearchType::AlphaBeta:
 		bestVal={AlphaBeta(isSelfOrEnemy_, kyokumen_, -999999, 999999, 0, depthMax)};
-		Print << bestVal;
+		//Print << bestVal;
 		break;
 	case SearchType::NegaAlphaBeta:
 		bestVal={NegaAlphaBeta(isSelfOrEnemy_, kyokumen_, -999999, 999999, 0, depthMax)};
-		Print << bestVal;
+		//Print << bestVal;
 		break;
 	default:
 		break;

@@ -3,7 +3,7 @@
         "cpp": "xcodebuild && find . -name \\*.app | xargs open\n",
     },
     "clang.cxxflags": [
-        "-std=c++1z"
+        "-std=c++17"
     ],
     "terminal.integrated.shell.osx": "/usr/local/bin/zsh",
     "code-runner.clearPreviousOutput": true,
@@ -126,5 +126,8 @@
 	"editor.insertSpaces": true,
 	// The number of spaces a tab is equal to.
 	"editor.tabSize": 4,
-	"terminal.integrated.rendererType": "dom"
+	"terminal.integrated.rendererType": "dom",
+	"files.associations": {
+		"array": "cpp"
+	}
 }

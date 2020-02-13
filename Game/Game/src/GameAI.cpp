@@ -37,13 +37,14 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
 }
 
 void BanSelf::EnemyUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 0.1s) {
-        if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
-            Print << U"プレイヤーの勝利！";
-        }
+    if (m_thinkingTimer <= 0.1s) {
+        Print << U"考え中";
         return;
     }
-    Print << U"考え中";
+    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
+        Print << U"プレイヤーの勝利！";
+        return;
+    }
 
     Te te{m_sikouEnemy.Think(Enemy, m_kyokumen, SearchType::AlphaBeta)};
     m_kyokumen.Move(Enemy, te);
@@ -78,13 +79,14 @@ void BanSelf::EnemyUpdate() {
 }
 
 void BanSelf::SelfAIUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 0.1s) {
-        if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-            Print << U"You Lose!";
-        }
+    if (m_thinkingTimer <= 0.1s) {
+        Print << U"考え中";
         return;
     }
-    Print << U"考え中";
+    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
+        Print << U"You Lose!";
+        return;
+    }
 
     Te te{m_sikouSelf.Think(Self, m_kyokumen, SearchType::AlphaBeta)};
     m_kyokumen.Move(Self, te);
@@ -379,6 +381,7 @@ GameAI::GameAI(const InitData& init)
 
 void GameAI::update()
 {
+    ClearPrint();
     switch (m_ban.GetTurn()) {
     case Turn::Player:
         //m_ban.SelfUpdate();
