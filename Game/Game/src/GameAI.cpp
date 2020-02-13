@@ -38,11 +38,8 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
 
 void BanSelf::EnemyUpdate() {
     if (m_thinkingTimer <= 0.1s) {
+        ClearPrint();
         Print << U"考え中";
-        return;
-    }
-    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
-        Print << U"プレイヤーの勝利！";
         return;
     }
 
@@ -79,12 +76,9 @@ void BanSelf::EnemyUpdate() {
 }
 
 void BanSelf::SelfAIUpdate() {
-    if (m_thinkingTimer <= 0.1s) {
+    if (m_thinkingTimer <= 0.5s) {
+        ClearPrint();
         Print << U"考え中";
-        return;
-    }
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-        Print << U"You Lose!";
         return;
     }
 
@@ -162,10 +156,6 @@ void BanSelf::SelfUpdate() {
             return;
         }
         
-        if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-            Print << U"You Lose!";
-            return;
-        }
         // 置く場所に何もなかったら、持ってる駒を置く
         Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType()};
 
@@ -287,10 +277,6 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
         return;
     }
 
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-        Print << U"You Lose!";
-        return;
-    }
     Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
 
     if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
@@ -365,15 +351,18 @@ GameAI::GameAI(const InitData& init)
 
 void GameAI::update()
 {
-    ClearPrint();
     switch (m_ban.GetTurn()) {
     case Turn::Player:
         //m_ban.SelfUpdate();
         m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
-        ClearPrint();
         m_ban.EnemyUpdate();
+        break;
+    case Turn::Tsumi:
+        result();
+        break;
+    default:
         break;
     }
 }
@@ -381,4 +370,20 @@ void GameAI::update()
 void GameAI::draw() const
 {
     m_ban.Draw();
+    
+    if (m_ban.GetTurn() == Turn::Tsumi) {
+        if (m_ban.GetWinner() == Winner::Player) {
+            FontAsset(U"Result")(U"勝利").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Red);
+        }
+        else {
+            FontAsset(U"Result")(U"敗北").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Blue);
+        }
+        FontAsset(U"Explain")(U"画面をクリックでタイトルに戻る").drawAt(Scene::CenterF().movedBy(0, 50), Palette::Darkred);
+    }
+}
+
+void GameAI::result() {
+    if (MouseL.down()) {
+        changeScene(State::Title, 1s);
+    }
 }

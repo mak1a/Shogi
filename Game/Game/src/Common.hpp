@@ -25,5 +25,11 @@ using MyApp = SceneManager<State, GameData>;
 
 enum class Turn {
     Player,
-    Enemy
+    Enemy,
+	Tsumi
+};
+
+enum class Winner {
+	Player,
+	Enemy
 };

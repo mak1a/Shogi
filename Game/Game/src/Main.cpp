@@ -30,7 +30,8 @@ void Main()
 	// 使用するフォントアセットを登録
 	FontAsset::Register(U"Title", 120, U"font/AnnyantRoman/AnnyantRoman.ttf");
 	FontAsset::Register(U"Menu", 30, Typeface::Regular);
-	FontAsset::Register(U"Score", 36, Typeface::Bold);
+	FontAsset::Register(U"Explain", 36, Typeface::Light);
+	FontAsset::Register(U"Result", 150, Typeface::Regular);
     
     TextureAsset::Register(U"Fu", U"textures/komas/syougi14_fuhyou.png", AssetParameter::LoadImmediately());
     TextureAsset::Register(U"To", U"textures/komas/syougi15_tokin.png", AssetParameter::LoadImmediately());
