@@ -1,4 +1,4 @@
-﻿
+
 # include "GameAI.hpp"
 
 BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_, const double komaDai_) noexcept
@@ -11,7 +11,7 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
         (Scene::CenterF()
             .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2)))
         , komaDai_)
-    , m_turn(Turn::Enemy)
+    , m_turn(Turn::Player)
     , m_kyokumen(0, HirateBan)
 {
     // １マスの大きさ
@@ -33,11 +33,12 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
     
+    m_kyokumen.MakeLegalMoves(Self);
     m_thinkingTimer.start();
 }
 
 void BanSelf::EnemyUpdate() {
-    if (m_thinkingTimer <= 0.1s) {
+    if (m_thinkingTimer <= 0.5s) {
         ClearPrint();
         Print << U"考え中";
         return;
@@ -195,11 +196,12 @@ void BanSelf::SelfUpdate() {
             return;
         }
         
-        ChangeCurrentTurn();
         square.ChangeKomaType(m_holdHand.value().GetKomaType());
         m_kyokumen.Move(Self, te);
         //Print << m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10 << U"->" << square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 10;
         m_holdHand.reset();
+        
+        ChangeCurrentTurn();
         return;
     }
     
@@ -353,8 +355,8 @@ void GameAI::update()
 {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        //m_ban.SelfUpdate();
-        m_ban.SelfAIUpdate();
+        m_ban.SelfUpdate();
+        //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         m_ban.EnemyUpdate();

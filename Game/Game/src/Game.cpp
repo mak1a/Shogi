@@ -32,6 +32,8 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const doubl
 
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
+
+    m_kyokumen.MakeLegalMoves(Self);
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数
@@ -77,18 +79,6 @@ void Ban::Update() {
             return;
         }
 
-        if (GetTurn() == Turn::Player) {
-            if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-                Print << U"You Lose!";
-                return;
-            }
-        }
-        else {
-            if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
-                Print << U"プレイヤーの勝利！";
-                return;
-            }
-        }
         // 置く場所に何もなかったら、持ってる駒を置く
         Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType()};
 
@@ -265,17 +255,7 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
     }
 
     Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
-    if (GetTurn() == Turn::Player) {
-        if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-            return;
-        }
-    }
-    else {
-        if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
-            return;
-        }
-    }
-
+    
     if (te.GetFrom() >= 0x11 && GetTurn() == Turn::Player && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
         if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
             te.SetPromote(1);
@@ -378,12 +358,31 @@ Game::Game(const InitData& init)
 
 void Game::update()
 {
-    ClearPrint();
-    m_ban.Update();
-    Print << ((m_ban.GetTurn() == Turn::Player) ? U"Player" : U"Enemy");
+    if (m_ban.GetTurn() != Turn::Tsumi) {
+        m_ban.Update();
+    }
+    else {
+        result();
+    }
 }
 
 void Game::draw() const
 {
     m_ban.Draw();
+
+    if (m_ban.GetTurn() == Turn::Tsumi) {
+        if (m_ban.GetWinner() == Winner::Player) {
+            FontAsset(U"Result")(U"勝利").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Red);
+        }
+        else {
+            FontAsset(U"Result")(U"敗北").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Blue);
+        }
+        FontAsset(U"Explain")(U"画面をクリックでタイトルに戻る").drawAt(Scene::CenterF().movedBy(0, 50), Palette::Darkred);
+    }
+}
+
+void Game::result() {
+    if (MouseL.down()) {
+        changeScene(State::Title, 1s);
+    }
 }
