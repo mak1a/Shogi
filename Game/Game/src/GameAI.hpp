@@ -20,7 +20,8 @@ private:
 
     Kyokumen m_kyokumen;
 
-    Sikou m_sikou;
+    Sikou m_sikouEnemy;
+    Sikou m_sikouSelf;
 
     // どちらの順番か
     Turn m_turn;

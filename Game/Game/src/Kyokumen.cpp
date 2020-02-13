@@ -1,4 +1,4 @@
-﻿#include "Kyokumen.hpp"
+#include "Kyokumen.hpp"
 
 Kyokumen::Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_) noexcept
 : m_kingSelfPos(0)
@@ -675,7 +675,7 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             uint32 koma{m_ban[m_kingSelfPos - Direct[i]]};
             if ((koma == Empty || (koma & Enemy))
                 && !CountControlEnemy(m_kingSelfPos - Direct[i])
-                //&& !(kiki_ & (1 << (23 - i)))
+                && !(kiki_ & (1 << (23 - i)))
                 ) {
                 AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[i], 0);
             }
@@ -687,7 +687,7 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             uint32 koma{m_ban[m_kingEnemyPos - Direct[i]]};
             if ((koma == Empty || (koma & Self))
                 && !CountControlSelf(m_kingEnemyPos - Direct[i])
-                //&& !(kiki_ & (1 << (23 - i)))
+                && !(kiki_ & (1 << (23 - i)))
                 ) {
                 AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[i], 0);
             }
@@ -755,7 +755,7 @@ void Kyokumen::MoveTo(const uint32 isSelfOrEnemy_, const uint32 to_) {
     uint32 koma{};
 
     for (uint32 i{}; i < 12; ++i) {
-        if (to_ - Direct[i] < 0) {
+        if (static_cast<int32>(to_) - Direct[i] < 0) {
             continue;
         }
 
