@@ -11,7 +11,7 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
         (Scene::CenterF()
             .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2)))
         , komaDai_)
-    , m_turn(Turn::Player)
+    , m_turn(Turn::Enemy)
     , m_kyokumen(0, HirateBan)
 {
     // １マスの大きさ
@@ -37,15 +37,23 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
 }
 
 void BanSelf::EnemyUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 0.5s) {
+    if (m_kyokumen.MakeLegalMoves(Enemy) <= 0 || m_thinkingTimer <= 0.1s) {
+        if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
+            Print << U"プレイヤーの勝利！";
+        }
         return;
     }
+    Print << U"考え中";
 
-    Te te{m_sikou.Think(Enemy, m_kyokumen, SearchType::NegaAlphaBeta)};
+    Te te{m_sikouEnemy.Think(Enemy, m_kyokumen, SearchType::AlphaBeta)};
     m_kyokumen.Move(Enemy, te);
 
     if (te.GetFrom() > 0x10) {
         m_boardSquares[(te.GetFrom()/16)-1 + (te.GetFrom()%16-1)*9].ChangeKomaType(Empty);
+    }
+    else {
+        uint32 komaType{te.GetKoma() - Enemy - 1};
+        m_havingEnemyKoma[komaType].pop_back();
     }
 
     if (m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].GetKomaType() != Empty) {
@@ -70,15 +78,23 @@ void BanSelf::EnemyUpdate() {
 }
 
 void BanSelf::SelfAIUpdate() {
-    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 0.5s) {
+    if (m_kyokumen.MakeLegalMoves(Self) <= 0 || m_thinkingTimer <= 0.1s) {
+        if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
+            Print << U"You Lose!";
+        }
         return;
     }
+    Print << U"考え中";
 
-    Te te{m_sikou.Think(Self, m_kyokumen)};
+    Te te{m_sikouSelf.Think(Self, m_kyokumen, SearchType::AlphaBeta)};
     m_kyokumen.Move(Self, te);
 
     if (te.GetFrom() > 0x10) {
         m_boardSquares[(te.GetFrom()/16)-1 + (te.GetFrom()%16-1)*9].ChangeKomaType(Empty);
+    }
+    else {
+        uint32 komaType{te.GetKoma() - Self - 1};
+        m_havingSelfKoma[komaType].pop_back();
     }
 
     if (m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].GetKomaType() != Empty) {
@@ -365,8 +381,8 @@ void GameAI::update()
 {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        m_ban.SelfUpdate();
-        //m_ban.SelfAIUpdate();
+        //m_ban.SelfUpdate();
+        m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         ClearPrint();
