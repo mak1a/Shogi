@@ -1,4 +1,4 @@
-﻿
+
 # pragma once
 #include"Kyokumen.hpp"
 
@@ -71,8 +71,7 @@ public:
 };
 
 // ゲームシーン
-class Game : public MyApp::Scene
-{
+class Game : public MyApp::Scene {
 private:
     Ban m_ban;
 

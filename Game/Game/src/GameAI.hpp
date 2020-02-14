@@ -86,8 +86,7 @@ public:
 };
 
 // ゲームシーン
-class GameAI : public MyApp::Scene
-{
+class GameAI : public MyApp::Scene {
 private:
     BanSelf m_ban;
     
