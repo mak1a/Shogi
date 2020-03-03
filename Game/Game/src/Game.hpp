@@ -1,4 +1,4 @@
-
+﻿
 # pragma once
 #include"Kyokumen.hpp"
 
@@ -55,7 +55,7 @@ private:
     
     void AddHoldKoma(KomaSquare& koma_);
 public:
-    Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
+    Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
     
     void Update();
     

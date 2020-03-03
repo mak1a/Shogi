@@ -1,13 +1,13 @@
 ﻿
 # include "GameAI.hpp"
 
-BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_, const double komaDai_) noexcept
+BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_, const double komaDai_) noexcept
 : m_shogiBan(Arg::center(Scene::CenterF()), shogiBan_)
 , m_komaDaiSelf(Arg::center(Scene::CenterF()
     .movedBy(shogiBan_/2+10+komaDai_/2, (shogiBan_/2-komaDai_)+komaDai_/2)), komaDai_)
 , m_komaDaiEnemy(Arg::center(Scene::CenterF()
     .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2))), komaDai_)
-, m_turn(Turn::Player)
+, m_turn(turn_)
 , m_kyokumen(0, HirateBan) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
@@ -20,7 +20,7 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
                 , m_shogiBan.tl().y + y * squareSize
                 , squareSize
                 , iniKyokumen_[y][x]
-                , Point(x+1, y+1)
+                , Point(9-x, y+1)
             );
         }
     }
@@ -42,17 +42,17 @@ void BanSelf::EnemyUpdate() {
     Te te{m_sikouEnemy.Think(Enemy, m_kyokumen, SearchType::AlphaBeta)};
     m_kyokumen.Move(Enemy, te);
 
-    if (te.GetFrom() > 0x10) {
-        m_boardSquares[(te.GetFrom()/16)-1 + (te.GetFrom()%16-1)*9].ChangeKomaType(Empty);
+    if (te.GetFrom() > 10) {
+        m_boardSquares[(9-te.GetFrom()/10) + ((te.GetFrom()%10)-1)*9].ChangeKomaType(Empty);
     }
     else {
         uint32 komaType{te.GetKoma() - Enemy - 1};
         m_havingEnemyKoma[komaType].pop_back();
     }
 
-    if (m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].GetKomaType() != Empty) {
-        uint32 komaType = m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].GetKomaType();
-        m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].ChangeKomaType(te.GetKoma());
+    if (m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].GetKomaType() != Empty) {
+        uint32 komaType = m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].GetKomaType();
+        m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].ChangeKomaType(te.GetKoma());
         
         komaType = ((komaType - Self + Enemy) & ~Promote);
         m_havingEnemyKoma[komaType - Enemy - 1] << KomaSquare(
@@ -64,10 +64,10 @@ void BanSelf::EnemyUpdate() {
         );
     }
     else {
-        m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].ChangeKomaType(te.GetKoma());
+        m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].ChangeKomaType(te.GetKoma());
     }
 
-    //Print << (te.GetFrom()/16)*10+(te.GetFrom()%16) << U"->" << (te.GetTo()/16)*10+(te.GetTo()%16);
+    //Print << (te.GetFrom()/10)*10+(te.GetFrom()%10) << U"->" << (te.GetTo()/10)*10+(te.GetTo()%10);
     ChangeCurrentTurn();
 }
 
@@ -81,17 +81,17 @@ void BanSelf::SelfAIUpdate() {
     Te te{m_sikouSelf.Think(Self, m_kyokumen, SearchType::AlphaBeta)};
     m_kyokumen.Move(Self, te);
 
-    if (te.GetFrom() > 0x10) {
-        m_boardSquares[(te.GetFrom()/16)-1 + (te.GetFrom()%16-1)*9].ChangeKomaType(Empty);
+    if (te.GetFrom() > 10) {
+        m_boardSquares[(9-te.GetFrom()/10) + ((te.GetFrom()%10)-1)*9].ChangeKomaType(Empty);
     }
     else {
         uint32 komaType{te.GetKoma() - Self - 1};
         m_havingSelfKoma[komaType].pop_back();
     }
 
-    if (m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].GetKomaType() != Empty) {
-        uint32 komaType = m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].GetKomaType();
-        m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].ChangeKomaType(te.GetKoma());
+    if (m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].GetKomaType() != Empty) {
+        uint32 komaType = m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].GetKomaType();
+        m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].ChangeKomaType(te.GetKoma());
         
         komaType = ((komaType - Enemy + Self) & ~Promote);
         m_havingSelfKoma[komaType - Self - 1] << KomaSquare(
@@ -103,10 +103,10 @@ void BanSelf::SelfAIUpdate() {
         );
     }
     else {
-        m_boardSquares[(te.GetTo()/16)-1 + (te.GetTo()%16-1)*9].ChangeKomaType(te.GetKoma());
+        m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].ChangeKomaType(te.GetKoma());
     }
     ChangeCurrentTurn();
-    //Print << (te.GetFrom()/16)*10+(te.GetFrom()%16) << U"->" << (te.GetTo()/16)*10+(te.GetTo()%16);
+    //Print << (te.GetFrom()/10)*10+(te.GetFrom()%10) << U"->" << (te.GetTo()/10)*10+(te.GetTo()%10);
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数
@@ -153,10 +153,10 @@ void BanSelf::SelfUpdate() {
         }
         
         // 置く場所に何もなかったら、持ってる駒を置く
-        Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType()};
+        Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 10), m_holdHand.value().GetKomaType()};
 
-        if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
-            if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
+        if (te.GetFrom() >= 11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() % 10) <= 3 || (te.GetTo() % 10) <= 3)) {
+            if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() % 10) <= 2) {
                 te.SetPromote(1);
                 if (m_kyokumen.IsIllegal(te)) {
                     //Print << m_kyokumen.GetTeValids().size();
@@ -164,7 +164,7 @@ void BanSelf::SelfUpdate() {
                 }
                 m_holdHand.value().PromoteKoma();
             }
-            else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() & 0x0f) <= 1) {
+            else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() % 10) <= 1) {
                 te.SetPromote(1);
                 if (m_kyokumen.IsIllegal(te)) {
                     //Print << m_kyokumen.GetTeValids().size();
@@ -274,10 +274,10 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
         return;
     }
 
-    Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
+    Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 10), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
 
-    if (te.GetFrom() >= 0x11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
-        if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
+    if (te.GetFrom() >= 11 && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() % 10) <= 3 || (te.GetTo() % 10) <= 3)) {
+        if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() % 10) <= 2) {
             te.SetPromote(1);
             if (m_kyokumen.IsIllegal(te)) {
                 //Print << m_kyokumen.GetTeValids().size();
@@ -285,7 +285,7 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
             }
             m_holdHand.value().PromoteKoma();
         }
-        else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() & 0x0f) <= 1) {
+        else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() % 10) <= 1) {
             te.SetPromote(1);
             if (m_kyokumen.IsIllegal(te)) {
                 //Print << m_kyokumen.GetTeValids().size();
@@ -344,7 +344,7 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
 
 GameAI::GameAI(const InitData& init)
 	: IScene(init)
-    , m_ban(HirateBan) {}
+    , m_ban(HirateBan, getData().firstMove) {}
 
 void GameAI::update() {
     switch (m_ban.GetTurn()) {

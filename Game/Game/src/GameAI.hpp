@@ -66,7 +66,7 @@ private:
     
     void AddHoldKoma(KomaSquare& koma_);
 public:
-    BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
+    BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
     
     void SelfUpdate();
 
