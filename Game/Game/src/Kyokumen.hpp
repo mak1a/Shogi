@@ -95,19 +95,14 @@ public:
 class Kyokumen {
 private:
     /// <summary>
-    /// 桂馬の利きがbanからはみ出すので、はみ出す分を確保しておく
-    /// C++では、構造体の内部の変数の並び順は宣言した順になることを利用している
-    /// 普通ではあまり使わない「汚い」テクニック
-    /// </summary>
-    array<uint32, 16> m_banPadding;
-
-    /// <summary>
     /// ２次元配列だと遅いので、1次元配列を使う
     /// </summary>
-    array<uint32, 16 * 11> m_ban;
+    //array<uint32, 16 * 11> m_ban;
+    array<uint32, 11 * 11> m_ban;
     
     // 駒の利きを保持する
-    array<uint32, 16 * 11> m_controlSelf, m_controlEnemy;
+    //array<uint32, 16 * 11> m_controlSelf, m_controlEnemy;
+    array<uint32, 11 * 11> m_controlSelf, m_controlEnemy;
     
     // 持ち駒の数。
     array<uint32, 41> m_holdingKomas;
@@ -123,7 +118,8 @@ private:
     
     Array<Te> m_teValids;
     
-    array<uint32, 16 * 11> m_pin;
+    //array<uint32, 16 * 11> m_pin;
+    array<uint32, 11 * 11> m_pin;
     
     void InitControl();
     
