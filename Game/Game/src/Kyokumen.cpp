@@ -8,9 +8,9 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>,
     m_ban.fill(Wall);
     m_pin.fill(Wall);
 
-    for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
+    for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
-            m_ban[suji + dan] = board_[dan - 1][suji/0x10 - 1];
+            m_ban[suji + dan] = board_[dan - 1][9-(suji/10)];
 
             if (m_ban[suji + dan] == Sou) {
                 m_kingSelfPos = suji + dan;
@@ -35,7 +35,7 @@ void Kyokumen::InitControl() {
     m_controlSelf.fill(0);
     m_controlEnemy.fill(0);
 
-    for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
+    for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
             if (m_ban[suji + dan] & Enemy) {
                 for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i <= 11; ++i, moveDir <<= 1, jumpDir <<= 1) {
@@ -74,7 +74,7 @@ void Kyokumen::InitControl() {
 }
 
 void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
-    if (te_.GetFrom() > 0x10) {
+    if (te_.GetFrom() > 10) {
         for (uint32 dir{}, moveDir{1}, jumpDir{1 << 16}; dir <= 11; ++dir, moveDir <<= 1, jumpDir <<= 1) {
             if (static_cast<int32>(te_.GetFrom()) + Direct[dir] < 0) {
                 continue;
@@ -247,7 +247,7 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 }
 
 void Kyokumen::MakePinInfo() {
-    for (uint32 i{0x11}; i <= 0x99; ++i) {
+    for (uint32 i{11}; i <= 99; ++i) {
         m_pin[i] = 0;
     }
     m_teValids.clear();
@@ -292,7 +292,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
         return AntiCheck(isSelfOrEnemy_, m_controlSelf[m_kingEnemyPos]);
     }
 
-    for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
+    for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
             if (m_ban[suji + dan] & isSelfOrEnemy_) {
                 AddMoves(isSelfOrEnemy_, suji + dan, m_pin[suji + dan]);
@@ -301,7 +301,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0) {
-        for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
+        for (uint32 suji{10}; suji <= 90; suji += 10) {
             bool nifu{false};
             for (uint32 dan{1}; dan <= 9; ++dan) {
                 if (m_ban[suji + dan] == (isSelfOrEnemy_ | Fu)) {
@@ -326,7 +326,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0) {
-        for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
+        for (uint32 suji{10}; suji <= 90; suji += 10) {
             uint32 startDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 2 : 1)};
             uint32 endDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 9 : 8)};
 
@@ -339,7 +339,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Ke]) {
-        for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
+        for (uint32 suji{10}; suji <= 90; suji += 10) {
             uint32 startDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 3 : 1)};
             uint32 endDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 9 : 7)};
 
@@ -353,7 +353,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
 
     for (uint32 koma{Gi}; koma <= Hi; ++koma) {
         if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
-            for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
+            for (uint32 suji{10}; suji <= 90; suji += 10) {
                 for (uint32 dan{1}; dan <= 9; ++dan) {
                     if (m_ban[dan + suji] == Empty) {
                         m_teValids.emplace_back(0, suji + dan, isSelfOrEnemy_ | koma);
@@ -381,64 +381,64 @@ void Kyokumen::AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const i
         AddStraight(isSelfOrEnemy_, from_, +1, pin_, rPin_);
         break;
     case Ske:
-        AddMove(isSelfOrEnemy_, from_, +14, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -18, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +8, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -12, pin_, rPin_);
         break;
     case Eke:
-        AddMove(isSelfOrEnemy_, from_, -14, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +18, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -8, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +12, pin_, rPin_);
         break;
     case Sgi:
         AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -17, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +15, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +17, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -15, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
         break;
     case Egi:
         AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +17, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -15, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -17, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +15, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
         break;
     case Ski:case Sto:case Sny:case Snk:case Sng:
         AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -17, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +15, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
         AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -16, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +16, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
         break;
     case Eki:case Eto:case Eny:case Enk:case Eng:
         AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +17, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -15, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
         AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +16, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -16, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
         break;
     case Sry:case Ery:
-        AddMove(isSelfOrEnemy_, from_, +17, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -15, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -17, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +15, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +9, pin_, rPin_);
     case Shi:case Ehi:
         AddStraight(isSelfOrEnemy_, from_, +1, pin_, rPin_);
         AddStraight(isSelfOrEnemy_, from_, -1, pin_, rPin_);
-        AddStraight(isSelfOrEnemy_, from_, -16, pin_, rPin_);
-        AddStraight(isSelfOrEnemy_, from_, +16, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, +10, pin_, rPin_);
         break;
     case Sum:case Eum:
         AddMove(isSelfOrEnemy_, from_, +1, pin_, rPin_);
         AddMove(isSelfOrEnemy_, from_, -1, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, -16, pin_, rPin_);
-        AddMove(isSelfOrEnemy_, from_, +16, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, -10, pin_, rPin_);
+        AddMove(isSelfOrEnemy_, from_, +10, pin_, rPin_);
     case Ska:case Eka:
-        AddStraight(isSelfOrEnemy_, from_, +17, pin_, rPin_);
-        AddStraight(isSelfOrEnemy_, from_, -15, pin_, rPin_);
-        AddStraight(isSelfOrEnemy_, from_, -17, pin_, rPin_);
-        AddStraight(isSelfOrEnemy_, from_, +15, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, +11, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -9, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, -11, pin_, rPin_);
+        AddStraight(isSelfOrEnemy_, from_, +9, pin_, rPin_);
         break;
     case Sou:case Eou:
         MoveKing(isSelfOrEnemy_, 0);
@@ -559,14 +559,14 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
 }
 
 void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
-    int32 dan{static_cast<int32>(pos_ & 0x0f)};
+    int32 dan{static_cast<int32>(pos_ % 10)};
 
     if (isSelfOrEnemy_ == Enemy) {
         dan = 10 - dan;
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0 && dan > 1) {
-        int32 suji{static_cast<int32>(pos_ & 0xf0)};
+        int32 suji{static_cast<int32>(pos_ / 10)};
         bool nifu{false};
 
         for (uint32 d{1}; d <= 9; ++d) {
@@ -700,8 +700,8 @@ void Kyokumen::AddMove(const uint32 isSelfOrEnemy_, const uint32 from_, const in
     }
 
     const int32 to{static_cast<int32>(from_ + diff_)};
-    const int32 dan{to & 0x0f};
-    const int32 fromDan{static_cast<int32>(from_ & 0x0f)};
+    const int32 dan{to % 10};
+    const int32 fromDan{static_cast<int32>(from_ % 10)};
 
     if ((pin_ != 0 && pin_ != diff_ && pin_ != -diff_) || (m_ban[to] & isSelfOrEnemy_)) {
         return;
@@ -912,7 +912,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
 
     uint32 pos2{};
 
-    bool promoteSelf{(toPos & 0x0f) <= 3}, promoteEnemy{(toPos & 0x0f) >= 7};
+    bool promoteSelf{(toPos % 10) <= 3}, promoteEnemy{(toPos % 10) >= 7};
     uint32 pos{toPos};
 
     for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 8; ++i, moveDir <<= 1, jumpDir <<= 1) {
@@ -921,7 +921,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
             pos2 -= Direct[i];
             attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
 
-            if ((promoteSelf || (pos2 & 0x0f) <= 3) && CanPromote[attackSelfTes.back().GetKoma()]) {
+            if ((promoteSelf || (pos2 % 10) <= 3) && CanPromote[attackSelfTes.back().GetKoma()]) {
                 attackSelfTes.back().SetPromote(1);
             }
             else {
@@ -932,7 +932,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
             pos2 -= Direct[i];
             attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
 
-            if ((promoteEnemy || (pos2 & 0x0f) >= 7) && CanPromote[attackEnemyTes.back().GetKoma()]) {
+            if ((promoteEnemy || (pos2 % 10) >= 7) && CanPromote[attackEnemyTes.back().GetKoma()]) {
                 attackEnemyTes.back().SetPromote(1);
             }
             else {
@@ -956,7 +956,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
 
                 if (m_ban[pos2] & Enemy) {
                     attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
-                    if ((promoteEnemy || (pos2 & 0x0f) >= 7) && CanPromote[attackEnemyTes.back().GetKoma()]) {
+                    if ((promoteEnemy || (pos2 % 10) >= 7) && CanPromote[attackEnemyTes.back().GetKoma()]) {
                         attackEnemyTes.back().SetPromote(1);
                     }
                     else {
@@ -965,7 +965,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
                 }
                 else if (m_ban[pos2] & Self) {
                     attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
-                    if ((promoteSelf || (pos2 & 0x0f) <= 3) && CanPromote[attackSelfTes.back().GetKoma()]) {
+                    if ((promoteSelf || (pos2 % 10) <= 3) && CanPromote[attackSelfTes.back().GetKoma()]) {
                         attackSelfTes.back().SetPromote(1);
                     }
                     else {
@@ -1070,7 +1070,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
 int32 Kyokumen::BestEval(const uint32 isSelfOrEnemy_) {
     int32 best{};
 
-    for (uint32 suji{0x10}; suji <= 0x90; suji += 0x10) {
+    for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
             if ((m_ban[suji + dan] & isSelfOrEnemy_) == 0) {
                 int32 value{Eval(suji + dan)};
