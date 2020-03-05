@@ -63,6 +63,9 @@ private:
     
     // マウスで駒を保持
     Optional<KomaSquare> m_holdHand;
+
+    // 駒を置いた部分の色をちょっと赤くするための変数
+    Optional<KomaSquare> m_placedPart;
     
     void AddHoldKoma(KomaSquare& koma_);
 public:
