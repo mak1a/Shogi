@@ -898,10 +898,10 @@ int32 Kyokumen::Eval(const uint32 pos_) {
     if (m_ban[pos_] == Empty) {
         return 0;
     }
-    if (m_ban[pos_] & Self && !m_controlEnemy[pos_]) {
+    if ((m_ban[pos_] & Self) && !m_controlEnemy[pos_]) {
         return 0;
     }
-    if (m_ban[pos_] & Enemy && !m_controlSelf[pos_]) {
+    if ((m_ban[pos_] & Enemy) && !m_controlSelf[pos_]) {
         return 0;
     }
 
@@ -940,7 +940,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
             }
         }
 
-        if (pos - Direct[i] < 0) {
+        if (static_cast<int32>(pos) - Direct[i] < 0) {
             continue;
         }
 
@@ -1055,13 +1055,14 @@ int32 Kyokumen::Eval(const uint32 pos_) {
     }
 
     bool isEnemy{(m_ban[pos_] & Enemy) != 0};
-    bool isSelf{!isEnemy && m_ban[pos_] != Enemy};
+    bool isSelf{!isEnemy && (m_ban[pos_] != Enemy)};
+    int32 val = m_value;
 
-    if (isEnemy != 0 && !attackSelfTes.isEmpty()) {
-        return EvalMax(attackSelfTes, attackEnemyTes) - m_value;
+    if (isEnemy && !attackSelfTes.isEmpty()) {
+        return EvalMax(attackSelfTes, attackEnemyTes) - val;
     }
-    if (isSelf != 0 && !attackEnemyTes.isEmpty()) {
-        return EvalMin(attackSelfTes, attackEnemyTes);
+    if (isSelf && !attackEnemyTes.isEmpty()) {
+        return val - EvalMin(attackSelfTes, attackEnemyTes);
     }
 
     return 0;

@@ -37,14 +37,14 @@ private:
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
         if (GetTurn() == Turn::Player) {
             if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
-                Print << U"You Lose!";
+                //Print << U"You Lose!";
                 m_turn = Turn::Tsumi;
                 m_winner = Winner::Enemy;
             }
         }
         else {
             if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
-                Print << U"プレイヤーの勝利！";
+                //Print << U"プレイヤーの勝利！";
                 m_turn = Turn::Tsumi;
                 m_winner = Winner::Player;
             }

@@ -1,4 +1,4 @@
-
+﻿
 # pragma once
 #include <Siv3D.hpp>
 using std::array;
@@ -26,7 +26,7 @@ struct GameData{
 	/// <summary>
 	/// 先手
 	/// </summary>
-	Turn firstMove = Turn::Player;
+	Turn firstMove = Turn::Enemy;
 };
 
 /// <summary>
