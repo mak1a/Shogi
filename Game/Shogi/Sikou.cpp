@@ -19,9 +19,7 @@ Sikou::Sikou() noexcept {}
 	}
 
 	Array<Te> teValids{ kyokumen_.GetTeValids() };
-	for (const auto i : step(20)) {
-		teValids.shuffle();
-	}
+	teValids.shuffle();
 
 	int32 retVal{ (isSelfOrEnemy_ == Self) ? -1000000 : 1000000 };
 
@@ -57,9 +55,7 @@ Sikou::Sikou() noexcept {}
 	}
 
 	Array<Te> teValids{ kyokumen_.GetTeValids() };
-	for (const auto i : step(20)) {
-		teValids.shuffle();
-	}
+	teValids.shuffle();
 
 	int32 retVal{ (isSelfOrEnemy_ == Self) ? -1000000 : 1000000 };
 
@@ -104,9 +100,7 @@ Sikou::Sikou() noexcept {}
 	}
 
 	Array<Te> teValids{ kyokumen_.GetTeValids() };
-	for (const auto i : step(20)) {
-		teValids.shuffle();
-	}
+	teValids.shuffle();
 
 	int32 retVal{ -1000000 };
 
@@ -142,9 +136,7 @@ Sikou::Sikou() noexcept {}
 [[nodiscard]] Te Sikou::Think(const uint32 isSelfOrEnemy_, Kyokumen kyokumen_) noexcept {
 	uint32 teNum{ kyokumen_.MakeLegalMoves(isSelfOrEnemy_) };
 	Array<Te> teValids{ kyokumen_.GetTeValids() };
-	for (const auto i : step(20)) {
-		teValids.shuffle();
-	}
+	teValids.shuffle();
 	uint32 best{};
 	int32 bestVal{ (isSelfOrEnemy_ == Self) ? -1000000 : +1000000 };
 	for (uint32 i{}; i < teNum; ++i) {
