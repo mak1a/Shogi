@@ -39,7 +39,7 @@ void BanSelf::EnemyUpdate() {
         return;
     }
 
-    Te te{m_sikouEnemy.Think(Enemy, m_kyokumen, SearchType::AlphaBeta)};
+    Te te{m_sikouEnemy.Think(Enemy, m_kyokumen, SearchType::NegaAlphaBeta)};
     m_kyokumen.Move(Enemy, te);
 
     if (te.GetFrom() > 10) {
@@ -53,6 +53,9 @@ void BanSelf::EnemyUpdate() {
     if (m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].GetKomaType() != Empty) {
         uint32 komaType = m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].GetKomaType();
         m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].ChangeKomaType(te.GetKoma());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9]);
         
         komaType = ((komaType - Self + Enemy) & ~Promote);
         m_havingEnemyKoma[komaType - Enemy - 1] << KomaSquare(
@@ -65,6 +68,9 @@ void BanSelf::EnemyUpdate() {
     }
     else {
         m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].ChangeKomaType(te.GetKoma());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9]);
     }
 
     //Print << (te.GetFrom()/10)*10+(te.GetFrom()%10) << U"->" << (te.GetTo()/10)*10+(te.GetTo()%10);
@@ -78,7 +84,7 @@ void BanSelf::SelfAIUpdate() {
         return;
     }
 
-    Te te{m_sikouSelf.Think(Self, m_kyokumen, SearchType::AlphaBeta)};
+    Te te{m_sikouSelf.Think(Self, m_kyokumen, SearchType::NegaAlphaBeta)};
     m_kyokumen.Move(Self, te);
 
     if (te.GetFrom() > 10) {
@@ -93,6 +99,9 @@ void BanSelf::SelfAIUpdate() {
         uint32 komaType = m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].GetKomaType();
         m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].ChangeKomaType(te.GetKoma());
         
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9]);
+        
         komaType = ((komaType - Enemy + Self) & ~Promote);
         m_havingSelfKoma[komaType - Self - 1] << KomaSquare(
             KomaPos::selfDaiPoses[komaType - Self - 1]
@@ -104,6 +113,9 @@ void BanSelf::SelfAIUpdate() {
     }
     else {
         m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9].ChangeKomaType(te.GetKoma());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(m_boardSquares[(9-te.GetTo()/10) + ((te.GetTo()%10)-1)*9]);
     }
     ChangeCurrentTurn();
     //Print << (te.GetFrom()/10)*10+(te.GetFrom()%10) << U"->" << (te.GetTo()/10)*10+(te.GetTo()%10);
@@ -192,6 +204,10 @@ void BanSelf::SelfUpdate() {
         }
         
         square.ChangeKomaType(m_holdHand.value().GetKomaType());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(square);
+
         m_kyokumen.Move(Self, te);
         //Print << m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10 << U"->" << square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 10;
         m_holdHand.reset();
@@ -243,11 +259,13 @@ void BanSelf::Draw() const {
     m_komaDaiSelf.draw(Palette::Burlywood);
     m_komaDaiEnemy.draw(Palette::Burlywood);
     
+    // 駒を置いた場所を少し赤くする
+    if (m_placedPart.has_value()) {
+        m_placedPart.value().draw(ColorF(Palette::Red, 0.5f));
+    }
+
     for (const auto &square : m_boardSquares) {
         square.drawFrame(2, Palette::Black);
-        if (square.mouseOver()) {
-            square.draw(ColorF(Palette::White, 0.5f));
-        }
         
         square.Draw();
     }
@@ -314,6 +332,10 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
     
     uint32 komaType = koma_.GetKomaType();
     koma_.ChangeKomaType(m_holdHand.value().GetKomaType());
+
+    // 置いた駒の場所を更新する
+    m_placedPart.reset(koma_);
+
     m_holdHand.reset();
     ChangeCurrentTurn();
     
@@ -349,8 +371,8 @@ GameAI::GameAI(const InitData& init)
 void GameAI::update() {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        m_ban.SelfUpdate();
-        //m_ban.SelfAIUpdate();
+        //m_ban.SelfUpdate();
+        m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         m_ban.EnemyUpdate();
