@@ -184,7 +184,7 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
                 do {
                     j += dir;
-                    m_controlSelf[te_.GetTo()] &= ~jumpDir;
+                    m_controlSelf[j] &= ~jumpDir;
                 }
                 while (m_ban[j] == Empty);
             }
@@ -270,7 +270,7 @@ void Kyokumen::MakePinInfo() {
         for (uint32 i{}; i < 8; ++i) {
             uint32 p{Search(m_kingEnemyPos, -Direct[i])};
 
-            if (m_ban[p] == Wall || (m_ban[p] & Self)) {
+            if (m_ban[p] == Wall || !(m_ban[p] & Enemy)) {
                 continue;
             }
 
@@ -452,7 +452,7 @@ uint32 Kyokumen::CountControlSelf(const uint32 pos_) {
     uint32 ret{};
     
     for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 12; ++i, moveDir <<= 1, jumpDir <<= 1) {
-        if (static_cast<int32>(pos_) - Direct[i] < 0 || static_cast<int32>(pos_) - Direct[i] >= 176) {
+        if (static_cast<int32>(pos_) - Direct[i] < 0 || static_cast<int32>(pos_) - Direct[i] >= 121) {
             continue;
         }
 
@@ -471,7 +471,7 @@ uint32 Kyokumen::CountControlEnemy(const uint32 pos_) {
     uint32 ret{};
     
     for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 12; ++i, moveDir <<= 1, jumpDir <<= 1) {
-        if (static_cast<int32>(pos_) - Direct[i] < 0 || static_cast<int32>(pos_) - Direct[i] >= 176) {
+        if (static_cast<int32>(pos_) - Direct[i] < 0 || static_cast<int32>(pos_) - Direct[i] >= 121) {
             continue;
         }
 
@@ -814,7 +814,7 @@ bool Kyokumen::IsCorrectMove(Te* te_) {
     int32 dir{static_cast<int32>((te_->GetTo() - te_->GetFrom()) / d)};
 
     for (uint32 i{1}, pos{te_->GetFrom() + dir}; i < d; ++i, pos += dir) {
-        if (pos < 0 || pos >= 176) {
+        if (pos < 0 || pos >= 121) {
             continue;
         }
 
