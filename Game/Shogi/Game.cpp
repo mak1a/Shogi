@@ -28,7 +28,7 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn&
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
 
-    m_kyokumen.MakeLegalMoves(Self);
+    m_kyokumen.MakeLegalMoves((turn_ == Turn::Player) ? Self : Enemy);
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数

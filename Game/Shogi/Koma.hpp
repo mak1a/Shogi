@@ -25,14 +25,14 @@ enum KomaType {
     Ng = Gi + Promote,
     Um = Ka + Promote,
     Ry = Hi + Promote,
-
+    
     // ©•ª©g‚Ì‹î‚É‚Â‚¯‚é–Úˆó
     Self = 16,
     // “G‚Ì‹î‚É‚Â‚¯‚é–Úˆó
     Enemy = 32,
     // ”ÕŠO
     Wall = Self + Enemy,
-
+    
     // ÀÛ‚Ì‹î
     Sfu = Self + Fu,
     Sto = Self + To,
@@ -48,7 +48,7 @@ enum KomaType {
     Shi = Self + Hi,
     Sry = Self + Ry,
     Sou = Self + Ou,
-
+    
     Efu = Enemy + Fu,
     Eto = Enemy + To,
     Eky = Enemy + Ky,
@@ -76,7 +76,7 @@ enum class KomaState {
 /// <summary>
 /// •½è”Õ
 /// </summary>
-constexpr array<const array<const uint32, 9>, 9> HirateBan{
+constexpr array<const array<const uint32, 9>, 9> HirateBan {
     {
         {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
         {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -96,7 +96,7 @@ constexpr array<const array<const uint32, 9>, 9> HirateBan{
 namespace KomaPos {
     constexpr Vec2 selfFu = Vec2(920.0, 570.0);
     constexpr Vec2 enemyFu = Vec2(300.0, 90.0);
-
+    
     constexpr Vec2 selfKyo = Vec2(920.0, 510.0);
     constexpr Vec2 enemyKyo = Vec2(300.0, 150.0);
 
@@ -137,159 +137,159 @@ constexpr array<const int32, 12> Direct = {
 
 // ¬‚é–‚ª‚Å‚«‚é‹î‚©H
 constexpr array<const bool, 64> CanPromote = {
-    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,
-        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-            0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+//  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,
+//  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+    0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
 // ‚»‚Ì•ûŒü‚É“®‚¯‚é‚©H‚»‚Ì•ûŒü‚É”ò‚ñ‚Ås‚¯‚é‹î‚Í“ü‚ê‚È‚¢B
 // —á‚¦‚ÎŠp
-constexpr array<const array<const bool, 64>, 12> CanMove{
+constexpr array<const array<const bool, 64>, 12> CanMove {
     {
         {
-            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,
-                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                    0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                }, {
-                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,
-                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                            0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                        }, {
-                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,
-                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                    0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                }, {
-                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,
-                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                            0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                        }, {
-                                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,
-                                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                    0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                }, {
-                                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,
-                                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                            0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                        }, {
-                                                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,0,
-                                                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                    0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                }, {
-                                                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,
-                                                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                            0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                        }, {
-                                                                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,
-                                                                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                                }, {
-                                                                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,
-                                                                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                                        }, {
-                                                                                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                                                                                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                                    0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                                                }, {
-                                                                                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                                                                                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                                            0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                                                        }
-                                                                                                    }
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }
+    }
 };
 
 // ‚»‚Ì•ûŒü‚É”ò‚ñ‚Å“®‚­–‚Á‚ª‚Å‚«‚é‚©H
 // ‚¿‚È‚İ‚É”òŠp‚Æ—´‚Æ”n‚µ‚©‚»‚¤‚¢‚¤‹î‚Í‚È‚¢
-constexpr array<const array<const bool, 64>, 12> CanJump{
+constexpr array<const array<const bool, 64>, 12> CanJump {
     {
         {
-            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,
-                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                    0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                }, {
-                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
-                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                            0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                        }, {
-                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,
-                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                    0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                }, {
-                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
-                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                            0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                        }, {
-                                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
-                                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                    0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                }, {
-                                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,
-                                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                            0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                        }, {
-                                                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,
-                                                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                    0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                }, {
-                                                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,
-                                                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                            0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                        }, {
-                                                                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                                                                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                                }, {
-                                                                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                                                                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                                        }, {
-                                                                                            //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                                                                                                //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                                                }, {
-                                                                                                    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                                                                                                        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-                                                                                                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-                                                                                                        }
-                                                                                                    }
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }, {
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        }
+    }
 };
 
-constexpr array<const int32, 40> HandValue{
-    //  •àŒj‹â‹àŠp”ò‰¤
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,105,630,735,1050,1260,1890,2100,0,0,0,0,0,0,0,0,
-        0,-105,-630,-735,-1050,-1260,-1890,-2100
+constexpr array<const int32, 40> HandValue {
+//  •àŒj‹â‹àŠp”ò‰¤
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,105,630,735,1050,1260,1890,2100,0,0,0,0,0,0,0,0,
+    0,-105,-630,-735,-1050,-1260,-1890,-2100
 };
 
-constexpr array<const int32, 49> KomaValue{
+constexpr array<const int32, 49> KomaValue {
     //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,600,700,1000,1200,1800,2000,10000,1200,1200,1200,1200,1200,2000,2200,
-        //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
-            0,-100,-600,-700,-1000,-1200,-1800,-2000,-10000,-1200,-1200,-1200,-1200,-1200,-2000,-2200,0
+    //  ‹ó•àŒj‹â‹àŠp”ò‰¤‚ÆˆÇŒ\‘S‹à”n—´
+        0,-100,-600,-700,-1000,-1200,-1800,-2000,-10000,-1200,-1200,-1200,-1200,-1200,-2000,-2200,0
 };
 
 class KomaSquare : public RectF {
@@ -304,26 +304,26 @@ public:
         , m_komaType(koma_)
         , m_komaState(KomaState::Ban)
         , m_coodinate(coodinate_) {}
-
+    
     constexpr KomaSquare(const Vec2 pos_, const double size_, const uint32 koma_, const Point& coodinate_) noexcept
-        : RectF(pos_, size_)
-        , m_komaType(koma_)
-        , m_komaState(KomaState::Ban)
-        , m_coodinate(coodinate_) {}
-
+    : RectF(pos_, size_)
+    , m_komaType(koma_)
+    , m_komaState(KomaState::Ban)
+    , m_coodinate(coodinate_) {}
+    
     constexpr KomaSquare(const Vec2 pos_, const double size_, const uint32 koma_, const KomaState state_, const Point& coodinate_) noexcept
-        : RectF(pos_, size_)
-        , m_komaType(koma_)
-        , m_komaState(state_)
-        , m_coodinate(coodinate_) {}
-
+    : RectF(pos_, size_)
+    , m_komaType(koma_)
+    , m_komaState(state_)
+    , m_coodinate(coodinate_) {}
+    
     [[nodiscard]] uint32 GetKomaType() const noexcept {
         return m_komaType;
     }
     void ChangeKomaType(const uint32 komaType_) {
         m_komaType = komaType_;
     }
-
+    
     [[nodiscard]] KomaState GetKomaState() const noexcept {
         return m_komaState;
     }
@@ -334,7 +334,7 @@ public:
     [[nodiscard]] Point GetKomaCoodinate() const noexcept {
         return m_coodinate;
     }
-    constexpr void ChangeKomaCoodinate(const Point& komaCoodinate_) noexcept {
+    constexpr void ChangeKomaCoodinate(const Point& komaCoodinate_) noexcept  {
         m_coodinate.set(komaCoodinate_);
     }
     [[nodiscard]] bool IsChangeCoodinate(const KomaSquare& willPutPlace_) const noexcept {
@@ -344,112 +344,112 @@ public:
     constexpr void PromoteKoma() noexcept {
         m_komaType |= Promote;
     }
-
+    
     // ‹î‚ğ•`‰æ‚·‚é
     void Draw(const Vec2& difference_ = Vec2::Zero()) const {
         switch (GetKomaType()) {
-        case Sfu:
-            TextureAsset(U"Fu").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Sto:
-            TextureAsset(U"To").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Sky:
-            TextureAsset(U"Kyosha").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Sny:
-            TextureAsset(U"NariKyosha").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Ske:
-            TextureAsset(U"Keima").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Snk:
-            TextureAsset(U"NariKeima").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Sgi:
-            TextureAsset(U"Gin").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Sng:
-            TextureAsset(U"NariGin").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Ski:
-            TextureAsset(U"Kin").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Ska:
-            TextureAsset(U"Kaku").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Sum:
-            TextureAsset(U"Uma").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Shi:
-            TextureAsset(U"Hi").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Sry:
-            TextureAsset(U"Ryu").resized(size).drawAt(center().movedBy(difference_));
-            break;
-        case Sou:
-            TextureAsset(U"Ou").resized(size).drawAt(center().movedBy(difference_));
-            break;
-
+            case Sfu:
+                TextureAsset(U"Fu").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Sto:
+                TextureAsset(U"To").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Sky:
+                TextureAsset(U"Kyosha").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Sny:
+                TextureAsset(U"NariKyosha").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Ske:
+                TextureAsset(U"Keima").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Snk:
+                TextureAsset(U"NariKeima").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Sgi:
+                TextureAsset(U"Gin").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Sng:
+                TextureAsset(U"NariGin").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Ski:
+                TextureAsset(U"Kin").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Ska:
+                TextureAsset(U"Kaku").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Sum:
+                TextureAsset(U"Uma").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Shi:
+                TextureAsset(U"Hi").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Sry:
+                TextureAsset(U"Ryu").resized(size).drawAt(center().movedBy(difference_));
+                break;
+            case Sou:
+                TextureAsset(U"Ou").resized(size).drawAt(center().movedBy(difference_));
+                break;
+                
             // ‚±‚±‚©‚ç“G‚Ì‹î
-        case Efu:
-            TextureAsset(U"Fu").resized(size)
+            case Efu:
+                TextureAsset(U"Fu").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eto:
-            TextureAsset(U"To").resized(size)
+                break;
+            case Eto:
+                TextureAsset(U"To").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eky:
-            TextureAsset(U"Kyosha").resized(size)
+                break;
+            case Eky:
+                TextureAsset(U"Kyosha").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eny:
-            TextureAsset(U"NariKyosha").resized(size)
+                break;
+            case Eny:
+                TextureAsset(U"NariKyosha").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eke:
-            TextureAsset(U"Keima").resized(size)
+                break;
+            case Eke:
+                TextureAsset(U"Keima").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Enk:
-            TextureAsset(U"NariKeima").resized(size)
+                break;
+            case Enk:
+                TextureAsset(U"NariKeima").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Egi:
-            TextureAsset(U"Gin").resized(size)
+                break;
+            case Egi:
+                TextureAsset(U"Gin").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eng:
-            TextureAsset(U"NariGin").resized(size)
+                break;
+            case Eng:
+                TextureAsset(U"NariGin").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eki:
-            TextureAsset(U"Kin").resized(size)
+                break;
+            case Eki:
+                TextureAsset(U"Kin").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eka:
-            TextureAsset(U"Kaku").resized(size)
+                break;
+            case Eka:
+                TextureAsset(U"Kaku").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eum:
-            TextureAsset(U"Uma").resized(size)
+                break;
+            case Eum:
+                TextureAsset(U"Uma").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Ehi:
-            TextureAsset(U"Hi").resized(size)
+                break;
+            case Ehi:
+                TextureAsset(U"Hi").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Ery:
-            TextureAsset(U"Ryu").resized(size)
+                break;
+            case Ery:
+                TextureAsset(U"Ryu").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        case Eou:
-            TextureAsset(U"Gyoku").resized(size)
+                break;
+            case Eou:
+                TextureAsset(U"Gyoku").resized(size)
                 .rotated(180_deg).drawAt(center().movedBy(difference_));
-            break;
-        default:
-            break;
+                break;
+            default:
+                break;
         }
     }
 };

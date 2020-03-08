@@ -28,7 +28,7 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
 
-    m_kyokumen.MakeLegalMoves(Self);
+    m_kyokumen.MakeLegalMoves((turn_ == Turn::Player) ? Self : Enemy);
     m_thinkingTimer.start();
 }
 
