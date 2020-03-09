@@ -8,7 +8,7 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn&
 , m_komaDaiEnemy(Arg::center(Scene::CenterF()
     .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2))), komaDai_)
 , m_turn(turn_)
-, m_kyokumen(0, HirateBan) {
+, m_kyokumen(0, iniKyokumen_) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
     
@@ -359,7 +359,7 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
 
 Game::Game(const InitData& init)
 	: IScene(init)
-    , m_ban(HirateBan, getData().firstMove) {}
+    , m_ban(getData().GetBoard(), getData().firstMove) {}
 
 void Game::update()
 {

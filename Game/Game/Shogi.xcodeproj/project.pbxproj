@@ -91,6 +91,7 @@
 		6488704F23BA0E110061A0D2 /* Kyokumen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Kyokumen.hpp; sourceTree = "<group>"; };
 		6488705023BA0E110061A0D2 /* Koma.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Koma.hpp; sourceTree = "<group>"; };
 		6488705123BA0E120061A0D2 /* Kyokumen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kyokumen.cpp; sourceTree = "<group>"; };
+		64D8DB952416C47C00F2BF29 /* Board.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Board.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +169,7 @@
 				6488705123BA0E120061A0D2 /* Kyokumen.cpp */,
 				6488704F23BA0E110061A0D2 /* Kyokumen.hpp */,
 				643A63CA23DF5E1500922771 /* Sikou.cpp */,
+				64D8DB952416C47C00F2BF29 /* Board.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";

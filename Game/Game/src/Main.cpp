@@ -1,4 +1,4 @@
-
+﻿
 # include "Common.hpp"
 # include "Title.hpp"
 # include "Game.hpp"
@@ -40,11 +40,12 @@ void Main() {
 	MyApp manager;
 	manager
 		.add<Title>(State::Title)
+		.add<Select>(State::Select)
 		.add<Game>(State::Game)
 		.add<GameAI>(State::GameAI)
 		.setFadeColor(ColorF(1.0));
 
-	//manager.init(State::GameAI);
+	//manager.init(State::Select);
 
 	while (System::Update()) {
 		if (!manager.update()) {
