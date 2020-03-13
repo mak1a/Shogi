@@ -1,4 +1,4 @@
-
+﻿
 # include "Title.hpp"
 
 Title::Title(const InitData& init)
@@ -20,11 +20,13 @@ void Title::update() {
 	}
 
 	if (m_soloMatchButton.leftClicked()) {
-		changeScene(State::GameAI);
+		getData().gameState = State::GameAI;
+		changeScene(State::Select);
 	}
 
 	if (m_twoPlayerMatchButton.leftClicked()) {
-		changeScene(State::Game);
+		getData().gameState = State::Game;
+		changeScene(State::Select);
 	}
 
 	if (m_exitButton.leftClicked()) {

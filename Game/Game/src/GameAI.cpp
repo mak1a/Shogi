@@ -1,14 +1,17 @@
 ﻿
 # include "GameAI.hpp"
 
-BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_, const double komaDai_) noexcept
+BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const uint32 sikouDepth_, const double shogiBan_, const double komaDai_) noexcept
 : m_shogiBan(Arg::center(Scene::CenterF()), shogiBan_)
 , m_komaDaiSelf(Arg::center(Scene::CenterF()
     .movedBy(shogiBan_/2+10+komaDai_/2, (shogiBan_/2-komaDai_)+komaDai_/2)), komaDai_)
 , m_komaDaiEnemy(Arg::center(Scene::CenterF()
     .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2))), komaDai_)
 , m_turn(turn_)
-, m_kyokumen(0, HirateBan) {
+, m_isBehind((turn_ == Turn::Enemy))
+, m_kyokumen(0, iniKyokumen_)
+, m_sikouSelf(sikouDepth_)
+, m_sikouEnemy(sikouDepth_) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
     
@@ -29,6 +32,13 @@ BanSelf::BanSelf(const array<const array<const uint32, 9>, 9>& iniKyokumen_, con
     m_havingEnemyKoma.resize(7);
     
     m_kyokumen.MakeLegalMoves((turn_==Turn::Player)?Self:Enemy);
+
+    m_stackKyokumens.emplace(m_kyokumen);
+    m_stackBoradSquares.emplace(m_boardSquares);
+    m_stackHavingSelf.emplace(m_havingSelfKoma);
+    m_stackHavingEnemy.emplace(m_havingEnemyKoma);
+    m_stackPlacedPart.emplace(m_placedPart);
+    
     m_thinkingTimer.start();
 }
 
@@ -123,6 +133,11 @@ void BanSelf::SelfAIUpdate() {
 
 // GameクラスのUpdate()で呼び出すメンバ関数
 void BanSelf::SelfUpdate() {
+    if (!m_holdHand.has_value() && KeySpace.down()) {
+        RetractingMove();
+        return;
+    }
+
     // 盤面上の処理
     for (auto& square : m_boardSquares) {
         // 盤面から駒を選んで手に持つ処理
@@ -366,13 +381,13 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
 
 GameAI::GameAI(const InitData& init)
 	: IScene(init)
-    , m_ban(HirateBan, getData().firstMove) {}
+    , m_ban(getData().GetBoard(), getData().firstMove, getData().depthMax) {}
 
 void GameAI::update() {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        //m_ban.SelfUpdate();
-        m_ban.SelfAIUpdate();
+        m_ban.SelfUpdate();
+        //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         m_ban.EnemyUpdate();
