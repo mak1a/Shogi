@@ -8,6 +8,7 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn&
 , m_komaDaiEnemy(Arg::center(Scene::CenterF()
     .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2))), komaDai_)
 , m_turn(turn_)
+, m_isBehind((turn_ == Turn::Enemy))
 , m_kyokumen(0, iniKyokumen_) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
@@ -29,10 +30,21 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn&
     m_havingEnemyKoma.resize(7);
 
     m_kyokumen.MakeLegalMoves((turn_==Turn::Player)?Self:Enemy);
+
+    m_stackKyokumens.emplace(m_kyokumen);
+    m_stackBoradSquares.emplace(m_boardSquares);
+    m_stackHavingSelf.emplace(m_havingSelfKoma);
+    m_stackHavingEnemy.emplace(m_havingEnemyKoma);
+    m_stackPlacedPart.emplace(m_placedPart);
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数
 void Ban::Update() {
+    if (!m_holdHand.has_value() && GetTurn() == Turn::Player && KeySpace.down()) {
+        RetractingMove();
+        return;
+    }
+
     // 盤面上の処理
     for (auto& square : m_boardSquares) {
         // 盤面から駒を選んで手に持つ処理

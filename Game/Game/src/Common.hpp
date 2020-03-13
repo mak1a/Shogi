@@ -68,6 +68,11 @@ struct GameData {
 	Elegance elegance = Elegance::Player;
 
 	/// <summary>
+	/// 思考の深さ
+	/// </summary>
+	uint32 depthMax = 0;
+
+	/// <summary>
 	/// 選択した盤を出力する
 	/// </summary>
 	array<const array<const uint32, 9>, 9> GetBoard() const noexcept {
