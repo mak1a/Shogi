@@ -74,7 +74,9 @@ public:
 		SimpleGUI::RadioButtons(firstMoveIndx, {U"先手", U"後手"}, Vec2(520, 40));
 		SimpleGUI::RadioButtons(eleganceIndx, {U"自分", U"相手"}, Vec2(520, 140));
 		SimpleGUI::RadioButtons(handicapIndx, handicaps, Vec2(760, 40));
-		SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, Vec2(520, 240));
+		if (getData().gameState == State::GameAI) {
+			SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, Vec2(520, 240));
+		}
 		SimpleGUI::Button(U"ゲームスタート", Vec2(800, 500), 200);
 	}
 };

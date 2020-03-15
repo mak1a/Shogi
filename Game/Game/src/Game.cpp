@@ -7,6 +7,10 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn&
     .movedBy(shogiBan_/2+10+komaDai_/2, (shogiBan_/2-komaDai_)+komaDai_/2)), komaDai_)
 , m_komaDaiEnemy(Arg::center(Scene::CenterF()
     .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2))), komaDai_)
+, m_buttonWaited(Arg::center(Scene::CenterF()
+    .movedBy(shogiBan_/2+10+komaDai_/2, -((shogiBan_/2-komaDai_)+komaDai_/2)-1.5*(shogiBan_ / 9))), Vec2(komaDai_, shogiBan_ / 12))
+, m_buttonQuit(Arg::center(Scene::CenterF()
+    .movedBy(shogiBan_/2+10+komaDai_/2, -((shogiBan_/2-komaDai_)+komaDai_/2))), Vec2(komaDai_, shogiBan_ / 12))
 , m_turn(turn_)
 , m_isBehind((turn_ == Turn::Enemy))
 , m_kyokumen(0, iniKyokumen_) {
@@ -40,7 +44,22 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn&
 
 // GameクラスのUpdate()で呼び出すメンバ関数
 void Ban::Update() {
-    if (!m_holdHand.has_value() && GetTurn() == Turn::Player && KeySpace.down()) {
+    if (m_buttonWaited.mouseOver() || m_buttonQuit.mouseOver()) {
+        Cursor::RequestStyle(CursorStyle::Hand);
+    }
+
+    if (!m_holdHand.has_value() && m_buttonQuit.leftClicked()) {
+        if (GetTurn() == Turn::Player) {
+            m_winner = Winner::Enemy;
+        }
+        else {
+            m_winner = Winner::Player;
+        }
+        m_turn = Turn::Tsumi;
+        return;
+    }
+
+    if (!m_holdHand.has_value() && GetTurn() == Turn::Player && m_buttonWaited.leftClicked()) {
         RetractingMove();
         return;
     }
@@ -233,6 +252,13 @@ void Ban::Draw() const {
     m_shogiBan.draw(Palette::Burlywood);
     m_komaDaiSelf.draw(Palette::Burlywood);
     m_komaDaiEnemy.draw(Palette::Burlywood);
+    m_buttonWaited.draw(Palette::White);
+    m_buttonWaited.drawFrame(1.0,Palette::Black);
+    m_buttonQuit.draw(Palette::White);
+    m_buttonQuit.drawFrame(1.0,Palette::Black);
+
+    FontAsset(U"Menu")(U"待った").drawAt(m_buttonWaited.center(), Palette::Black);
+    FontAsset(U"Menu")(U"投了").drawAt(m_buttonQuit.center(), Palette::Black);
 
     // 駒を置いた場所を少し赤くする
     if (m_placedPart.has_value()) {

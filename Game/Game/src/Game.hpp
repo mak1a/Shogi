@@ -24,6 +24,16 @@ private:
     // プレイヤーが後手ならtrue
     bool m_isBehind = false;
 
+    /// <summary>
+    /// 待ったボタン
+    /// </summary>
+    RectF m_buttonWaited;
+
+    /// <summary>
+    /// 投了ボタン
+    /// </summary>
+    RectF m_buttonQuit;
+
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
         ClearPrint();
