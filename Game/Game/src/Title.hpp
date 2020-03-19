@@ -44,21 +44,33 @@ public:
 	}
 
 	void update() override {
-		if (SimpleGUI::RadioButtons(firstMoveIndx, {U"先手", U"後手"}, Vec2(520, 40))) {
-			getData().firstMove = static_cast<Turn>(firstMoveIndx);
+		SimpleGUI::Headline(U"手番", Vec2(520, 20));
+		{
+			if (SimpleGUI::RadioButtons(firstMoveIndx, {U"先手", U"後手"}, Vec2(520, 60))) {
+				getData().firstMove = static_cast<Turn>(firstMoveIndx);
+			}
 		}
 
-		if (SimpleGUI::RadioButtons(eleganceIndx, {U"自分", U"相手"}, Vec2(520, 140))) {
-			getData().elegance = static_cast<Elegance>(eleganceIndx);
+		SimpleGUI::Headline(U"駒落ちする方", Vec2(520, 150));
+		{
+			if (SimpleGUI::RadioButtons(eleganceIndx, {U"自分", U"相手"}, Vec2(520, 190))) {
+				getData().elegance = static_cast<Elegance>(eleganceIndx);
+			}
 		}
 
-		if (SimpleGUI::RadioButtons(handicapIndx, handicaps, Vec2(760, 40))) {
-			getData().handicap = static_cast<Handicap>(handicapIndx);
+		SimpleGUI::Headline(U"手合", Vec2(760, 20));
+		{
+			if (SimpleGUI::RadioButtons(handicapIndx, handicaps, Vec2(760, 60))) {
+				getData().handicap = static_cast<Handicap>(handicapIndx);
+			}
 		}
 
 		if (getData().gameState == State::GameAI) {
-			if (SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, Vec2(520, 240))) {
-				getData().depthMax = static_cast<uint32>(depthMaxIndx+1);
+			SimpleGUI::Headline(U"強さ", Vec2(520, 270));
+			{
+				if (SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, Vec2(520, 310))) {
+					getData().depthMax = static_cast<uint32>(depthMaxIndx+1);
+				}
 			}
 		}
 
@@ -71,11 +83,23 @@ public:
 	/// フェードインの時に描画されないので仕方なく
 	/// </summary>
 	void updateFadeIn(double) override {
-		SimpleGUI::RadioButtons(firstMoveIndx, {U"先手", U"後手"}, Vec2(520, 40));
-		SimpleGUI::RadioButtons(eleganceIndx, {U"自分", U"相手"}, Vec2(520, 140));
-		SimpleGUI::RadioButtons(handicapIndx, handicaps, Vec2(760, 40));
+		SimpleGUI::Headline(U"手番", Vec2(520, 20));
+		{
+			SimpleGUI::RadioButtons(firstMoveIndx, {U"先手", U"後手"}, Vec2(520, 60));
+		}
+		SimpleGUI::Headline(U"駒落ちする方", Vec2(520, 150));
+		{
+			SimpleGUI::RadioButtons(eleganceIndx, {U"自分", U"相手"}, Vec2(520, 190));
+		}
+		SimpleGUI::Headline(U"手合", Vec2(760, 20));
+		{
+			SimpleGUI::RadioButtons(handicapIndx, handicaps, Vec2(760, 60));
+		}
 		if (getData().gameState == State::GameAI) {
-			SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, Vec2(520, 240));
+			SimpleGUI::Headline(U"強さ", Vec2(520, 270));
+			{
+				SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, Vec2(520, 310));
+			}
 		}
 		SimpleGUI::Button(U"ゲームスタート", Vec2(800, 500), 200);
 	}

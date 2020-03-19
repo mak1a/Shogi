@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include"Koma.hpp"
+#include<bitset>
 
 
 /// <summary>
@@ -102,7 +103,7 @@ private:
     
     // 駒の利きを保持する
     //array<uint32, 16 * 11> m_controlSelf, m_controlEnemy;
-    array<uint32, 11 * 11> m_controlSelf, m_controlEnemy;
+    array<std::bitset<28>, 11 * 11> m_controlSelf, m_controlEnemy;
     
     // 持ち駒の数。
     array<uint32, 41> m_holdingKomas;
@@ -126,17 +127,17 @@ private:
     [[nodiscard]] bool Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_);
     
     // 王の動く手の生成
-    void MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_);
+    void MoveKing(const uint32 isSelfOrEnemy_, const std::bitset<28>& kiki_);
     
     void MoveTo(const uint32 isSelfOrEnemy_, const uint32 to_);
     
     void PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_);
 
-    [[nodiscard]] uint32 CountControlSelf(const uint32 pos_);
+    [[nodiscard]] std::bitset<28> CountControlSelf(const uint32 pos_);
 
-    [[nodiscard]] uint32 CountControlEnemy(const uint32 pos_);
+    [[nodiscard]] std::bitset<28> CountControlEnemy(const uint32 pos_);
 
-    [[nodiscard]] uint32 CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_);
+    [[nodiscard]] std::bitset<28> CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_);
 
     void AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 pin_, const int32 rPin_ = 0);
 
@@ -195,7 +196,7 @@ public:
 
     // uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
 
-    uint32 AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_);
+    uint32 AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& control_);
 
     void Move(const uint32 isSelfOrEnemy_, const Te& te_);
 

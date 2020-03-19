@@ -36,6 +36,8 @@ private:
 
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
+        AudioAsset(U"Piece").playOneShot(0.2);
+
         ClearPrint();
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
         if (GetTurn() == Turn::Player) {

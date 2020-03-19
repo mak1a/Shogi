@@ -38,34 +38,34 @@ void Kyokumen::InitControl() {
     for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
             if (m_ban[suji + dan] & Enemy) {
-                for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i <= 11; ++i, moveDir <<= 1, jumpDir <<= 1) {
+                for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
                     if (CanJump[i][m_ban[dan + suji]]) {
                         uint32 j{dan + suji};
 
                         do {
                             j += Direct[i];
-                            m_controlEnemy[j] |= jumpDir;
+                            m_controlEnemy[j].set(jumpDir);
                         }
                         while (m_ban[j] == Empty);
                     }
                     else if (CanMove[i][m_ban[dan + suji]] && (dan + suji >= Direct[i])) {
-                        m_controlEnemy[dan + suji + Direct[i]] |= moveDir;
+                        m_controlEnemy[dan + suji + Direct[i]].set(moveDir);
                     }
                 }
             }
             else if (m_ban[suji + dan] & Self) {
-                for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i <= 11; ++i, moveDir <<= 1, jumpDir <<= 1) {
+                for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
                     if (CanJump[i][m_ban[dan + suji]]) {
                         uint32 j{dan + suji};
 
                         do {
                             j += Direct[i];
-                            m_controlSelf[j] |= jumpDir;
+                            m_controlSelf[j].set(jumpDir);
                         }
                         while (m_ban[j] == Empty);
                     }
                     else if (CanMove[i][m_ban[dan + suji]] && (dan + suji >= Direct[i])) {
-                        m_controlSelf[dan + suji + Direct[i]] |= moveDir;
+                        m_controlSelf[dan + suji + Direct[i]].set(moveDir);
                     }
                 }
             }
@@ -75,16 +75,16 @@ void Kyokumen::InitControl() {
 
 void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
     if (te_.GetFrom() > 10) {
-        for (uint32 dir{}, moveDir{1}, jumpDir{1 << 16}; dir <= 11; ++dir, moveDir <<= 1, jumpDir <<= 1) {
+        for (uint32 dir{}, moveDir{}, jumpDir{16}; dir < 12; ++dir, ++moveDir, ++jumpDir) {
             if (static_cast<int32>(te_.GetFrom()) + Direct[dir] < 0) {
                 continue;
             }
 
             if (isSelfOrEnemy_ == Self) {
-                m_controlSelf[te_.GetFrom() + Direct[dir]] &= ~moveDir;
+                m_controlSelf[te_.GetFrom() + Direct[dir]].reset(moveDir);
             }
             else {
-                m_controlEnemy[te_.GetFrom() + Direct[dir]] &= ~moveDir;
+                m_controlEnemy[te_.GetFrom() + Direct[dir]].reset(moveDir);
             }
             if (CanJump[dir][te_.GetKoma()]) {
                 int32 j{static_cast<int32>(te_.GetFrom())};
@@ -92,10 +92,10 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
                 do {
                     j += Direct[dir];
                     if (isSelfOrEnemy_ == Self) {
-                        m_controlSelf[j] &= ~jumpDir;
+                        m_controlSelf[j].reset(jumpDir);
                     }
                     else {
-                        m_controlEnemy[j] &= ~jumpDir;
+                        m_controlEnemy[j].reset(jumpDir);
                     }
                 }
                 while (m_ban[j] == Empty);
@@ -104,25 +104,25 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
         m_ban[te_.GetFrom()] = Empty;
 
-        for (uint32 i{}, jumpDir{1 << 16}; i < 8; ++i, jumpDir <<= 1) {
+        for (uint32 i{}, jumpDir{16}; i < 8; ++i, ++jumpDir) {
             int32 dir{Direct[i]};
 
-            if (m_controlSelf[te_.GetFrom()] & jumpDir) {
+            if (m_controlSelf[te_.GetFrom()].test(jumpDir)) {
                 int32 j{static_cast<int32>(te_.GetFrom())};
 
                 do {
                     j += dir;
-                    m_controlSelf[j] |= jumpDir;
+                    m_controlSelf[j].set(jumpDir);
                 }
                 while (m_ban[j] == Empty);
             }
 
-            if (m_controlEnemy[te_.GetFrom()] & jumpDir) {
+            if (m_controlEnemy[te_.GetFrom()].test(jumpDir)) {
                 int32 j{static_cast<int32>(te_.GetFrom())};
 
                 do {
                     j += dir;
-                    m_controlEnemy[j] |= jumpDir;
+                    m_controlEnemy[j].set(jumpDir);
                 }
                 while (m_ban[j] == Empty);
             }
@@ -141,7 +141,7 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
         ++m_holdingKomas[isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy)];
 
-        for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 12; ++i, moveDir <<= 1, jumpDir <<= 1) {
+        for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
             int32 dir{Direct[i]};
 
             if (CanJump[i][m_ban[te_.GetTo()]]) {
@@ -151,10 +151,10 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
                     j += dir;
 
                     if (isSelfOrEnemy_ == Self) {
-                        m_controlEnemy[j] &= ~jumpDir;
+                        m_controlEnemy[j].reset(jumpDir);
                     }
                     else {
-                        m_controlSelf[j] &= ~jumpDir;
+                        m_controlSelf[j].reset(jumpDir);
                     }
                 }
                 while (m_ban[j] == Empty);
@@ -167,34 +167,34 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
                 }
 
                 if (isSelfOrEnemy_ == Self) {
-                    m_controlEnemy[j] &= ~moveDir;
+                    m_controlEnemy[j].reset(moveDir);
                 }
                 else {
-                    m_controlSelf[j] &= ~moveDir;
+                    m_controlSelf[j].reset(moveDir);
                 }
             }
         }
     }
     else {
-        for (uint32 i{}, jumpDir{1 << 16}; i < 8; ++i, jumpDir <<= 1) {
+        for (uint32 i{}, jumpDir{16}; i < 8; ++i, ++jumpDir) {
             int32 dir{Direct[i]};
 
-            if (m_controlSelf[te_.GetTo()] & jumpDir) {
+            if (m_controlSelf[te_.GetTo()].test(jumpDir)) {
                 int32 j{static_cast<int32>(te_.GetTo())};
 
                 do {
                     j += dir;
-                    m_controlSelf[j] &= ~jumpDir;
+                    m_controlSelf[j].reset(jumpDir);
                 }
                 while (m_ban[j] == Empty);
             }
 
-            if (m_controlEnemy[te_.GetTo()] & jumpDir) {
+            if (m_controlEnemy[te_.GetTo()].test(jumpDir)) {
                 int32 j{static_cast<int32>(te_.GetTo())};
 
                 do {
                     j += dir;
-                    m_controlEnemy[j] &= ~jumpDir;
+                    m_controlEnemy[j].reset(jumpDir);
                 }
                 while (m_ban[j] == Empty);
             }
@@ -210,7 +210,7 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
         m_ban[te_.GetTo()] = te_.GetKoma();
     }
 
-    for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 12; ++i, moveDir <<= 1, jumpDir <<= 1) {
+    for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
         if (CanJump[i][m_ban[te_.GetTo()]]) {
             int32 j{static_cast<int32>(te_.GetTo())};
 
@@ -218,20 +218,20 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
                 j += Direct[i];
 
                 if (isSelfOrEnemy_ == Self) {
-                    m_controlSelf[j] |= jumpDir;
+                    m_controlSelf[j].set(jumpDir);
                 }
                 else {
-                    m_controlEnemy[j] |= jumpDir;
+                    m_controlEnemy[j].set(jumpDir);
                 }
             }
             while (m_ban[j] == Empty);
         }
         else if (CanMove[i][m_ban[te_.GetTo()]]) {
             if (isSelfOrEnemy_ == Self) {
-                m_controlSelf[te_.GetTo() + Direct[i]] |= moveDir;
+                m_controlSelf[te_.GetTo() + Direct[i]].set(moveDir);
             }
             else {
-                m_controlEnemy[te_.GetTo() + Direct[i]] |= moveDir;
+                m_controlEnemy[te_.GetTo() + Direct[i]].set(moveDir);
             }
         }
     }
@@ -260,7 +260,7 @@ void Kyokumen::MakePinInfo() {
                 continue;
             }
 
-            if (m_controlEnemy[p] & (1 << (16 + i))) {
+            if (m_controlEnemy[p].test(16 + i)) {
                 m_pin[p] = Direct[i];
             }
         }
@@ -274,7 +274,7 @@ void Kyokumen::MakePinInfo() {
                 continue;
             }
 
-            if (m_controlSelf[p] & (1 << (16 + i))) {
+            if (m_controlSelf[p].test(16 + i)) {
                 m_pin[p] = Direct[i];
             }
         }
@@ -448,61 +448,61 @@ void Kyokumen::AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const i
     }
 }
 
-uint32 Kyokumen::CountControlSelf(const uint32 pos_) {
-    uint32 ret{};
+std::bitset<28> Kyokumen::CountControlSelf(const uint32 pos_) {
+    std::bitset<28> ret{};
     
-    for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 12; ++i, moveDir <<= 1, jumpDir <<= 1) {
+    for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
         if (static_cast<int32>(pos_) - Direct[i] < 0 || static_cast<int32>(pos_) - Direct[i] >= 121) {
             continue;
         }
 
         if (CanMove[i][m_ban[pos_ - Direct[i]]] && (m_ban[pos_ - Direct[i]] & Self)) {
-            ret |= moveDir;
+            ret.set(moveDir);
         }
         else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && (m_ban[Search(pos_, -Direct[i])] & Self)) {
-            ret |= jumpDir;
+            ret.set(jumpDir);
         }
     }
 
     return ret;
 }
 
-uint32 Kyokumen::CountControlEnemy(const uint32 pos_) {
-    uint32 ret{};
+std::bitset<28> Kyokumen::CountControlEnemy(const uint32 pos_) {
+    std::bitset<28> ret{};
     
-    for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 12; ++i, moveDir <<= 1, jumpDir <<= 1) {
+    for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
         if (static_cast<int32>(pos_) - Direct[i] < 0 || static_cast<int32>(pos_) - Direct[i] >= 121) {
             continue;
         }
 
         if (CanMove[i][m_ban[pos_ - Direct[i]]] && (m_ban[pos_ - Direct[i]] & Enemy)) {
-            ret |= moveDir;
+            ret.set(moveDir);
         }
         else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]] && (m_ban[Search(pos_, -Direct[i])] & Enemy)) {
-            ret |= jumpDir;
+            ret.set(jumpDir);
         }
     }
 
     return ret;
 }
 
-uint32 Kyokumen::CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_) {
-    uint32 ret{};
+std::bitset<28> Kyokumen::CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_) {
+    std::bitset<28> ret{};
 
-    for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 12; ++i, moveDir <<= 1, jumpDir <<= 1) {
+    for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
         if (CanMove[i][m_ban[pos_ - Direct[i]]]
             && (m_ban[pos_ - Direct[i]] & isSelfOrEnemy_)
             && (m_pin[pos_ - Direct[i]] == 0
                 || m_pin[pos_ - Direct[i]] == Direct[i]
                 || m_pin[pos_ - Direct[i]] == -Direct[i])) {
-            ret |= moveDir;
+            ret.set(moveDir);
         }
         else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]]
             && (m_ban[Search(pos_, -Direct[i])] & isSelfOrEnemy_)
             && (m_pin[Search(pos_, -Direct[i])] == 0
                 || m_pin[Search(pos_, -Direct[i])] == Direct[i]
                 || m_pin[Search(pos_, -Direct[i])] == -Direct[i])) {
-            ret |= jumpDir;
+            ret.set(jumpDir);
         }
     }
 
@@ -523,10 +523,10 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
 
     m_ban[to_] = Fu | isSelfOrEnemy_;
     if (isSelfOrEnemy_ == Self) {
-        if (m_controlSelf[to_] && CountMove(Enemy, to_) == (1 << 1)) {
+        if (m_controlSelf[to_].any() && CountMove(Enemy, to_).test(1)) {
             for (uint32 i{}; i < 8; ++i) {
                 uint32 koma{m_ban[m_kingEnemyPos + Direct[i]]};
-                if (!(koma & Enemy) && !CountControlSelf(m_kingEnemyPos + Direct[i])) {
+                if (!(koma & Enemy) && CountControlSelf(m_kingEnemyPos + Direct[i]).none()) {
                     m_ban[to_] = Empty;
                     return false;
                 }
@@ -540,10 +540,10 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
         return false;
     }
     else {
-        if (m_controlEnemy[to_] && CountMove(Self, to_) == (1 << 6)) {
+        if (m_controlEnemy[to_].any() && CountMove(Self, to_).test(6)) {
             for (uint32 i{}; i < 8; ++i) {
                 uint32 koma{m_ban[m_kingSelfPos + Direct[i]]};
-                if (!(koma & Self) && !CountControlEnemy(m_kingSelfPos + Direct[i])) {
+                if (!(koma & Self) && CountControlEnemy(m_kingSelfPos + Direct[i]).none()) {
                     m_ban[to_] = Empty;
                     return false;
                 }
@@ -596,8 +596,8 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
     }
 }
 
-uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
-    if ((control_ & (control_ - 1)) != 0) {
+uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& control_) {
+    if (control_.count() >= 2) {
         MoveKing(isSelfOrEnemy_, control_);
     }
     else {
@@ -605,8 +605,8 @@ uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
 
         uint32 id{};
 
-        for (; id <= 31; ++id) {
-            if (control_ == (1u << id)) {
+        for (; id < 28; ++id) {
+            if (control_.test(id)) {
                 break;
             }
         }
@@ -630,11 +630,11 @@ uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_) {
     return m_teValids.size();
 }
 
-void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
+void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const std::bitset<28>& kiki_) {
     int32 id{-1};
 
     for (uint32 i{}; i < 8; ++i) {
-        if (kiki_ & (1 << i)) {
+        if (kiki_.test(i)) {
             id = i;
             break;
         }
@@ -645,8 +645,8 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             uint32 koma{m_ban[m_kingSelfPos - Direct[id]]};
 
             if ((koma == Empty || (koma & Enemy))
-                && !CountControlEnemy(m_kingSelfPos - Direct[id])
-                && !(kiki_ & (1 << (23 - id)))
+                && CountControlEnemy(m_kingSelfPos - Direct[id]).none()
+                && !(kiki_.test(23 - id))
                 ) {
                 AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[id], 0);
             }
@@ -655,8 +655,8 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             uint32 koma{m_ban[m_kingEnemyPos - Direct[id]]};
 
             if ((koma == Empty || (koma & Self))
-                && !CountControlSelf(m_kingEnemyPos - Direct[id])
-                && !(kiki_ & (1 << (23 - id)))
+                && CountControlSelf(m_kingEnemyPos - Direct[id]).none()
+                && !(kiki_.test(23 - id))
                 ) {
                 AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[id], 0);
             }
@@ -673,8 +673,8 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             }
             uint32 koma{m_ban[m_kingSelfPos - Direct[i]]};
             if ((koma == Empty || (koma & Enemy))
-                && !CountControlEnemy(m_kingSelfPos - Direct[i])
-                && !(kiki_ & (1 << (23 - i)))
+                && CountControlEnemy(m_kingSelfPos - Direct[i]).none()
+                && !(kiki_.test(23 - i))
                 ) {
                 AddMove(isSelfOrEnemy_, m_kingSelfPos, -Direct[i], 0);
             }
@@ -685,8 +685,8 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_) {
             }
             uint32 koma{m_ban[m_kingEnemyPos - Direct[i]]};
             if ((koma == Empty || (koma & Self))
-                && !CountControlSelf(m_kingEnemyPos - Direct[i])
-                && !(kiki_ & (1 << (23 - i)))
+                && CountControlSelf(m_kingEnemyPos - Direct[i]).none()
+                && !(kiki_.test(23 - i))
                 ) {
                 AddMove(isSelfOrEnemy_, m_kingEnemyPos, -Direct[i], 0);
             }
@@ -898,10 +898,10 @@ int32 Kyokumen::Eval(const uint32 pos_) {
     if (m_ban[pos_] == Empty) {
         return 0;
     }
-    if ((m_ban[pos_] & Self) && !m_controlEnemy[pos_]) {
+    if ((m_ban[pos_] & Self) && m_controlEnemy[pos_].none()) {
         return 0;
     }
-    if ((m_ban[pos_] & Enemy) && !m_controlSelf[pos_]) {
+    if ((m_ban[pos_] & Enemy) && m_controlSelf[pos_].none()) {
         return 0;
     }
 
@@ -915,9 +915,9 @@ int32 Kyokumen::Eval(const uint32 pos_) {
     bool promoteSelf{(toPos % 10) <= 3}, promoteEnemy{(toPos % 10) >= 7};
     uint32 pos{toPos};
 
-    for (uint32 i{}, moveDir{1}, jumpDir{1 << 16}; i < 8; ++i, moveDir <<= 1, jumpDir <<= 1) {
+    for (uint32 i{}, moveDir{}, jumpDir{16}; i < 8; ++i, ++moveDir, ++jumpDir) {
         pos2 = pos;
-        if (m_controlSelf[pos] & moveDir) {
+        if (m_controlSelf[pos].test(moveDir)) {
             pos2 -= Direct[i];
             attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
 
@@ -928,7 +928,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
                 attackSelfTes.back().SetPromote(0);
             }
         }
-        else if (m_controlEnemy[pos] & moveDir) {
+        else if (m_controlEnemy[pos].test(moveDir)) {
             pos2 -= Direct[i];
             attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
 
@@ -945,7 +945,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
         }
 
         if (m_ban[pos - Direct[i]] != Sou && m_ban[pos - Direct[i]] != Eou) {
-            while ((m_controlSelf[pos2] & jumpDir) || (m_controlEnemy[pos2] & jumpDir)) {
+            while ((m_controlSelf[pos2].test(jumpDir)) || (m_controlEnemy[pos2].test(jumpDir))) {
                 do {
                     if (static_cast<int32>(pos2) - Direct[i] < 0) {
                         break;
@@ -976,12 +976,12 @@ int32 Kyokumen::Eval(const uint32 pos_) {
         }
     }
 
-    for (uint32 i{8}, moveDir{1 << 8}; i < 12; ++i, moveDir <<= 1) {
+    for (uint32 i{8}, moveDir{8}; i < 12; ++i, ++moveDir) {
         if (static_cast<int32>(pos) - Direct[i] < 0) {
             continue;
         }
 
-        if (m_controlSelf[pos] & moveDir) {
+        if (m_controlSelf[pos].test(moveDir)) {
             pos2 = pos - Direct[i];
             attackSelfTes.emplace_back(pos2, pos, m_ban[pos2]);
 
@@ -993,7 +993,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
             }
         }
         
-        if (m_controlEnemy[pos] & moveDir) {
+        if (m_controlEnemy[pos].test(moveDir)) {
             pos2 = pos - Direct[i];
             attackEnemyTes.emplace_back(pos2, pos, m_ban[pos2]);
 

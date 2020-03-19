@@ -36,6 +36,8 @@ void Main() {
     TextureAsset::Register(U"Kyosha", Resource(U"textures/komas/syougi12_kyousya.png"), AssetParameter::LoadImmediately());
     TextureAsset::Register(U"NariKyosha", Resource(U"textures/komas/syougi13_narikyou.png"), AssetParameter::LoadImmediately());
 
+	AudioAsset::Register(U"Piece", Resource(U"audios/piece1.m4a"), AssetParameter::LoadImmediately());
+	
 	// シーンと遷移時の色を設定
 	MyApp manager;
 	manager

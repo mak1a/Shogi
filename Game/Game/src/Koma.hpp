@@ -74,23 +74,6 @@ enum class KomaState {
 };
 
 /// <summary>
-/// 平手盤
-/// </summary>
-constexpr array<const array<const uint32, 9>, 9> HirateBan {
-    {
-        {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
-        {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
-        {Efu,Efu,Efu,Efu,Efu,Efu,Efu,Efu,Efu},
-        {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
-        {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
-        {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
-        {Sfu,Sfu,Sfu,Sfu,Sfu,Sfu,Sfu,Sfu,Sfu},
-        {Emp,Ska,Emp,Emp,Emp,Emp,Emp,Shi,Emp},
-        {Sky,Ske,Sgi,Ski,Sou,Ski,Sgi,Ske,Sky}
-    }
-};
-
-/// <summary>
 /// 台に置く際の駒の場所
 /// </summary>
 namespace KomaPos {
