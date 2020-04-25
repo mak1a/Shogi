@@ -49,6 +49,18 @@ void Main() {
 
 	//manager.init(State::Select);
 
+	// ハッシュ値の初期化
+	for (const size_t i : step(48)) {
+		for (const size_t pos : Range(11, 99)) {
+			HashSeeds[i][pos] = RandomUint64();
+		}
+	}
+	for (const size_t i : Range(17, 39)) {
+		for (const size_t maisuu : step(19)) {
+			HashHandSeeds[i][maisuu] = RandomUint64();
+		}
+	}
+
 	while (System::Update()) {
 		if (!manager.update()) {
 			break;

@@ -122,6 +122,10 @@ private:
     //array<uint32, 16 * 11> m_pin;
     array<uint32, 11 * 11> m_pin;
     
+    uint64 m_kyokumenHashVal;
+    uint64 m_handHashVal;
+    uint64 m_hashVal;
+    
     void InitControl();
     
     [[nodiscard]] bool Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_);
@@ -153,11 +157,6 @@ private:
 
     int32 Eval(const uint32 pos_);
 
-public:
-    Kyokumen() = default;
-    
-    Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
-
     [[nodiscard]] inline uint32 Search(uint32 pos_, int32 dir_) const noexcept {
         do {
             if (static_cast<int32>(pos_) + dir_ < 0) {
@@ -170,7 +169,16 @@ public:
         return pos_;
     }
 
-    [[nodiscard]] bool IsIllegal(const Te& te_) const noexcept {
+    void MakePinInfo();
+
+    uint32 AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& control_);
+
+public:
+    Kyokumen() = default;
+    
+    Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
+
+    [[nodiscard]] inline bool IsIllegal(const Te& te_) const noexcept {
         for (const auto& te : m_teValids) {
             if (te_ == te) {
                 return false;
@@ -186,17 +194,8 @@ public:
     [[nodiscard]] int32 GetValue() const noexcept {
         return m_value;
     }
-    [[nodiscard]] array<uint32, 41> GetHoldingKomas() const noexcept {
-        return m_holdingKomas;
-    }
-
-    void MakePinInfo();
 
     uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
-
-    // uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
-
-    uint32 AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& control_);
 
     void Move(const uint32 isSelfOrEnemy_, const Te& te_);
 

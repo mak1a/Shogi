@@ -396,8 +396,8 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
 }
 
 Game::Game(const InitData& init)
-	: IScene(init)
-    , m_ban(getData().GetBoard(), getData().firstMove) {}
+: IScene(init)
+, m_ban(getData().GetBoard(), getData().firstMove) {}
 
 void Game::update()
 {

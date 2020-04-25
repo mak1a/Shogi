@@ -401,14 +401,14 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
 }
 
 GameAI::GameAI(const InitData& init)
-	: IScene(init)
-    , m_ban(getData().GetBoard(), getData().firstMove, getData().depthMax) {}
+: IScene(init)
+, m_ban(getData().GetBoard(), getData().firstMove, getData().depthMax) {}
 
 void GameAI::update() {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        //m_ban.SelfUpdate();
-        m_ban.SelfAIUpdate();
+        m_ban.SelfUpdate();
+        //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         m_ban.EnemyUpdate();
