@@ -37,8 +37,14 @@ private:
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
         AudioAsset(U"Piece").playOneShot(0.2);
-
         ClearPrint();
+
+        if (m_kyokumen.IsSennitite()) {
+            m_winner = m_kyokumen.IsContinuous(m_turn);
+            m_turn = Turn::Tsumi;
+            return;
+        }
+
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
         if (GetTurn() == Turn::Player) {
             if (m_kyokumen.MakeLegalMoves(Self) <= 0) {

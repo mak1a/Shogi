@@ -4,13 +4,17 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>,
 : m_kingSelfPos(0)
 , m_kingEnemyPos(0)
 , m_tesu(tesu_)
-, m_value(0) {
+, m_value(0)
+, m_kyokumenHashVal(0)
+, m_handHashVal(0)
+, m_hashVal(0) {
     m_ban.fill(Wall);
     m_pin.fill(Wall);
 
     for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
             m_ban[suji + dan] = board_[dan - 1][9-(suji/10)];
+            m_kyokumenHashVal ^= HashSeeds[m_ban[suji+dan]][suji+dan];
 
             if (m_ban[suji + dan] == Sou) {
                 m_kingSelfPos = suji + dan;
@@ -26,7 +30,15 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>,
     for (uint32 i{}; i <= Ehi; ++i) {
         m_holdingKomas[i] = motigoma_[i];
         m_value += HandValue[i] * m_holdingKomas[i];
+
+        for (uint32 j{1}; j <= m_holdingKomas[i]; ++j) {
+            m_handHashVal ^= HashHandSeeds[i][j];
+        }
     }
+
+    m_hashVal = m_kyokumenHashVal ^ m_handHashVal;
+    ++m_hashHistory[m_hashVal];
+    m_outeHistory.emplace_back(0, m_hashVal);
 
     InitControl();
 }
@@ -104,6 +116,9 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
         m_ban[te_.GetFrom()] = Empty;
 
+        m_kyokumenHashVal ^= HashSeeds[te_.GetKoma()][te_.GetFrom()];
+        m_kyokumenHashVal ^= HashSeeds[Empty][te_.GetFrom()];
+
         for (uint32 i{}, jumpDir{16}; i < 8; ++i, ++jumpDir) {
             int32 dir{Direct[i]};
 
@@ -129,6 +144,8 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
         }
     }
     else {
+        m_handHashVal ^= HashHandSeeds[te_.GetKoma()][m_holdingKomas[te_.GetKoma()]];
+
         --m_holdingKomas[te_.GetKoma()];
 
         m_value -= HandValue[te_.GetKoma()];
@@ -137,9 +154,13 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
     if (m_ban[te_.GetTo()] != Empty) {
         m_value -= KomaValue[m_ban[te_.GetTo()]];
-        m_value += HandValue[isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy)];
 
-        ++m_holdingKomas[isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy)];
+        uint32 koma{isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy)};
+        m_value += HandValue[koma];
+
+        ++m_holdingKomas[koma];
+
+        m_handHashVal ^= HashHandSeeds[koma][m_holdingKomas[koma]];
 
         for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
             int32 dir{Direct[i]};
@@ -201,6 +222,8 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
         }
     }
 
+    m_kyokumenHashVal ^= HashSeeds[m_ban[te_.GetTo()]][te_.GetTo()];
+
     if (te_.GetPromote()) {
         m_value -= KomaValue[te_.GetKoma()];
         m_value += KomaValue[te_.GetKoma() | Promote];
@@ -209,6 +232,8 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
     else {
         m_ban[te_.GetTo()] = te_.GetKoma();
     }
+
+    m_kyokumenHashVal ^= HashSeeds[m_ban[te_.GetTo()]][te_.GetTo()];
 
     for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
         if (CanJump[i][m_ban[te_.GetTo()]]) {
@@ -243,7 +268,10 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
         m_kingEnemyPos = te_.GetTo();
     }
 
+    m_hashVal = m_kyokumenHashVal ^ m_handHashVal;
     ++m_tesu;
+    ++m_hashHistory[m_hashVal];
+    m_outeHistory.emplace_back((isSelfOrEnemy_==Self)?m_controlSelf[m_kingEnemyPos]:m_controlEnemy[m_kingSelfPos], m_hashVal);
 }
 
 void Kyokumen::MakePinInfo() {
@@ -284,11 +312,11 @@ void Kyokumen::MakePinInfo() {
 uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
     MakePinInfo();
 
-    if (isSelfOrEnemy_ == Self && m_controlEnemy[m_kingSelfPos] != 0) {
+    if (isSelfOrEnemy_ == Self && m_controlEnemy[m_kingSelfPos].any()) {
         return AntiCheck(isSelfOrEnemy_, m_controlEnemy[m_kingSelfPos]);
     }
 
-    if (isSelfOrEnemy_ == Enemy && m_controlSelf[m_kingEnemyPos] != 0) {
+    if (isSelfOrEnemy_ == Enemy && m_controlSelf[m_kingEnemyPos].any()) {
         return AntiCheck(isSelfOrEnemy_, m_controlSelf[m_kingEnemyPos]);
     }
 
@@ -567,6 +595,7 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
 
     if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0 && dan > 1) {
         int32 suji{static_cast<int32>(pos_ / 10)};
+        suji *= 10;
         bool nifu{false};
 
         for (uint32 d{1}; d <= 9; ++d) {
@@ -777,43 +806,43 @@ void Kyokumen::MoveTo(const uint32 isSelfOrEnemy_, const uint32 to_) {
     return Max<uint32>(Abs(p1_ / 10 - p2_ / 10), Abs((p1_ % 10) - (p2_ % 10)));
 }
 
-bool Kyokumen::IsCorrectMove(Te* te_) {
-    if (m_ban[te_->GetFrom()] == Sou || m_ban[te_->GetFrom()] == Eou) {
-        if (m_controlEnemy[te_->GetTo()] != 0) {
+bool Kyokumen::IsCorrectMove(Te& te_) {
+    if (m_ban[te_.GetFrom()] == Sou || m_ban[te_.GetFrom()] == Eou) {
+        if (m_controlEnemy[te_.GetTo()].any()) {
             return false;
         }
 
-        te_->SetCapture(m_ban[te_->GetTo()]);
+        te_.SetCapture(m_ban[te_.GetTo()]);
         return true;
     }
 
-    if (m_ban[te_->GetFrom()] == Eou) {
-        if (m_controlSelf[te_->GetTo()] != 0) {
+    if (m_ban[te_.GetFrom()] == Eou) {
+        if (m_controlSelf[te_.GetTo()].any()) {
             return false;
         }
 
-        te_->SetCapture(m_ban[te_->GetTo()]);
+        te_.SetCapture(m_ban[te_.GetTo()]);
         return true;
     }
 
-    if (m_ban[te_->GetFrom()] == Ske || m_ban[te_->GetFrom()] == Eke) {
-        te_->SetCapture(m_ban[te_->GetTo()]);
+    if (m_ban[te_.GetFrom()] == Ske || m_ban[te_.GetFrom()] == Eke) {
+        te_.SetCapture(m_ban[te_.GetTo()]);
         return true;
     }
 
-    uint32 d{Kyori(te_->GetFrom(), te_->GetTo())};
+    uint32 d{Kyori(te_.GetFrom(), te_.GetTo())};
     if (d == 0) {
         return false;
     }
 
     if (d == 1) {
-        te_->SetCapture(m_ban[te_->GetTo()]);
+        te_.SetCapture(m_ban[te_.GetTo()]);
         return true;
     }
 
-    int32 dir{static_cast<int32>((te_->GetTo() - te_->GetFrom()) / d)};
+    int32 dir{static_cast<int32>((te_.GetTo() - te_.GetFrom()) / d)};
 
-    for (uint32 i{1}, pos{te_->GetFrom() + dir}; i < d; ++i, pos += dir) {
+    for (uint32 i{1}, pos{te_.GetFrom() + dir}; i < d; ++i, pos += dir) {
         if (pos < 0 || pos >= 121) {
             continue;
         }
@@ -823,7 +852,7 @@ bool Kyokumen::IsCorrectMove(Te* te_) {
         }
     }
 
-    te_->SetCapture(m_ban[te_->GetTo()]);
+    te_.SetCapture(m_ban[te_.GetTo()]);
     return true;
 }
 
@@ -836,7 +865,7 @@ int32 Kyokumen::EvalMin(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
     uint32 k{};
 
     for (; k < moveEnemy_.size(); ++k) {
-        if (IsCorrectMove(&moveEnemy_[k])) {
+        if (IsCorrectMove(moveEnemy_[k])) {
             break;
         }
     }
@@ -870,7 +899,7 @@ int32 Kyokumen::EvalMax(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
     uint32 k{};
 
     for (; k < moveSelf_.size(); ++k) {
-        if (IsCorrectMove(&moveSelf_[k])) {
+        if (IsCorrectMove(moveSelf_[k])) {
             break;
         }
     }
