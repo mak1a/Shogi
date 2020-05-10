@@ -401,14 +401,14 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
 }
 
 GameAI::GameAI(const InitData& init)
-	: IScene(init)
-    , m_ban(getData().GetBoard(), getData().firstMove, getData().depthMax) {}
+: IScene(init)
+, m_ban(getData().GetBoard(), getData().firstMove, getData().depthMax) {}
 
 void GameAI::update() {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        //m_ban.SelfUpdate();
-        m_ban.SelfAIUpdate();
+        m_ban.SelfUpdate();
+        //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         m_ban.EnemyUpdate();
@@ -428,8 +428,11 @@ void GameAI::draw() const {
         if (m_ban.GetWinner() == Winner::Player) {
             FontAsset(U"Result")(U"勝利").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Red);
         }
-        else {
+        else if (m_ban.GetWinner() == Winner::Enemy) {
             FontAsset(U"Result")(U"敗北").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Blue);
+        }
+        else {
+            FontAsset(U"Result")(U"千日手です").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Black);
         }
         FontAsset(U"Explain")(U"画面をクリックでタイトルに戻る").drawAt(Scene::CenterF().movedBy(0, 50), Palette::Darkred);
     }

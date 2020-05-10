@@ -275,6 +275,9 @@ constexpr array<const int32, 49> KomaValue {
         0,-100,-600,-700,-1000,-1200,-1800,-2000,-10000,-1200,-1200,-1200,-1200,-1200,-2000,-2200,0
 };
 
+inline array<array<uint64, 100>, 48> HashSeeds;
+inline array<array<uint64, 19>, 40> HashHandSeeds;
+
 class KomaSquare : public RectF {
 private:
     uint32 m_komaType;

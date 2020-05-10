@@ -129,5 +129,6 @@ using MyApp = SceneManager<State, GameData>;
 /// </summary>
 enum class Winner {
 	Player,
-	Enemy
+	Enemy,
+	Sennitite
 };

@@ -1,6 +1,7 @@
 ﻿
 # pragma once
 # include "Common.hpp"
+#include<HamFramework.hpp>
 
 // タイトルシーン
 class Title : public MyApp::Scene {
