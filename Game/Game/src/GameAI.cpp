@@ -98,7 +98,7 @@ void BanSelf::SelfAIUpdate() {
         return;
     }
 
-    Te te{m_sikouSelf.Think(Self, m_kyokumen)};
+    Te te{m_sikouSelf.Think(Self, m_kyokumen, SearchType::NegaAlphaBeta)};
     m_kyokumen.Move(Self, te);
 
     if (te.GetFrom() > 10) {
@@ -300,7 +300,7 @@ void BanSelf::Draw() const {
         m_placedPart.value().draw(ColorF(Palette::Red, 0.5f));
     }
 
-    for (const auto &square : m_boardSquares) {
+    for (const auto& square : m_boardSquares) {
         square.drawFrame(2, Palette::Black);
         
         square.Draw();
@@ -407,8 +407,8 @@ GameAI::GameAI(const InitData& init)
 void GameAI::update() {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        m_ban.SelfUpdate();
-        //m_ban.SelfAIUpdate();
+        //m_ban.SelfUpdate();
+        m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         m_ban.EnemyUpdate();

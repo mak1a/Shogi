@@ -52,3 +52,224 @@ void Title::draw() const {
 		.draw(Arg::top = ColorF(0.0, 0.0), Arg::bottom = ColorF(0.0, 0.5));
 
 }
+
+
+// 設定シーン
+Select::Select(const InitData& init)
+: IScene(init)
+, m_isCustom(false)
+, m_shogiBan(Arg::center(Scene::CenterF().movedBy(0, -100)), 450.f)
+, m_enemyDai(Arg::center(370.f, 550.f), 420.f, 100.f)
+, m_selfDai(Arg::center(910.f, 550.f), 420.f, 100.f) {
+	getData().firstMove = Turn::Player;
+	getData().elegance = Elegance::Player;
+	getData().handicap = Handicap::Hirate;
+	getData().depthMax = 1;
+
+	// １マスの大きさ
+	const double squareSize = 50.0;
+
+	for (size_t x = 0; x < 7; ++x) {
+		m_selectEnemyKomas << KomaSquare(
+			m_enemyDai.tl().x + x * 60 + 5
+			, 525.f
+			, squareSize
+			, static_cast<KomaType>(x+1)+KomaType::Enemy
+			, Point(0, 0)
+		);
+	}
+
+	for (size_t x = 0; x < 7; ++x) {
+		m_selectSelfKomas << KomaSquare(
+			m_selfDai.tl().x + x * 60 + 5
+			, 525.f
+			, squareSize
+			, static_cast<KomaType>(x+1)+KomaType::Self
+			, Point(0, 0)
+		);
+	}
+}
+
+void Select::SetUp() {
+	SimpleGUI::Headline(U"手番", Vec2(480, 50));
+	{
+		if (SimpleGUI::RadioButtons(firstMoveIndx, {U"先手", U"後手"}, Vec2(480, 90))) {
+			getData().firstMove = static_cast<Turn>(firstMoveIndx);
+		}
+	}
+	SimpleGUI::Headline(U"駒落ち", Vec2(740, 50));
+	{
+		if (SimpleGUI::HorizontalRadioButtons(eleganceIndx, {U"自分", U"相手"}, Vec2(740, 90))) {
+			getData().elegance = static_cast<Elegance>(eleganceIndx);
+		}
+	}
+	//SimpleGUI::Headline(U"手合", Vec2(760, 100));
+	{
+		if (SimpleGUI::RadioButtons(handicapIndx, handicaps, Vec2(740, 135))) {
+			getData().handicap = static_cast<Handicap>(handicapIndx);
+		}
+	}
+	if (getData().gameState == State::GameAI) {
+		SimpleGUI::Headline(U"強さ", Vec2(480, 240));
+		{
+			if (SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, Vec2(480, 280))) {
+				getData().depthMax = static_cast<uint32>(depthMaxIndx+1);
+			}
+		}
+	}
+	if (SimpleGUI::Button(U"ゲームスタート", Vec2(800, 530), 200)) {
+		if (getData().handicap == Handicap::Custom) {
+			m_isCustom = true;
+			// １マスの大きさ
+			const double squareSize = 50.0;
+			
+			// 盤面に駒を設置
+			for (size_t y = 0; y < 9; ++y) {
+				for (size_t x = 0; x < 9; ++x) {
+					m_boardSquares << KomaSquare(
+						m_shogiBan.tl().x + x * squareSize
+						, m_shogiBan.tl().y + y * squareSize
+						, squareSize
+						, getData().GetBoard()[y][x]
+						, Point(9-x, y+1)
+					);
+				}
+			}
+			return;
+		}
+        changeScene(getData().gameState);
+    }
+}
+
+void Select::Custom() {
+	// 盤面上の処理
+    for (auto& square : m_boardSquares) {
+        // 盤面から駒を選んで手に持つ処理
+        if (!m_holdHand.has_value()) {
+            if (!square.leftClicked()) {
+                continue;
+            }
+            if (square.GetKomaType() == Empty
+				|| square.GetKomaType() == Eou
+				|| square.GetKomaType() == Sou) {
+                return;
+            }
+            
+            square.ChangeKomaType(Emp);
+            return;
+        }
+        
+        // クリックしてない場合は次の処理に
+        if (!square.leftClicked()) {
+            m_holdHand.value().setCenter(Cursor::PosF());
+            continue;
+        }
+		if (square.GetKomaType() == Eou || square.GetKomaType() == Sou) {
+            return;
+        }
+        
+        // 持ってる駒を置く
+        square.ChangeKomaType(m_holdHand.value().GetKomaType());
+
+		if (!KeyShift.pressed()) {
+			m_holdHand.reset();
+		}
+        return;
+    }
+    
+    // 駒台から取った駒を元の駒台の位置に戻す処理
+    // いわゆるキャンセル処理
+    if (m_holdHand.has_value()) {
+        // 何もクリックしてなかったら、処理リターン
+        if (!MouseL.down()) {
+            m_holdHand.value().setCenter(Cursor::PosF());
+            return;
+        }
+        
+        m_holdHand.reset();
+        return;
+    }
+    
+    // プレイヤーの駒台から駒を取る処理
+    for (auto& selfKoma : m_selectSelfKomas) {
+        if (!selfKoma.leftClicked()) {
+            continue;
+        }
+        m_holdHand.emplace(selfKoma);
+        return;
+    }
+    
+    // 敵の駒台から駒を取る処理
+    for (auto& enemyKoma : m_selectEnemyKomas) {
+        if (!enemyKoma.leftClicked()) {
+            continue;
+        }
+        m_holdHand.emplace(enemyKoma);
+        return;
+    }
+}
+
+void Select::update() {
+	if (m_isCustom) {
+		Custom();
+		return;
+	}
+
+	SetUp();
+}
+
+/// <summary>
+/// フェードインの時に描画されないので仕方なく
+/// </summary>
+void Select::updateFadeIn(double) {
+	SimpleGUI::Headline(U"手番", Vec2(480, 50));
+	{
+		SimpleGUI::RadioButtons(firstMoveIndx, {U"先手", U"後手"}, Vec2(480, 90));
+	}
+	SimpleGUI::Headline(U"駒落ち", Vec2(740, 50));
+	{
+		SimpleGUI::HorizontalRadioButtons(eleganceIndx, {U"自分", U"相手"}, Vec2(740, 90));
+	}
+	//SimpleGUI::Headline(U"手合", Vec2(760, 100));
+	{
+		SimpleGUI::RadioButtons(handicapIndx, handicaps, Vec2(740, 135));
+	}
+	if (getData().gameState == State::GameAI) {
+		SimpleGUI::Headline(U"強さ", Vec2(480, 240));
+		{
+			SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, Vec2(480, 280));
+		}
+	}
+	SimpleGUI::Button(U"ゲームスタート", Vec2(800, 530), 200);
+}
+
+void Select::draw() const {
+	if (!m_isCustom) {
+		return;
+	}
+
+	m_shogiBan.draw(Palette::Burlywood);
+	m_enemyDai.draw(Palette::Burlywood);
+	m_selfDai.draw(Palette::Burlywood);
+
+	for (const auto& square : m_boardSquares) {
+        square.drawFrame(2, Palette::Black);
+		if (square.mouseOver()) {
+			square.draw(ColorF(Palette::Red, 0.5f));
+		}
+        
+        square.Draw();
+    }
+
+	for (const auto& enemyKoma : m_selectEnemyKomas) {
+		enemyKoma.Draw();
+	}
+
+	for (const auto& selfKoma : m_selectSelfKomas) {
+		selfKoma.Draw();
+	}
+
+	if (m_holdHand.has_value()) {
+        m_holdHand.value().Draw();
+    }
+}

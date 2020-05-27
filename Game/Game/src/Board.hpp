@@ -67,6 +67,20 @@ namespace Board {
         Eou = Enemy + Ou,
     };
 
+    constexpr array<const array<const uint32, 9>, 9> Custom {
+        {
+            {Emp,Emp,Emp,Emp,Eou,Emp,Emp,Emp,Emp},
+            {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
+            {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
+            {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
+            {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
+            {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
+            {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
+            {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
+            {Emp,Emp,Emp,Emp,Sou,Emp,Emp,Emp,Emp}
+        }
+    };
+
     namespace Myself {
         /// <summary>
         /// 平手

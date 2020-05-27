@@ -877,16 +877,16 @@ int32 Kyokumen::EvalMin(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
 
         Te te{moveEnemy_[k]};
         for (uint32 i{k}; i > 0; --i) {
-            moveEnemy_[i] = moveEnemy_[i - 1];
+            moveEnemy_[i] = std::move(moveEnemy_[i - 1]);
         }
 
-        moveEnemy_[0] = te;
+        moveEnemy_[0] = std::move(te);
     }
 
     moveEnemy_[0].SetCapture(m_ban[moveEnemy_[0].GetTo()]);
     Move(Enemy, moveEnemy_[0]);
 
-    moveEnemy_.remove_at(0);
+    moveEnemy_.pop_front();
     return Min<int32>(v, EvalMax(moveSelf_, moveEnemy_));
 }
 
@@ -911,15 +911,15 @@ int32 Kyokumen::EvalMax(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
 
         Te t{moveSelf_[k]};
         for (uint32 i{k}; i > 0; --i) {
-            moveSelf_[i] = moveSelf_[i - 1];
+            moveSelf_[i] = std::move(moveSelf_[i - 1]);
         }
-        moveSelf_[0] = t;
+        moveSelf_[0] = std::move(t);
     }
 
     moveSelf_[0].SetCapture(m_ban[moveSelf_[0].GetTo()]);
     Move(Self, moveSelf_[0]);
 
-    moveSelf_.remove_at(0);
+    moveSelf_.pop_front();
     return Max<int32>(v, EvalMin(moveSelf_, moveEnemy_));
 }
 
@@ -1085,7 +1085,7 @@ int32 Kyokumen::Eval(const uint32 pos_) {
 
     bool isEnemy{(m_ban[pos_] & Enemy) != 0};
     bool isSelf{!isEnemy && (m_ban[pos_] != Enemy)};
-    int32 val = m_value;
+    int32 val{m_value};
 
     if (isEnemy && !attackSelfTes.isEmpty()) {
         return EvalMax(attackSelfTes, attackEnemyTes) - val;

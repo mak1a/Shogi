@@ -109,10 +109,10 @@
 		int32 value{-NegaAlphaBeta(isSelfOrEnemy_==Self?Enemy:Self, k, -beta_, -alpha_, depth_+1)};
 		if (value > retVal) {
 			retVal = value;
-			m_bestHands[depth_][depth_] = teValids[i];
+			m_bestHands[depth_][depth_] = std::move(teValids[i]);
 
-			for (uint32 i{depth_+1}; i < m_depthMax; ++i) {
-				m_bestHands[depth_][i] = m_bestHands[depth_+1][i];
+			for (uint32 j{depth_+1}; j < m_depthMax; ++j) {
+				m_bestHands[depth_][j] = m_bestHands[depth_+1][j];
 			}
 
 			if (retVal > alpha_) {
@@ -153,8 +153,9 @@
 }
 
 [[nodiscard]] Te Sikou::Think(const uint32 isSelfOrEnemy_, Kyokumen kyokumen_, const SearchType type_) noexcept {
+	int32 bestVal{};
+
 	switch (type_) {
-		int32 bestVal;
 	case SearchType::MinMax:
 		bestVal={MinMax(isSelfOrEnemy_, kyokumen_, 0)};
 		//Print << bestVal;

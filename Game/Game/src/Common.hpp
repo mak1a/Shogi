@@ -33,6 +33,7 @@ enum class Handicap {
 	SixDrops,	// 6枚落ち
 	EightDrops,	// 8枚落ち
 	TenDrops,	// 10枚落ち
+	Custom	// カスタム
 };
 
 /// <summary>
@@ -94,6 +95,8 @@ struct GameData {
 				return Board::Myself::EightDrops;
 			case Handicap::TenDrops:
 				return Board::Myself::TenDrops;
+			case Handicap::Custom:
+				return Board::Custom;
 			}
 		}
 		else {
@@ -114,6 +117,8 @@ struct GameData {
 				return Board::Opponent::EightDrops;
 			case Handicap::TenDrops:
 				return Board::Opponent::TenDrops;
+			case Handicap::Custom:
+				return Board::Custom;
 			}
 		}
 	}

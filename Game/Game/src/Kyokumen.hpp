@@ -54,6 +54,9 @@ public:
         , m_kind(kind_)
         , m_value(value_) {}
     
+    constexpr Te(int32 i) noexcept
+    : Te(0, 0, 0) {}
+    
     [[nodiscard]] uint32 GetFrom() const noexcept {
         return m_from;
     }
@@ -194,6 +197,9 @@ public:
     [[nodiscard]] int32 GetValue() const noexcept {
         return m_value;
     }
+    [[nodiscard]] uint64 GetHashVal() const noexcept {
+        return m_hashVal;
+    }
 
     uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
 
@@ -211,7 +217,7 @@ public:
 		}
 
         return (std::max_element(m_hashHistory.begin(), m_hashHistory.end(),
-            [](const auto &a, const auto &b) -> bool {
+            [](const auto& a, const auto& b) -> bool {
                 return (a.second < b.second);
             }
         )->second >= 4);
