@@ -1,7 +1,7 @@
 ﻿
 # include "Game.hpp"
 
-Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_, const double komaDai_) noexcept
+Ban::Ban(const array<array<uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_, const double komaDai_) noexcept
 : m_shogiBan(Arg::center(Scene::CenterF()), shogiBan_)
 , m_komaDaiSelf(Arg::center(Scene::CenterF()
     .movedBy(shogiBan_/2+10+komaDai_/2, (shogiBan_/2-komaDai_)+komaDai_/2)), komaDai_)

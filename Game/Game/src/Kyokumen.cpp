@@ -1,6 +1,6 @@
 ﻿#include "Kyokumen.hpp"
 
-Kyokumen::Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_) noexcept
+Kyokumen::Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_) noexcept
 : m_kingSelfPos(0)
 , m_kingEnemyPos(0)
 , m_tesu(tesu_)

@@ -211,10 +211,25 @@ void Select::Custom() {
 
 void Select::update() {
 	if (m_isCustom) {
+		if (SimpleGUI::Button(U"ゲームスタート", Vec2(1000, 230), 200)) {
+			array<array<uint32, 9>, 9> boardCustom;
+
+			// 盤面に駒を設置
+			for (size_t y = 0; y < 9; ++y) {
+				for (size_t x = 0; x < 9; ++x) {
+					boardCustom[y][x] = m_boardSquares[9*y+x].GetKomaType();
+				}
+			}
+
+			getData().SetCustomBoard(boardCustom);
+			changeScene(getData().gameState);
+			return;
+		}
+
 		Custom();
 		return;
 	}
-
+	
 	SetUp();
 }
 

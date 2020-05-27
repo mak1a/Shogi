@@ -67,7 +67,7 @@ namespace Board {
         Eou = Enemy + Ou,
     };
 
-    constexpr array<const array<const uint32, 9>, 9> Custom {
+    constexpr array<array<uint32, 9>, 9> Custom {
         {
             {Emp,Emp,Emp,Emp,Eou,Emp,Emp,Emp,Emp},
             {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
@@ -85,7 +85,7 @@ namespace Board {
         /// <summary>
         /// 平手
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> Hirate {
+        constexpr array<array<uint32, 9>, 9> Hirate {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -102,7 +102,7 @@ namespace Board {
         /// <summary>
         /// 角落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> Bishop {
+        constexpr array<array<uint32, 9>, 9> Bishop {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -119,7 +119,7 @@ namespace Board {
         /// <summary>
         /// 飛車落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> Rook {
+        constexpr array<array<uint32, 9>, 9> Rook {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -136,7 +136,7 @@ namespace Board {
         /// <summary>
         /// 2枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> TwoPieces {
+        constexpr array<array<uint32, 9>, 9> TwoPieces {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -153,7 +153,7 @@ namespace Board {
         /// <summary>
         /// 4枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> FourDrops {
+        constexpr array<array<uint32, 9>, 9> FourDrops {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -170,7 +170,7 @@ namespace Board {
         /// <summary>
         /// 6枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> SixDrops {
+        constexpr array<array<uint32, 9>, 9> SixDrops {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -187,7 +187,7 @@ namespace Board {
         /// <summary>
         /// 8枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> EightDrops {
+        constexpr array<array<uint32, 9>, 9> EightDrops {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -204,7 +204,7 @@ namespace Board {
         /// <summary>
         /// 10枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> TenDrops {
+        constexpr array<array<uint32, 9>, 9> TenDrops {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -223,7 +223,7 @@ namespace Board {
         /// <summary>
         /// 平手
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> Hirate {
+        constexpr array<array<uint32, 9>, 9> Hirate {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -240,7 +240,7 @@ namespace Board {
         /// <summary>
         /// 角落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> Bishop {
+        constexpr array<array<uint32, 9>, 9> Bishop {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
@@ -257,7 +257,7 @@ namespace Board {
         /// <summary>
         /// 飛車落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> Rook {
+        constexpr array<array<uint32, 9>, 9> Rook {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
@@ -274,7 +274,7 @@ namespace Board {
         /// <summary>
         /// 2枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> TwoPieces {
+        constexpr array<array<uint32, 9>, 9> TwoPieces {
             {
                 {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
                 {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
@@ -291,7 +291,7 @@ namespace Board {
         /// <summary>
         /// 4枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> FourDrops {
+        constexpr array<array<uint32, 9>, 9> FourDrops {
             {
                 {Emp,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Emp},
                 {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
@@ -308,7 +308,7 @@ namespace Board {
         /// <summary>
         /// 6枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> SixDrops {
+        constexpr array<array<uint32, 9>, 9> SixDrops {
             {
                 {Emp,Emp,Egi,Eki,Eou,Eki,Egi,Emp,Emp},
                 {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
@@ -325,7 +325,7 @@ namespace Board {
         /// <summary>
         /// 8枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> EightDrops {
+        constexpr array<array<uint32, 9>, 9> EightDrops {
             {
                 {Emp,Emp,Emp,Eki,Eou,Eki,Emp,Emp,Emp},
                 {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
@@ -342,7 +342,7 @@ namespace Board {
         /// <summary>
         /// 10枚落ち
         /// </summary>
-        constexpr array<const array<const uint32, 9>, 9> TenDrops {
+        constexpr array<array<uint32, 9>, 9> TenDrops {
             {
                 {Emp,Emp,Emp,Emp,Eou,Emp,Emp,Emp,Emp},
                 {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},

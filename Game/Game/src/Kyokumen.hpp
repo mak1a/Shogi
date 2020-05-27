@@ -179,7 +179,7 @@ private:
 public:
     Kyokumen() = default;
     
-    Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
+    Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
 
     [[nodiscard]] inline bool IsIllegal(const Te& te_) const noexcept {
         for (const auto& te : m_teValids) {

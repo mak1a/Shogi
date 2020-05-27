@@ -119,7 +119,7 @@ private:
         m_placedPart = m_stackPlacedPart.top();
     }
 public:
-    Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
+    Ban(const array<array<uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_ = 540.f, const double komaDai_ = 240.f) noexcept;
     
     void Update();
     

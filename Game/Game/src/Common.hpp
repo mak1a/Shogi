@@ -73,10 +73,25 @@ struct GameData {
 	/// </summary>
 	uint32 depthMax = 0;
 
+private:
+	/// <summary>
+	/// 盤面がカスタムの場合、ここに格納する
+	/// </summary>
+	array<array<uint32, 9>, 9> m_customKomas = Board::Custom;
+
+public:
+	GameData() noexcept {
+		for (size_t y{}; y < 9; ++y) {
+			for (size_t x{}; x < 9; ++x) {
+				m_customKomas[y][x] = Board::Custom[y][x];
+			}
+		}
+	}
+
 	/// <summary>
 	/// 選択した盤を出力する
 	/// </summary>
-	array<const array<const uint32, 9>, 9> GetBoard() const noexcept {
+	array<array<uint32, 9>, 9> GetBoard() const noexcept {
 		if (elegance == Elegance::Player) {
 			switch (handicap) {
 			case Handicap::Hirate:
@@ -96,7 +111,7 @@ struct GameData {
 			case Handicap::TenDrops:
 				return Board::Myself::TenDrops;
 			case Handicap::Custom:
-				return Board::Custom;
+				return m_customKomas;
 			}
 		}
 		else {
@@ -118,7 +133,15 @@ struct GameData {
 			case Handicap::TenDrops:
 				return Board::Opponent::TenDrops;
 			case Handicap::Custom:
-				return Board::Custom;
+				return m_customKomas;
+			}
+		}
+	}
+
+	void SetCustomBoard(const array<array<uint32, 9>, 9>& custom_) {
+		for (size_t y{}; y < 9; ++y) {
+			for (size_t x{}; x < 9; ++x) {
+				m_customKomas[y][x] = custom_[y][x];
 			}
 		}
 	}
