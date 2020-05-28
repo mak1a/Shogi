@@ -58,13 +58,16 @@ void Title::draw() const {
 Select::Select(const InitData& init)
 : IScene(init)
 , m_isCustom(false)
+, m_isNifu(false)
+, m_isFirstOute(false)
 , m_shogiBan(Arg::center(Scene::CenterF().movedBy(0, -100)), 450.f)
-, m_enemyDai(Arg::center(370.f, 550.f), 420.f, 100.f)
-, m_selfDai(Arg::center(910.f, 550.f), 420.f, 100.f) {
+, m_enemyDai(Arg::center(370.f, 550.f), 420.f, 80.f)
+, m_selfDai(Arg::center(910.f, 550.f), 420.f, 80.f) {
 	getData().firstMove = Turn::Player;
 	getData().elegance = Elegance::Player;
 	getData().handicap = Handicap::Hirate;
 	getData().depthMax = 1;
+	getData().SetCustomBoard(Board::Custom);
 
 	// １マスの大きさ
 	const double squareSize = 50.0;
@@ -144,7 +147,7 @@ void Select::SetUp() {
 void Select::Custom() {
 	// 盤面上の処理
     for (auto& square : m_boardSquares) {
-        // 盤面から駒を選んで手に持つ処理
+        // 盤面から駒を消す処理
         if (!m_holdHand.has_value()) {
             if (!square.leftClicked()) {
                 continue;
@@ -154,8 +157,11 @@ void Select::Custom() {
 				|| square.GetKomaType() == Sou) {
                 return;
             }
+			Cursor::RequestStyle(CursorStyle::Hand);
             
             square.ChangeKomaType(Emp);
+			m_isNifu = false;
+			m_isFirstOute = false;
             return;
         }
         
@@ -169,6 +175,25 @@ void Select::Custom() {
         }
         
         // 持ってる駒を置く
+		// ただし、動かせない部分には置けないようにする
+		if (m_holdHand.value().GetKomaType() == Sfu && square.GetKomaCoodinate().y <= 1) {
+			return;
+		}
+		if (m_holdHand.value().GetKomaType() == Sky && square.GetKomaCoodinate().y <= 1) {
+			return;
+		}
+		if (m_holdHand.value().GetKomaType() == Ske && square.GetKomaCoodinate().y <= 2) {
+			return;
+		}
+		if (m_holdHand.value().GetKomaType() == Efu && square.GetKomaCoodinate().y >= 9) {
+			return;
+		}
+		if (m_holdHand.value().GetKomaType() == Eky && square.GetKomaCoodinate().y >= 9) {
+			return;
+		}
+		if (m_holdHand.value().GetKomaType() == Eke && square.GetKomaCoodinate().y >= 8) {
+			return;
+		}
         square.ChangeKomaType(m_holdHand.value().GetKomaType());
 
 		if (!KeyShift.pressed()) {
@@ -193,6 +218,9 @@ void Select::Custom() {
     // プレイヤーの駒台から駒を取る処理
     for (auto& selfKoma : m_selectSelfKomas) {
         if (!selfKoma.leftClicked()) {
+			if (selfKoma.mouseOver()) {
+				Cursor::RequestStyle(CursorStyle::Hand);
+			}
             continue;
         }
         m_holdHand.emplace(selfKoma);
@@ -202,6 +230,9 @@ void Select::Custom() {
     // 敵の駒台から駒を取る処理
     for (auto& enemyKoma : m_selectEnemyKomas) {
         if (!enemyKoma.leftClicked()) {
+			if (enemyKoma.mouseOver()) {
+				Cursor::RequestStyle(CursorStyle::Hand);
+			}
             continue;
         }
         m_holdHand.emplace(enemyKoma);
@@ -211,14 +242,33 @@ void Select::Custom() {
 
 void Select::update() {
 	if (m_isCustom) {
-		if (SimpleGUI::Button(U"ゲームスタート", Vec2(1000, 230), 200)) {
+		if (SimpleGUI::Button(U"ゲームスタート", Vec2(900, 620), 200)) {
 			array<array<uint32, 9>, 9> boardCustom;
 
 			// 盤面に駒を設置
-			for (size_t y = 0; y < 9; ++y) {
-				for (size_t x = 0; x < 9; ++x) {
+			for (size_t x{}; x < 9; ++x) {
+				uint32 selfFuNum{}, enemyFuNum{};
+				for (size_t y{}; y < 9; ++y) {
+					if (m_boardSquares[9*y+x].GetKomaType() == KomaType::Sfu) {
+						++selfFuNum;
+					}
+					if (m_boardSquares[9*y+x].GetKomaType() == KomaType::Efu) {
+						++enemyFuNum;
+					}
+					if (selfFuNum >= 2 || enemyFuNum >= 2) {
+						m_isNifu = true;
+						return;
+					}
+
 					boardCustom[y][x] = m_boardSquares[9*y+x].GetKomaType();
 				}
+			}
+			// 初期状態で先手が王手の場合、ゲームを開始しない
+			Kyokumen k(0, boardCustom);
+			k.MakeLegalMoves((getData().firstMove==Turn::Player)?Enemy:Self);
+			if (k.IsOute((getData().firstMove==Turn::Player)?Turn::Enemy:Turn::Player)) {
+				m_isFirstOute = true;
+				return;
 			}
 
 			getData().SetCustomBoard(boardCustom);
@@ -267,6 +317,9 @@ void Select::draw() const {
 	m_enemyDai.draw(Palette::Burlywood);
 	m_selfDai.draw(Palette::Burlywood);
 
+	SimpleGUI::Headline(U"敵駒", m_enemyDai.tl().movedBy(0, -40));
+	SimpleGUI::Headline(U"自駒", m_selfDai.tr().movedBy(-60, -40));
+
 	for (const auto& square : m_boardSquares) {
         square.drawFrame(2, Palette::Black);
 		if (square.mouseOver()) {
@@ -287,4 +340,14 @@ void Select::draw() const {
 	if (m_holdHand.has_value()) {
         m_holdHand.value().Draw();
     }
+
+	FontAsset(U"Explain")(U"初期盤面を自由に\n制作できます。").draw(50, 80, Palette::Black);
+	FontAsset(U"Explain")(U"Shiftキーを押した\nまま選択した駒を\n置くと連続で\n置けます。").draw(50, 230, Palette::Black);
+
+	if (m_isNifu) {
+		FontAsset(U"Explain")(U"二歩です！置き直してください！").draw(320, 620, Palette::Red);
+	}
+	if (m_isFirstOute) {
+		FontAsset(U"Explain")(U"先手が王手の状態で\n開始できません。").draw(915, 120, Palette::Red);
+	}
 }

@@ -60,7 +60,7 @@ void Kyokumen::InitControl() {
                         }
                         while (m_ban[j] == Empty);
                     }
-                    else if (CanMove[i][m_ban[dan + suji]] && (dan + suji >= Direct[i])) {
+                    else if (CanMove[i][m_ban[dan + suji]] && (static_cast<int32>(dan + suji) + Direct[i] >= 0)) {
                         m_controlEnemy[dan + suji + Direct[i]].set(moveDir);
                     }
                 }
@@ -76,7 +76,7 @@ void Kyokumen::InitControl() {
                         }
                         while (m_ban[j] == Empty);
                     }
-                    else if (CanMove[i][m_ban[dan + suji]] && (dan + suji >= Direct[i])) {
+                    else if (CanMove[i][m_ban[dan + suji]] && (static_cast<int32>(dan + suji) + Direct[i] >= 0)) {
                         m_controlSelf[dan + suji + Direct[i]].set(moveDir);
                     }
                 }

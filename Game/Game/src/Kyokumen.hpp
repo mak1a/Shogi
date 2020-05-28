@@ -201,6 +201,12 @@ public:
         return m_hashVal;
     }
 
+    [[nodiscard]] bool IsOute(const Turn& turn_) const noexcept {
+        return ((turn_== Turn::Player)
+                    ? m_controlEnemy[m_kingSelfPos].any()
+                    : m_controlSelf[m_kingEnemyPos].any());
+    }
+
     uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
 
     void Move(const uint32 isSelfOrEnemy_, const Te& te_);

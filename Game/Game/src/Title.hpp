@@ -1,6 +1,6 @@
 ﻿
 # pragma once
-# include "Koma.hpp"
+# include "Kyokumen.hpp"
 
 // タイトルシーン
 class Title : public MyApp::Scene {
@@ -36,6 +36,9 @@ private:
 	};
 
 	bool m_isCustom;
+
+	bool m_isNifu;
+	bool m_isFirstOute;
 
 	// カスタムを選んだ時に使うメンバ変数
 

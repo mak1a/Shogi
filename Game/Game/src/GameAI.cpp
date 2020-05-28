@@ -35,7 +35,12 @@ BanSelf::BanSelf(const array<array<uint32, 9>, 9>& iniKyokumen_, const Turn& tur
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
     
-    m_kyokumen.MakeLegalMoves((turn_==Turn::Player)?Self:Enemy);
+    // カスタム設定の場合、初期状態で詰みの可能性が存在するのでその確認
+    if (m_kyokumen.MakeLegalMoves((turn_==Turn::Player)?Self:Enemy) <= 0) {
+        m_turn = Turn::Tsumi;
+        m_winner = (turn_==Turn::Player)?Winner::Enemy:Winner::Player;
+        return;
+    }
 
     m_stackKyokumens.emplace(m_kyokumen);
     m_stackBoradSquares.emplace(m_boardSquares);
