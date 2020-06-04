@@ -8,9 +8,15 @@ Kyokumen::Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_,
 , m_kyokumenHashVal(0)
 , m_handHashVal(0)
 , m_hashVal(0) {
+    /// <summary>
+    /// 盤面を壁で埋める
+    /// </summary>
     m_ban.fill(Wall);
     m_pin.fill(Wall);
 
+    /// <summary>
+    /// board_ で与えられた局面を設定
+    /// </summary>
     for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
             m_ban[suji + dan] = board_[dan - 1][9-(suji/10)];
@@ -49,7 +55,13 @@ void Kyokumen::InitControl() {
 
     for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
+            /// <summary>
+            /// 敵の駒
+            /// </summary>
             if (m_ban[suji + dan] & Enemy) {
+                /// <summary>
+                /// 駒の利きを追加
+                /// </summary>
                 for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
                     if (CanJump[i][m_ban[dan + suji]]) {
                         uint32 j{dan + suji};
@@ -65,7 +77,13 @@ void Kyokumen::InitControl() {
                     }
                 }
             }
+            /// <summary>
+            /// 味方の駒
+            /// </summary>
             else if (m_ban[suji + dan] & Self) {
+                /// <summary>
+                /// 駒の利きを追加
+                /// </summary>
                 for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
                     if (CanJump[i][m_ban[dan + suji]]) {
                         uint32 j{dan + suji};
@@ -87,6 +105,9 @@ void Kyokumen::InitControl() {
 
 void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
     if (te_.GetFrom() > 10) {
+        /// <summary>
+        /// 動かす駒の元々いた場所の利きを消す
+        /// </summary>
         for (uint32 dir{}, moveDir{}, jumpDir{16}; dir < 12; ++dir, ++moveDir, ++jumpDir) {
             if (static_cast<int32>(te_.GetFrom()) + Direct[dir] < 0) {
                 continue;
@@ -114,11 +135,20 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
             }
         }
 
+        /// <summary>
+        /// 元々いた場所を空白にする
+        /// </summary>
         m_ban[te_.GetFrom()] = Empty;
 
+        /// <summary>
+        /// 空白になったのでハッシュ値も変わる
+        /// </summary>
         m_kyokumenHashVal ^= HashSeeds[te_.GetKoma()][te_.GetFrom()];
         m_kyokumenHashVal ^= HashSeeds[Empty][te_.GetFrom()];
 
+        /// <summary>
+        /// 飛び利きを伸ばす
+        /// </summary>
         for (uint32 i{}, jumpDir{16}; i < 8; ++i, ++jumpDir) {
             int32 dir{Direct[i]};
 
@@ -144,6 +174,9 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
         }
     }
     else {
+        /// <summary>
+        /// 持ち駒を一枚減らす
+        /// </summary>
         m_handHashVal ^= HashHandSeeds[te_.GetKoma()][m_holdingKomas[te_.GetKoma()]];
 
         --m_holdingKomas[te_.GetKoma()];
@@ -153,6 +186,10 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
     }
 
     if (m_ban[te_.GetTo()] != Empty) {
+        /// <summary>
+        /// 相手の駒を持ち駒に加える
+        /// 持ち駒にする際、不成に戻す
+        /// </summary>
         m_value -= KomaValue[m_ban[te_.GetTo()]];
 
         uint32 koma{isSelfOrEnemy_ | (m_ban[te_.GetTo()] & ~Promote & ~Self & ~Enemy)};
@@ -160,8 +197,14 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 
         ++m_holdingKomas[koma];
 
+        /// <summary>
+        /// ハッシュ値に取った駒の値を加える
+        /// </summary>
         m_handHashVal ^= HashHandSeeds[koma][m_holdingKomas[koma]];
 
+        /// <summary>
+        /// 取った駒の利きを消す
+        /// </summary>
         for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
             int32 dir{Direct[i]};
 
@@ -197,6 +240,9 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
         }
     }
     else {
+        /// <summary>
+        /// 移動した際に遮った飛び利きを消す
+        /// </summary>
         for (uint32 i{}, jumpDir{16}; i < 8; ++i, ++jumpDir) {
             int32 dir{Direct[i]};
 
@@ -222,6 +268,9 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
         }
     }
 
+    /// <summary>
+    /// 移動先にあった駒のハッシュ値を消す
+    /// </summary>
     m_kyokumenHashVal ^= HashSeeds[m_ban[te_.GetTo()]][te_.GetTo()];
 
     if (te_.GetPromote()) {
@@ -233,8 +282,14 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
         m_ban[te_.GetTo()] = te_.GetKoma();
     }
 
+    /// <summary>
+    /// 新しい駒をハッシュ値に加える
+    /// </summary>
     m_kyokumenHashVal ^= HashSeeds[m_ban[te_.GetTo()]][te_.GetTo()];
 
+    /// <summary>
+    /// 移動先の利きをつける
+    /// </summary>
     for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
         if (CanJump[i][m_ban[te_.GetTo()]]) {
             int32 j{static_cast<int32>(te_.GetTo())};
@@ -275,6 +330,9 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
 }
 
 void Kyokumen::MakePinInfo() {
+    /// <summary>
+    /// ピンを全て外す
+    /// </summary>
     for (uint32 i{11}; i <= 99; ++i) {
         m_pin[i] = 0;
     }
@@ -284,6 +342,9 @@ void Kyokumen::MakePinInfo() {
         for (uint32 i{}; i < 8; ++i) {
             uint32 p{Search(m_kingSelfPos, -Direct[i])};
 
+            /// <summary>
+            /// 味方の駒が存在しない場合、コンティニュー
+            /// </summary>
             if (m_ban[p] == Wall || (m_ban[p] & Enemy)) {
                 continue;
             }
@@ -298,6 +359,9 @@ void Kyokumen::MakePinInfo() {
         for (uint32 i{}; i < 8; ++i) {
             uint32 p{Search(m_kingEnemyPos, -Direct[i])};
 
+            /// <summary>
+            /// 味方の駒が存在しない場合、コンティニュー
+            /// </summary>
             if (m_ban[p] == Wall || !(m_ban[p] & Enemy)) {
                 continue;
             }
@@ -312,6 +376,9 @@ void Kyokumen::MakePinInfo() {
 uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
     MakePinInfo();
 
+    /// <summary>
+    /// 王手がかかってるかを判定
+    /// </summary>
     if (isSelfOrEnemy_ == Self && m_controlEnemy[m_kingSelfPos].any()) {
         return AntiCheck(isSelfOrEnemy_, m_controlEnemy[m_kingSelfPos]);
     }
@@ -320,6 +387,9 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
         return AntiCheck(isSelfOrEnemy_, m_controlSelf[m_kingEnemyPos]);
     }
 
+    /// <summary>
+    /// 盤上の駒が動ける場所を生成
+    /// </summary>
     for (uint32 suji{10}; suji <= 90; suji += 10) {
         for (uint32 dan{1}; dan <= 9; ++dan) {
             if (m_ban[suji + dan] & isSelfOrEnemy_) {
@@ -328,8 +398,14 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
         }
     }
 
+    /// <summary>
+    /// 持ち駒の歩が打てる場所を生成
+    /// </summary>
     if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0) {
         for (uint32 suji{10}; suji <= 90; suji += 10) {
+            /// <summary>
+            /// 二歩チェック
+            /// </summary>
             bool nifu{false};
             for (uint32 dan{1}; dan <= 9; ++dan) {
                 if (m_ban[suji + dan] == (isSelfOrEnemy_ | Fu)) {
@@ -342,10 +418,17 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
                 continue;
             }
 
+            /// <summary>
+            /// 先手なら2段目より下に、
+            /// 後手なら8段目より上に生成
+            /// </summary>
             uint32 startDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 2 : 1)};
             uint32 endDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 9 : 8)};
 
             for (uint32 dan{startDan}; dan <= endDan; ++dan) {
+                /// <summary>
+                /// 打ち歩詰めをチェック
+                /// </summary>
                 if (m_ban[dan + suji] == Empty && !Uchifudume(isSelfOrEnemy_, dan + suji)) {
                     m_teValids.emplace_back(0, suji + dan, isSelfOrEnemy_ | Fu);
                 }
@@ -353,8 +436,15 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
         }
     }
 
+    /// <summary>
+    /// 持ち駒の香車が打てる場所を生成
+    /// </summary>
     if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0) {
         for (uint32 suji{10}; suji <= 90; suji += 10) {
+            /// <summary>
+            /// 先手なら2段目より下に、
+            /// 後手なら8段目より上に生成
+            /// </summary>
             uint32 startDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 2 : 1)};
             uint32 endDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 9 : 8)};
 
@@ -366,8 +456,15 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
         }
     }
 
+    /// <summary>
+    /// 持ち駒の桂馬が打てる場所を生成
+    /// </summary>
     if (m_holdingKomas[isSelfOrEnemy_ | Ke]) {
         for (uint32 suji{10}; suji <= 90; suji += 10) {
+            /// <summary>
+            /// 先手なら3段目より下に、
+            /// 後手なら7段目より上に生成
+            /// </summary>
             uint32 startDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 3 : 1)};
             uint32 endDan{static_cast<uint32>((isSelfOrEnemy_ == Self) ? 9 : 7)};
 
@@ -379,6 +476,9 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
         }
     }
 
+    /// <summary>
+    /// それ以外の持ち駒はどこにでも打てる
+    /// </summary>
     for (uint32 koma{Gi}; koma <= Hi; ++koma) {
         if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
             for (uint32 suji{10}; suji <= 90; suji += 10) {
@@ -391,7 +491,7 @@ uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
         }
     }
 
-    return m_teValids.size();
+    return static_cast<uint32>(m_teValids.size());
 }
 
 void Kyokumen::AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 pin_, const int32 rPin_) {
@@ -469,6 +569,9 @@ void Kyokumen::AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const i
         AddStraight(isSelfOrEnemy_, from_, +9, pin_, rPin_);
         break;
     case Sou:case Eou:
+        /// <summary>
+        /// 王手がかかってる場合はAntiCheck関数が呼ばれるので、kiki_は0
+        /// </summary>
         MoveKing(isSelfOrEnemy_, 0);
         break;
     default:
@@ -539,48 +642,90 @@ std::bitset<28> Kyokumen::CountMove(const uint32 isSelfOrEnemy_, const uint32 po
 
 bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
     if (isSelfOrEnemy_ == Self) {
+        /// <summary>
+        /// 王の頭に歩を打つ手じゃないなら違う
+        /// </summary>
 		if (m_kingEnemyPos + 1 != to_) {
 			return false;
 		}
 	}
     else {
+        /// <summary>
+        /// 王の頭に歩を打つ手じゃないなら違う
+        /// </summary>
         if (m_kingSelfPos - 1 != to_) {
             return false;
         }
     }
 
+    /// <summary>
+    /// 実際に歩を打って確かめる
+    /// </summary>
     m_ban[to_] = Fu | isSelfOrEnemy_;
     if (isSelfOrEnemy_ == Self) {
+        /// <summary>
+        /// 自分の利きがあるなら相手は玉で取れないかつ、
+        /// 取る動きを列挙したら玉で取る手しかない
+        /// </summary>
         if (m_controlSelf[to_].any() && CountMove(Enemy, to_).test(1)) {
+            /// <summary>
+            /// 王に逃げ場があるかどうか
+            /// </summary>
             for (uint32 i{}; i < 8; ++i) {
                 uint32 koma{m_ban[m_kingEnemyPos + Direct[i]]};
                 if (!(koma & Enemy) && CountControlSelf(m_kingEnemyPos + Direct[i]).none()) {
+                    /// <summary>
+                    /// 逃げ場があったので、盤面を元の状態に戻す
+                    /// </summary>
                     m_ban[to_] = Empty;
                     return false;
                 }
             }
 
+            /// <summary>
+            /// 王の逃げ場はないので打ち歩詰め。
+            /// 盤面の状態は戻しておく
+            /// </summary>
             m_ban[to_] = Empty;
             return true;
         }
 
+        /// <summary>
+        /// 王以外で取れる、もしくは王で取れる
+        /// </summary>
         m_ban[to_] = Empty;
         return false;
     }
     else {
+        /// <summary>
+        /// 自分の利きがあるなら相手は玉で取れないかつ、
+        /// 取る動きを列挙したら玉で取る手しかない
+        /// </summary>
         if (m_controlEnemy[to_].any() && CountMove(Self, to_).test(6)) {
+            /// <summary>
+            /// 王に逃げ場があるかどうか
+            /// </summary>
             for (uint32 i{}; i < 8; ++i) {
                 uint32 koma{m_ban[m_kingSelfPos + Direct[i]]};
                 if (!(koma & Self) && CountControlEnemy(m_kingSelfPos + Direct[i]).none()) {
+                    /// <summary>
+                    /// 逃げ場があったので、盤面を元の状態に戻す
+                    /// </summary>
                     m_ban[to_] = Empty;
                     return false;
                 }
             }
-
+            /// <summary>
+            /// 王の逃げ場はないので打ち歩詰め。
+            /// 盤面の状態は戻しておく
+            /// </summary>
             m_ban[to_] = Empty;
             return true;
         }
 
+        /// <summary>
+        /// 王以外で取れる、もしくは王で取れる
+        /// </summary>
         m_ban[to_] = Empty;
         return false;
     }
@@ -594,6 +739,10 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Fu] > 0 && dan > 1) {
+        /// <summary>
+        /// 歩を打つ手を生成
+        /// 二歩チェック
+        /// </summary>
         int32 suji{static_cast<int32>(pos_ / 10)};
         suji *= 10;
         bool nifu{false};
@@ -605,19 +754,31 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
             }
         }
 
+        /// <summary>
+        /// 打ち歩詰めもチェック
+        /// </summary>
         if (!nifu && !Uchifudume(isSelfOrEnemy_, pos_)) {
             m_teValids.emplace_back(0, pos_, (isSelfOrEnemy_ | Fu));
         }
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Ky] > 0 && dan > 1) {
+        /// <summary>
+        /// 香車を打つ手を生成
+        /// </summary>
         m_teValids.emplace_back(0, pos_, (isSelfOrEnemy_ | Ky));
     }
 
     if (m_holdingKomas[isSelfOrEnemy_ | Ke] > 0 && dan > 2) {
+        /// <summary>
+        /// 桂馬を打つ手を生成
+        /// </summary>
         m_teValids.emplace_back(0, pos_, (isSelfOrEnemy_ | Ke));
     }
 
+    /// <summary>
+    /// それ以外の駒を打つ手を生成
+    /// </summary>
     for (uint32 koma{Gi}; koma <= Hi; ++koma) {
         if (m_holdingKomas[isSelfOrEnemy_ | koma] > 0) {
             m_teValids.emplace_back(0, pos_, (isSelfOrEnemy_ | koma));
@@ -627,6 +788,9 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
 
 uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& control_) {
     if (control_.count() >= 2) {
+        /// <summary>
+        /// 両王手の場合、王は逃げるしかない
+        /// </summary>
         MoveKing(isSelfOrEnemy_, control_);
     }
     else {
@@ -642,11 +806,20 @@ uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& c
 
         uint32 check{(id < 16) ? king - Direct[id] : Search(king, -Direct[id - 16])};
 
+        /// <summary>
+        /// 王手駒を取る
+        /// </summary>
         MoveTo(isSelfOrEnemy_, check);
 
+        /// <summary>
+        /// 王を動かす
+        /// </summary>
         MoveKing(isSelfOrEnemy_, control_);
 
         if (id >= 16) {
+            /// <summary>
+            /// 合駒の生成
+            /// </summary>
             for (int32 i{static_cast<int32>(king) - Direct[id - 16]}; m_ban[i] == Empty; i -= Direct[id - 16]) {
                 MoveTo(isSelfOrEnemy_, i);
             }
@@ -656,10 +829,13 @@ uint32 Kyokumen::AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& c
             }
         }
     }
-    return m_teValids.size();
+    return static_cast<uint32>(m_teValids.size());
 }
 
 void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const std::bitset<28>& kiki_) {
+    /// <summary>
+    /// 隣接王手駒の位置のid
+    /// </summary>
     int32 id{-1};
 
     for (uint32 i{}; i < 8; ++i) {
@@ -670,6 +846,9 @@ void Kyokumen::MoveKing(const uint32 isSelfOrEnemy_, const std::bitset<28>& kiki
     }
 
     if (id >= 0) {
+        /// <summary>
+        /// 隣接した王手駒を取る手の生成
+        /// </summary>
         if (isSelfOrEnemy_ == Self) {
             uint32 koma{m_ban[m_kingSelfPos - Direct[id]]};
 
@@ -737,15 +916,27 @@ void Kyokumen::AddMove(const uint32 isSelfOrEnemy_, const uint32 from_, const in
     }
 
     if (m_ban[from_] == Ske && dan <= 2) {
+        /// <summary>
+        /// 必ず成る
+        /// </summary>
         m_teValids.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
     }
     else if ((m_ban[from_] == Sfu || m_ban[from_] == Sky) && dan <= 1) {
+        /// <summary>
+        /// 必ず成る
+        /// </summary>
         m_teValids.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
     }
     else if (m_ban[from_] == Eke && dan >= 8) {
+        /// <summary>
+        /// 必ず成る
+        /// </summary>
         m_teValids.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
     }
     else if ((m_ban[from_] == Efu || m_ban[from_] == Eky) && dan >= 9) {
+        /// <summary>
+        /// 必ず成る
+        /// </summary>
         m_teValids.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
     }
     else {
@@ -756,6 +947,9 @@ void Kyokumen::AddMove(const uint32 isSelfOrEnemy_, const uint32 from_, const in
             m_teValids.emplace_back(from_, to, m_ban[from_], m_ban[to], 1);
         }
 
+        /// <summary>
+        /// 成らない手も生成
+        /// </summary>
         m_teValids.emplace_back(from_, to, m_ban[from_], m_ban[to], 0);
     }
 }
@@ -766,14 +960,20 @@ void Kyokumen::AddStraight(const uint32 isSelfOrEnemy_, const uint32 from_, cons
     }
 
     if (pin_ == 0 || pin_ == dir_ || pin_ == -dir_) {
-        int32 i{};
+        int32 dir{};
 
-        for (i = dir_; m_ban[from_ + i] == Empty; i += dir_) {
-            AddMove(isSelfOrEnemy_, from_, i, 0);
+        /// <summary>
+        /// 空白の場所に動く手を生成
+        /// </summary>
+        for (dir = dir_; m_ban[from_ + dir] == Empty; dir += dir_) {
+            AddMove(isSelfOrEnemy_, from_, dir, 0);
         }
 
-        if (!(m_ban[from_ + i] & isSelfOrEnemy_)) {
-            AddMove(isSelfOrEnemy_, from_, i, 0);
+        /// <summary>
+        /// もし味方の駒でないならそこへ動く
+        /// </summary>
+        if (!(m_ban[from_ + dir] & isSelfOrEnemy_)) {
+            AddMove(isSelfOrEnemy_, from_, dir, 0);
         }
     }
 }
@@ -802,12 +1002,18 @@ void Kyokumen::MoveTo(const uint32 isSelfOrEnemy_, const uint32 to_) {
     }
 }
 
+/// <summary>
+/// 交換値を求める
+/// </summary>
+/// <param name=p1_></param>
+/// <param name=p2_></param>
+/// <returns>交換値</returns>
 [[nodiscard]] constexpr uint32 Kyori(const uint32 p1_, const uint32 p2_) noexcept {
     return Max<uint32>(Abs(p1_ / 10 - p2_ / 10), Abs((p1_ % 10) - (p2_ % 10)));
 }
 
 bool Kyokumen::IsCorrectMove(Te& te_) {
-    if (m_ban[te_.GetFrom()] == Sou || m_ban[te_.GetFrom()] == Eou) {
+    if (m_ban[te_.GetFrom()] == Sou) {
         if (m_controlEnemy[te_.GetTo()].any()) {
             return false;
         }
@@ -842,6 +1048,9 @@ bool Kyokumen::IsCorrectMove(Te& te_) {
 
     int32 dir{static_cast<int32>((te_.GetTo() - te_.GetFrom()) / d)};
 
+    /// <summary>
+    /// ジャンプなので途中に駒がないか確認する
+    /// </summary>
     for (uint32 i{1}, pos{te_.GetFrom() + dir}; i < d; ++i, pos += dir) {
         if (pos < 0 || pos >= 121) {
             continue;
@@ -870,23 +1079,17 @@ int32 Kyokumen::EvalMin(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
         }
     }
 
-    if (k > 0) {
-        if (k >= moveEnemy_.size()) {
-            return v;
-        }
-
-        Te te{moveEnemy_[k]};
-        for (uint32 i{k}; i > 0; --i) {
-            moveEnemy_[i] = std::move(moveEnemy_[i - 1]);
-        }
-
-        moveEnemy_[0] = std::move(te);
+    if (k >= moveEnemy_.size()) {
+        /// <summary>
+        /// 他に手がない
+        /// </summary>
+        return v;
     }
 
-    moveEnemy_[0].SetCapture(m_ban[moveEnemy_[0].GetTo()]);
-    Move(Enemy, moveEnemy_[0]);
+    moveEnemy_.back().SetCapture(m_ban[moveEnemy_.back().GetTo()]);
+    Move(Enemy, moveEnemy_.back());
 
-    moveEnemy_.pop_front();
+    moveEnemy_.pop_back();
     return Min<int32>(v, EvalMax(moveSelf_, moveEnemy_));
 }
 
@@ -904,22 +1107,14 @@ int32 Kyokumen::EvalMax(Array<Te>& moveSelf_, Array<Te>& moveEnemy_) {
         }
     }
 
-    if (k > 0) {
-        if (k >= moveSelf_.size()) {
-            return v;
-        }
-
-        Te t{moveSelf_[k]};
-        for (uint32 i{k}; i > 0; --i) {
-            moveSelf_[i] = std::move(moveSelf_[i - 1]);
-        }
-        moveSelf_[0] = std::move(t);
+    if (k >= moveSelf_.size()) {
+        return v;
     }
 
-    moveSelf_[0].SetCapture(m_ban[moveSelf_[0].GetTo()]);
-    Move(Self, moveSelf_[0]);
+    moveSelf_.back().SetCapture(m_ban[moveSelf_.back().GetTo()]);
+    Move(Self, moveSelf_.back());
 
-    moveSelf_.pop_front();
+    moveSelf_.pop_back();
     return Max<int32>(v, EvalMin(moveSelf_, moveEnemy_));
 }
 
@@ -928,9 +1123,15 @@ int32 Kyokumen::Eval(const uint32 pos_) {
         return 0;
     }
     if ((m_ban[pos_] & Self) && m_controlEnemy[pos_].none()) {
+        /// <summary>
+        /// 取られる心配ない
+        /// </summary>
         return 0;
     }
     if ((m_ban[pos_] & Enemy) && m_controlSelf[pos_].none()) {
+        /// <summary>
+        /// 取られる心配ない
+        /// </summary>
         return 0;
     }
 
@@ -944,6 +1145,9 @@ int32 Kyokumen::Eval(const uint32 pos_) {
     bool promoteSelf{(toPos % 10) <= 3}, promoteEnemy{(toPos % 10) >= 7};
     uint32 pos{toPos};
 
+    /// <summary>
+    /// 桂馬の利きは別で考える
+    /// </summary>
     for (uint32 i{}, moveDir{}, jumpDir{16}; i < 8; ++i, ++moveDir, ++jumpDir) {
         pos2 = pos;
         if (m_controlSelf[pos].test(moveDir)) {
@@ -1005,6 +1209,9 @@ int32 Kyokumen::Eval(const uint32 pos_) {
         }
     }
 
+    /// <summary>
+    /// 桂馬の利きを調べる
+    /// </summary>
     for (uint32 i{8}, moveDir{8}; i < 12; ++i, ++moveDir) {
         if (static_cast<int32>(pos) - Direct[i] < 0) {
             continue;
@@ -1035,6 +1242,9 @@ int32 Kyokumen::Eval(const uint32 pos_) {
         }
     }
 
+    /// <summary>
+    /// 駒の価値でソートする
+    /// </summary>
     if (!attackSelfTes.isEmpty()) {
         for (uint32 i{}; i < attackSelfTes.size() - 1; ++i) {
             uint32 max_id{i};
@@ -1053,12 +1263,18 @@ int32 Kyokumen::Eval(const uint32 pos_) {
                 }
             }
 
+            /// <summary>
+            /// 最大値と交換する
+            /// </summary>
             if (i != max_id) {
                 std::swap<Te>(attackSelfTes[i], attackSelfTes[max_id]);
             }
         }
     }
 
+    /// <summary>
+    /// 駒の価値でソートする
+    /// </summary>
     if (!attackEnemyTes.isEmpty()) {
         for (uint32 i{}; i < attackEnemyTes.size() - 1; ++i) {
             uint32 max_id{i};
@@ -1077,6 +1293,9 @@ int32 Kyokumen::Eval(const uint32 pos_) {
                 }
             }
 
+            /// <summary>
+            /// 最大値と交換する
+            /// </summary>
             if (i != max_id) {
                 std::swap<Te>(attackEnemyTes[i], attackEnemyTes[max_id]);
             }
