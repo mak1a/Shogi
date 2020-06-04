@@ -131,27 +131,91 @@ private:
 
     void InitControl();
 
+    /// <summary>
+    /// 打ち歩詰めの判定
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=to_>駒を置く場所</param>
+    /// <returns>打ち歩詰めか</returns>
     [[nodiscard]] bool Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_);
 
-    // 王の動く手の生成
+    /// <summary>
+    /// 王を利きがない場所に動かす手の生成
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=kiki_>利き</param>
     void MoveKing(const uint32 isSelfOrEnemy_, const std::bitset<28>& kiki_);
 
+    /// <summary>
+    /// 指定の場所に動く手の生成
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=to_>指定した場所</param>
     void MoveTo(const uint32 isSelfOrEnemy_, const uint32 to_);
 
+    /// <summary>
+    /// 指定した場所に駒を打つ手の生成
+    /// </summary>
+    /// <param name=isSelfOrEnemy>手番</param>
+    /// <param name=pos_>指定した場所</param>
     void PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_);
 
+    /// <summary>
+    /// 引数で指定した場所の利き情報を作成
+    /// 打ち歩詰めのチェック等、駒を仮に置いてみて何かする時に使用
+    /// </summary>
+    /// <param name=pos_>指定した場所</param>
+    /// <returns>利き情報</returns>
     [[nodiscard]] std::bitset<28> CountControlSelf(const uint32 pos_);
 
+    /// <summary>
+    /// 引数で指定した場所の利き情報を作成
+    /// 打ち歩詰めのチェック等、駒を仮に置いてみて何かする時に使用
+    /// </summary>
+    /// <param name=pos_>指定した場所</param>
+    /// <returns>利き情報</returns>
     [[nodiscard]] std::bitset<28> CountControlEnemy(const uint32 pos_);
 
+    /// <summary>
+    /// 指定した場所に移動できる駒を利き情報にして返す
+    /// ピンされてる駒はピンの方向にしか動けない
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=pos_>指定した場所</param>
+    /// <returns>利き情報</returns>
     [[nodiscard]] std::bitset<28> CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_);
 
+    /// <summary>
+    /// 盤面のfrom_ に設定した駒を動かす手を生成する
+    /// </summary>
     void AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 pin_, const int32 rPin_ = 0);
 
+    /// <summary>
+    /// 飛車、角、香車の動く手を生成
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=from_>動かす前の場所</param>
+    /// <param name=diff_>動かす方向との差分</param>
+    /// <param name=pin_>利きの方向</param>
+    /// <param name=rPin_>利きの方向</param>
     void AddStraight(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 dir_, const int32 pin_, const int32 rPin_ = 0);
 
+    /// <summary>
+    /// 手の生成
+    /// 成り、不成も考慮する
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=from_>動かす前の場所</param>
+    /// <param name=diff_>動かす方向との差分</param>
+    /// <param name=pin_>利きの方向</param>
+    /// <param name=rPin_>利きの方向</param>
     void AddMove(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 diff_, const int32 pin_, const int32 rPin_ = 0);
 
+    /// <summary>
+    /// 有効手かどうか
+    /// </summary>
+    /// <param name=te_>手</param>
+    /// <returns>有効手か</returns>
     bool IsCorrectMove(Te& te_);
 
     int32 EvalMin(Array<Te>& moveSelf_, Array<Te>& moveEnemy_);
@@ -172,8 +236,17 @@ private:
         return pos_;
     }
 
+    /// <summary>
+    /// ピン(動かすと王を取られるので動きが制限される駒)の状態の設定
+    /// </summary>
     void MakePinInfo();
 
+    /// <summary>
+    /// 王手を受ける手を生成
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=control_>利き</param>
+    /// <returns>有効手の数</returns>
     uint32 AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& control_);
 
 public:
@@ -181,6 +254,11 @@ public:
 
     Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
 
+    /// <summary>
+    /// 有効"ではない"手かどうか判定
+    /// </summary>
+    /// <param name=te_>手</param>
+    /// <returns>有効"ではない"かどうか</returns>
     [[nodiscard]] inline bool IsIllegal(const Te& te_) const noexcept {
         for (const auto& te : m_teValids) {
             if (te_ == te) {
@@ -207,8 +285,18 @@ public:
             : m_controlSelf[m_kingEnemyPos].any());
     }
 
+    /// <summary>
+    /// 駒の動ける場所を全て生成する
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <returns>動ける駒の数</returns>
     uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
 
+    /// <summary>
+    /// 手を指す
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=te_>動かす駒</param>
     void Move(const uint32 isSelfOrEnemy_, const Te& te_);
 
     int32 BestEval(const uint32 isSelfOrEnemy_);
