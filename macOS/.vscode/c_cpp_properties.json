@@ -3,8 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "/usr/local/OpenSiv3Dv0_4_2/include",
-                "/usr/local/OpenSiv3Dv0_4_2/include/ThirdParty",
+                "/usr/local/OpenSiv3Dv0_4_3/include",
+                "/usr/local/OpenSiv3Dv0_4_3/include/ThirdParty",
                 "/usr/local/include",
                 "./src"
             ],

@@ -1,4 +1,4 @@
-
+﻿
 # include "Common.hpp"
 # include "Title.hpp"
 # include "Game.hpp"
@@ -36,15 +36,30 @@ void Main() {
     TextureAsset::Register(U"Kyosha", Resource(U"textures/komas/syougi12_kyousya.png"), AssetParameter::LoadImmediately());
     TextureAsset::Register(U"NariKyosha", Resource(U"textures/komas/syougi13_narikyou.png"), AssetParameter::LoadImmediately());
 
+	AudioAsset::Register(U"Piece", Resource(U"audios/piece1.m4a"), AssetParameter::LoadImmediately());
+	
 	// シーンと遷移時の色を設定
 	MyApp manager;
 	manager
 		.add<Title>(State::Title)
+		.add<Select>(State::Select)
 		.add<Game>(State::Game)
 		.add<GameAI>(State::GameAI)
 		.setFadeColor(ColorF(1.0));
 
-	//manager.init(State::GameAI);
+	//manager.init(State::Select);
+
+	// ハッシュ値の初期化
+	for (const size_t i : step(48)) {
+		for (const size_t pos : Range(11, 99)) {
+			HashSeeds[i][pos] = RandomUint64();
+		}
+	}
+	for (const size_t i : Range(17, 39)) {
+		for (const size_t maisuu : step(19)) {
+			HashHandSeeds[i][maisuu] = RandomUint64();
+		}
+	}
 
 	while (System::Update()) {
 		if (!manager.update()) {

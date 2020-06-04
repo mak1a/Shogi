@@ -74,23 +74,6 @@ enum class KomaState {
 };
 
 /// <summary>
-/// 平手盤
-/// </summary>
-constexpr array<const array<const uint32, 9>, 9> HirateBan {
-    {
-        {Eky,Eke,Egi,Eki,Eou,Eki,Egi,Eke,Eky},
-        {Emp,Ehi,Emp,Emp,Emp,Emp,Emp,Eka,Emp},
-        {Efu,Efu,Efu,Efu,Efu,Efu,Efu,Efu,Efu},
-        {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
-        {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
-        {Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp,Emp},
-        {Sfu,Sfu,Sfu,Sfu,Sfu,Sfu,Sfu,Sfu,Sfu},
-        {Emp,Ska,Emp,Emp,Emp,Emp,Emp,Shi,Emp},
-        {Sky,Ske,Sgi,Ski,Sou,Ski,Sgi,Ske,Sky}
-    }
-};
-
-/// <summary>
 /// 台に置く際の駒の場所
 /// </summary>
 namespace KomaPos {
@@ -131,7 +114,8 @@ namespace KomaPos {
 
 // 方向を表す
 constexpr array<const int32, 12> Direct = {
-    17,1,-15,16,-16,15,-1,-17,14,-18,18,-14
+    //17,1,-15,16,-16,15,-1,-17,14,-18,18,-14
+    11, 1, -9, 10, -10, 9, -1, -11, 8, -12, 12, -8
 };
 
 // 成る事ができる駒か？
@@ -290,6 +274,9 @@ constexpr array<const int32, 49> KomaValue {
     //  空歩香桂銀金角飛王と杏圭全金馬龍
         0,-100,-600,-700,-1000,-1200,-1800,-2000,-10000,-1200,-1200,-1200,-1200,-1200,-2000,-2200,0
 };
+
+inline array<array<uint64, 100>, 48> HashSeeds;
+inline array<array<uint64, 19>, 40> HashHandSeeds;
 
 class KomaSquare : public RectF {
 private:

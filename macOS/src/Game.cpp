@@ -1,14 +1,19 @@
 ﻿
 # include "Game.hpp"
 
-Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const double shogiBan_, const double komaDai_) noexcept
+Ban::Ban(const array<array<uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_, const double komaDai_) noexcept
 : m_shogiBan(Arg::center(Scene::CenterF()), shogiBan_)
 , m_komaDaiSelf(Arg::center(Scene::CenterF()
     .movedBy(shogiBan_/2+10+komaDai_/2, (shogiBan_/2-komaDai_)+komaDai_/2)), komaDai_)
 , m_komaDaiEnemy(Arg::center(Scene::CenterF()
     .movedBy(-(shogiBan_/2+10+komaDai_/2), -((shogiBan_/2-komaDai_)+komaDai_/2))), komaDai_)
-, m_turn(Turn::Player)
-, m_kyokumen(0, HirateBan) {
+, m_buttonWaited(Arg::center(Scene::CenterF()
+    .movedBy(shogiBan_/2+10+komaDai_/2, -((shogiBan_/2-komaDai_)+komaDai_/2)-1.5*(shogiBan_ / 9))), Vec2(komaDai_, shogiBan_ / 12))
+, m_buttonQuit(Arg::center(Scene::CenterF()
+    .movedBy(shogiBan_/2+10+komaDai_/2, -((shogiBan_/2-komaDai_)+komaDai_/2))), Vec2(komaDai_, shogiBan_ / 12))
+, m_turn(turn_)
+, m_isBehind((turn_ == Turn::Enemy))
+, m_kyokumen(0, iniKyokumen_) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
     
@@ -20,7 +25,7 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const doubl
                 , m_shogiBan.tl().y + y * squareSize
                 , squareSize
                 , iniKyokumen_[y][x]
-                , Point(x+1, y+1)
+                , Point(9-x, y+1)
             );
         }
     }
@@ -28,11 +33,42 @@ Ban::Ban(const array<const array<const uint32, 9>, 9>& iniKyokumen_, const doubl
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
 
-    m_kyokumen.MakeLegalMoves(Self);
+    // カスタム設定の場合、初期状態で詰みの可能性が存在するのでその確認
+    if (m_kyokumen.MakeLegalMoves((turn_==Turn::Player)?Self:Enemy) <= 0) {
+        m_turn = Turn::Tsumi;
+        m_winner = (turn_==Turn::Player)?Winner::Enemy:Winner::Player;
+        return;
+    }
+
+    m_stackKyokumens.emplace(m_kyokumen);
+    m_stackBoradSquares.emplace(m_boardSquares);
+    m_stackHavingSelf.emplace(m_havingSelfKoma);
+    m_stackHavingEnemy.emplace(m_havingEnemyKoma);
+    m_stackPlacedPart.emplace(m_placedPart);
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数
 void Ban::Update() {
+    if (m_buttonWaited.mouseOver() || m_buttonQuit.mouseOver()) {
+        Cursor::RequestStyle(CursorStyle::Hand);
+    }
+
+    if (!m_holdHand.has_value() && m_buttonQuit.leftClicked()) {
+        if (GetTurn() == Turn::Player) {
+            m_winner = Winner::Enemy;
+        }
+        else {
+            m_winner = Winner::Player;
+        }
+        m_turn = Turn::Tsumi;
+        return;
+    }
+
+    if (!m_holdHand.has_value() && GetTurn() == Turn::Player && m_buttonWaited.leftClicked()) {
+        RetractingMove();
+        return;
+    }
+
     // 盤面上の処理
     for (auto& square : m_boardSquares) {
         // 盤面から駒を選んで手に持つ処理
@@ -75,10 +111,10 @@ void Ban::Update() {
         }
 
         // 置く場所に何もなかったら、持ってる駒を置く
-        Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType()};
+        Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10), static_cast<uint32>(square.GetKomaCoodinate().y + square.GetKomaCoodinate().x * 10), m_holdHand.value().GetKomaType()};
 
-        if (te.GetFrom() >= 0x11 && GetTurn() == Turn::Player && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
-            if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
+        if (te.GetFrom() >= 11 && GetTurn() == Turn::Player && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() % 10) <= 3 || (te.GetTo() % 10) <= 3)) {
+            if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() % 10) <= 2) {
                 te.SetPromote(1);
                 if (m_kyokumen.IsIllegal(te)) {
                     //Print << m_kyokumen.GetTeValids().size();
@@ -86,7 +122,7 @@ void Ban::Update() {
                 }
                 m_holdHand.value().PromoteKoma();
             }
-            else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() & 0x0f) <= 1) {
+            else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() % 10) <= 1) {
                 te.SetPromote(1);
                 if (m_kyokumen.IsIllegal(te)) {
                     //Print << m_kyokumen.GetTeValids().size();
@@ -107,8 +143,8 @@ void Ban::Update() {
                 }
             }
         }
-        if (te.GetFrom() >= 0x11 && GetTurn() == Turn::Enemy && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) >= 7 || (te.GetTo() & 0x0f) >= 7)) {
-            if (m_holdHand.value().GetKomaType() == Eke && (te.GetTo() & 0x0f) >= 8) {
+        if (te.GetFrom() >= 11 && GetTurn() == Turn::Enemy && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() % 10) >= 7 || (te.GetTo() % 10) >= 7)) {
+            if (m_holdHand.value().GetKomaType() == Eke && (te.GetTo() % 10) >= 8) {
                 te.SetPromote(1);
                 if (m_kyokumen.IsIllegal(te)) {
                     //Print << m_kyokumen.GetTeValids().size();
@@ -116,7 +152,7 @@ void Ban::Update() {
                 }
                 m_holdHand.value().PromoteKoma();
             }
-            else if ((m_holdHand.value().GetKomaType() == Efu || m_holdHand.value().GetKomaType() == Eky) && (te.GetTo() & 0x0f) >= 9) {
+            else if ((m_holdHand.value().GetKomaType() == Efu || m_holdHand.value().GetKomaType() == Eky) && (te.GetTo() % 10) >= 9) {
                 te.SetPromote(1);
                 if (m_kyokumen.IsIllegal(te)) {
                     //Print << m_kyokumen.GetTeValids().size();
@@ -144,6 +180,10 @@ void Ban::Update() {
         
         // 置く場所に何もなかったら、持ってる駒を置く
         square.ChangeKomaType(m_holdHand.value().GetKomaType());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(square);
+
         m_kyokumen.Move(((GetTurn()==Turn::Player)?Self:Enemy), te);
         m_holdHand.reset();
         
@@ -217,12 +257,21 @@ void Ban::Draw() const {
     m_shogiBan.draw(Palette::Burlywood);
     m_komaDaiSelf.draw(Palette::Burlywood);
     m_komaDaiEnemy.draw(Palette::Burlywood);
+    m_buttonWaited.draw(Palette::White);
+    m_buttonWaited.drawFrame(1.0,Palette::Black);
+    m_buttonQuit.draw(Palette::White);
+    m_buttonQuit.drawFrame(1.0,Palette::Black);
+
+    FontAsset(U"Menu")(U"待った").drawAt(m_buttonWaited.center(), Palette::Black);
+    FontAsset(U"Menu")(U"投了").drawAt(m_buttonQuit.center(), Palette::Black);
+
+    // 駒を置いた場所を少し赤くする
+    if (m_placedPart.has_value()) {
+        m_placedPart.value().draw(ColorF(Palette::Red, 0.5f));
+    }
     
     for (const auto &square : m_boardSquares) {
         square.drawFrame(2, Palette::Black);
-        if (square.mouseOver()) {
-            square.draw(ColorF(Palette::White, 0.5f));
-        }
         
         square.Draw();
     }
@@ -249,10 +298,10 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
         return;
     }
 
-    Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 16), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 16), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
+    Te te{static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10), static_cast<uint32>(koma_.GetKomaCoodinate().y + koma_.GetKomaCoodinate().x * 10), m_holdHand.value().GetKomaType(), koma_.GetKomaType()};
     
-    if (te.GetFrom() >= 0x11 && GetTurn() == Turn::Player && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) <= 3 || (te.GetTo() & 0x0f) <= 3)) {
-        if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() & 0x0f) <= 2) {
+    if (te.GetFrom() >= 11 && GetTurn() == Turn::Player && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() % 10) <= 3 || (te.GetTo() % 10) <= 3)) {
+        if (m_holdHand.value().GetKomaType() == Ske && (te.GetTo() % 10) <= 2) {
             te.SetPromote(1);
             if (m_kyokumen.IsIllegal(te)) {
                 //Print << m_kyokumen.GetTeValids().size();
@@ -260,7 +309,7 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
             }
             m_holdHand.value().PromoteKoma();
         }
-        else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() & 0x0f) <= 1) {
+        else if ((m_holdHand.value().GetKomaType() == Sfu || m_holdHand.value().GetKomaType() == Sky) && (te.GetTo() % 10) <= 1) {
             te.SetPromote(1);
             if (m_kyokumen.IsIllegal(te)) {
                 //Print << m_kyokumen.GetTeValids().size();
@@ -281,8 +330,8 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
             }
         }
     }
-    if (te.GetFrom() >= 0x11 && GetTurn() == Turn::Enemy && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() & 0x0f) >= 7 || (te.GetTo() & 0x0f) >= 7)) {
-        if (m_holdHand.value().GetKomaType() == Eke && (te.GetTo() & 0x0f) >= 8) {
+    if (te.GetFrom() >= 11 && GetTurn() == Turn::Enemy && (m_holdHand.value().GetKomaType() & Promote) == 0 && CanPromote[m_holdHand.value().GetKomaType()] && ((te.GetFrom() % 10) >= 7 || (te.GetTo() % 10) >= 7)) {
+        if (m_holdHand.value().GetKomaType() == Eke && (te.GetTo() % 10) >= 8) {
             te.SetPromote(1);
             if (m_kyokumen.IsIllegal(te)) {
                 //Print << m_kyokumen.GetTeValids().size();
@@ -290,7 +339,7 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
             }
             m_holdHand.value().PromoteKoma();
         }
-        else if ((m_holdHand.value().GetKomaType() == Efu || m_holdHand.value().GetKomaType() == Eky) && (te.GetTo() & 0x0f) >= 9) {
+        else if ((m_holdHand.value().GetKomaType() == Efu || m_holdHand.value().GetKomaType() == Eky) && (te.GetTo() % 10) >= 9) {
             te.SetPromote(1);
             if (m_kyokumen.IsIllegal(te)) {
                 //Print << m_kyokumen.GetTeValids().size();
@@ -319,6 +368,10 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
 
     uint32 komaType = koma_.GetKomaType();
     koma_.ChangeKomaType(m_holdHand.value().GetKomaType());
+
+    // 置いた駒の場所を更新する
+    m_placedPart.reset(koma_);
+
     m_holdHand.reset();
     ChangeCurrentTurn();
     
@@ -348,8 +401,8 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
 }
 
 Game::Game(const InitData& init)
-	: IScene(init)
-    , m_ban(HirateBan) {}
+: IScene(init)
+, m_ban(getData().GetBoard(), getData().firstMove) {}
 
 void Game::update()
 {
@@ -369,8 +422,11 @@ void Game::draw() const
         if (m_ban.GetWinner() == Winner::Player) {
             FontAsset(U"Result")(U"勝利").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Red);
         }
-        else {
+        else if (m_ban.GetWinner() == Winner::Enemy) {
             FontAsset(U"Result")(U"敗北").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Blue);
+        }
+        else {
+            FontAsset(U"Result")(U"千日手です").drawAt(Scene::CenterF().movedBy(0, -100), Palette::Black);
         }
         FontAsset(U"Explain")(U"画面をクリックでタイトルに戻る").drawAt(Scene::CenterF().movedBy(0, 50), Palette::Darkred);
     }

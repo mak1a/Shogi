@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include"Koma.hpp"
+#include<bitset>
 
 
 /// <summary>
@@ -53,6 +54,9 @@ public:
         , m_kind(kind_)
         , m_value(value_) {}
     
+    constexpr Te(int32 i) noexcept
+    : Te(0, 0, 0) {}
+    
     [[nodiscard]] uint32 GetFrom() const noexcept {
         return m_from;
     }
@@ -95,19 +99,12 @@ public:
 class Kyokumen {
 private:
     /// <summary>
-    /// 桂馬の利きがbanからはみ出すので、はみ出す分を確保しておく
-    /// C++では、構造体の内部の変数の並び順は宣言した順になることを利用している
-    /// 普通ではあまり使わない「汚い」テクニック
-    /// </summary>
-    array<uint32, 16> m_banPadding;
-
-    /// <summary>
     /// ２次元配列だと遅いので、1次元配列を使う
     /// </summary>
-    array<uint32, 16 * 11> m_ban;
+    array<uint32, 11 * 11> m_ban;
     
     // 駒の利きを保持する
-    array<uint32, 16 * 11> m_controlSelf, m_controlEnemy;
+    array<std::bitset<28>, 11 * 11> m_controlSelf, m_controlEnemy;
     
     // 持ち駒の数。
     array<uint32, 41> m_holdingKomas;
@@ -123,24 +120,31 @@ private:
     
     Array<Te> m_teValids;
     
-    array<uint32, 16 * 11> m_pin;
+    array<uint32, 11 * 11> m_pin;
+    
+    uint64 m_kyokumenHashVal;
+    uint64 m_handHashVal;
+    uint64 m_hashVal;
+
+    HashTable<uint64, uint32> m_hashHistory;
+    Array<std::pair<std::bitset<28>, uint64>> m_outeHistory;
     
     void InitControl();
     
     [[nodiscard]] bool Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_);
     
     // 王の動く手の生成
-    void MoveKing(const uint32 isSelfOrEnemy_, const uint32 kiki_);
+    void MoveKing(const uint32 isSelfOrEnemy_, const std::bitset<28>& kiki_);
     
     void MoveTo(const uint32 isSelfOrEnemy_, const uint32 to_);
     
     void PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_);
 
-    [[nodiscard]] uint32 CountControlSelf(const uint32 pos_);
+    [[nodiscard]] std::bitset<28> CountControlSelf(const uint32 pos_);
 
-    [[nodiscard]] uint32 CountControlEnemy(const uint32 pos_);
+    [[nodiscard]] std::bitset<28> CountControlEnemy(const uint32 pos_);
 
-    [[nodiscard]] uint32 CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_);
+    [[nodiscard]] std::bitset<28> CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_);
 
     void AddMoves(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 pin_, const int32 rPin_ = 0);
 
@@ -148,18 +152,13 @@ private:
 
     void AddMove(const uint32 isSelfOrEnemy_, const uint32 from_, const int32 diff_, const int32 pin_, const int32 rPin_ = 0);
 
-    bool IsCorrectMove(Te* te_);
+    bool IsCorrectMove(Te& te_);
 
     int32 EvalMin(Array<Te>& moveSelf_, Array<Te>& moveEnemy_);
 
     int32 EvalMax(Array<Te>& moveSelf_, Array<Te>& moveEnemy_);
 
     int32 Eval(const uint32 pos_);
-
-public:
-    Kyokumen() = default;
-    
-    Kyokumen(const uint32 tesu_, const array<const array<const uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
 
     [[nodiscard]] inline uint32 Search(uint32 pos_, int32 dir_) const noexcept {
         do {
@@ -173,7 +172,16 @@ public:
         return pos_;
     }
 
-    [[nodiscard]] bool IsIllegal(const Te& te_) const noexcept {
+    void MakePinInfo();
+
+    uint32 AntiCheck(const uint32 isSelfOrEnemy_, const std::bitset<28>& control_);
+
+public:
+    Kyokumen() = default;
+    
+    Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
+
+    [[nodiscard]] inline bool IsIllegal(const Te& te_) const noexcept {
         for (const auto& te : m_teValids) {
             if (te_ == te) {
                 return false;
@@ -189,19 +197,55 @@ public:
     [[nodiscard]] int32 GetValue() const noexcept {
         return m_value;
     }
-    [[nodiscard]] array<uint32, 41> GetHoldingKomas() const noexcept {
-        return m_holdingKomas;
+    [[nodiscard]] uint64 GetHashVal() const noexcept {
+        return m_hashVal;
     }
 
-    void MakePinInfo();
+    [[nodiscard]] bool IsOute(const Turn& turn_) const noexcept {
+        return ((turn_== Turn::Player)
+                    ? m_controlEnemy[m_kingSelfPos].any()
+                    : m_controlSelf[m_kingEnemyPos].any());
+    }
 
     uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
-
-    // uint32 MakeLegalMoves(const uint32 isSelfOrEnemy_);
-
-    uint32 AntiCheck(const uint32 isSelfOrEnemy_, const uint32 control_);
 
     void Move(const uint32 isSelfOrEnemy_, const Te& te_);
 
     int32 BestEval(const uint32 isSelfOrEnemy_);
+
+    /// <summary>
+    /// 千日手かどうかを判断する
+    /// </summary>
+    /// <returns>千日手かどうか</returns>
+	[[nodiscard]] bool IsSennitite() const noexcept {
+		if (m_hashHistory.empty()) {
+			return false;
+		}
+
+        return (std::max_element(m_hashHistory.begin(), m_hashHistory.end(),
+            [](const auto& a, const auto& b) -> bool {
+                return (a.second < b.second);
+            }
+        )->second >= 4);
+	}
+
+    [[nodiscard]] Winner IsContinuous(const Turn& turn_) {
+        uint32 sennitite{};
+
+        for (uint32 i{m_tesu}; (i > 0 && sennitite <= 3); i -= 2) {
+            if (m_outeHistory[i].first.none()) {
+                break;
+            }
+
+            if (m_outeHistory[i].second == m_hashVal) {
+                ++sennitite;
+            }
+        }
+
+        if (sennitite < 4) {
+            return Winner::Sennitite;
+        }
+
+        return ((turn_==Turn::Player)?Winner::Enemy:Winner::Player);
+    }
 };
