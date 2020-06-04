@@ -94,9 +94,15 @@
     <Filter Include="Resource Files\example\font\LogoTypeGothic">
       <UniqueIdentifier>{b3586a98-5569-49e1-b9d6-cd80cf76ce9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\example\zip">
+      <UniqueIdentifier>{81d8d80c-f0ce-492f-8fee-c5502c31bc0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Title.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp">
@@ -109,9 +115,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sikou.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Title.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -147,6 +150,9 @@
       <Filter>Resource Files\example</Filter>
     </Image>
     <Image Include="App\example\bay.jpg">
+      <Filter>Resource Files\example</Filter>
+    </Image>
+    <Image Include="App\example\test.gif">
       <Filter>Resource Files\example</Filter>
     </Image>
   </ItemGroup>
@@ -321,6 +327,9 @@
     <None Include="App\example\font\LogoTypeGothic\LICENSE_E">
       <Filter>Resource Files\example\font\LogoTypeGothic</Filter>
     </None>
+    <None Include="App\example\zip\zip_test.zip">
+      <Filter>Resource Files\example\zip</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="App\engine\font\fontawesome\LICENSE.txt">
@@ -382,6 +391,18 @@
     </Xml>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Kyokumen.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sikou.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Title.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Board.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Common.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -391,16 +412,7 @@
     <ClInclude Include="GameAI.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Kyokumen.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Sikou.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Koma.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Title.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
