@@ -373,6 +373,50 @@ void Kyokumen::MakePinInfo() {
     }
 }
 
+void Kyokumen::MakePinInfo(array<uint32, 11 * 11>& pin_) {
+    /// <summary>
+    /// ピンを全て外す
+    /// </summary>
+    for (uint32 i{11}; i <= 99; ++i) {
+        pin_[i] = 0;
+    }
+    m_teValids.clear();
+
+    if (m_kingSelfPos) {
+        for (uint32 i{}; i < 8; ++i) {
+            uint32 p{Search(m_kingSelfPos, -Direct[i])};
+
+            /// <summary>
+            /// 味方の駒が存在しない場合、コンティニュー
+            /// </summary>
+            if (m_ban[p] == Wall || (m_ban[p] & Enemy)) {
+                continue;
+            }
+
+            if (m_controlEnemy[p].test(16 + i)) {
+                pin_[p] = Direct[i];
+            }
+        }
+    }
+
+    if (m_kingEnemyPos) {
+        for (uint32 i{}; i < 8; ++i) {
+            uint32 p{Search(m_kingEnemyPos, -Direct[i])};
+
+            /// <summary>
+            /// 味方の駒が存在しない場合、コンティニュー
+            /// </summary>
+            if (m_ban[p] == Wall || !(m_ban[p] & Enemy)) {
+                continue;
+            }
+
+            if (m_controlSelf[p].test(16 + i)) {
+                pin_[p] = Direct[i];
+            }
+        }
+    }
+}
+
 uint32 Kyokumen::MakeLegalMoves(const uint32 isSelfOrEnemy_) {
     MakePinInfo();
 
@@ -640,7 +684,121 @@ std::bitset<28> Kyokumen::CountMove(const uint32 isSelfOrEnemy_, const uint32 po
     return ret;
 }
 
+std::bitset<28> Kyokumen::CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_, array<uint32, 11 * 11>& pin_) {
+    std::bitset<28> ret{};
+
+    for (uint32 i{}, moveDir{}, jumpDir{16}; i < 12; ++i, ++moveDir, ++jumpDir) {
+        if (CanMove[i][m_ban[pos_ - Direct[i]]]
+            && (m_ban[pos_ - Direct[i]] & isSelfOrEnemy_)
+            && (pin_[pos_ - Direct[i]] == 0
+                || pin_[pos_ - Direct[i]] == Direct[i]
+                || pin_[pos_ - Direct[i]] == -Direct[i])) {
+            ret.set(moveDir);
+        }
+        else if (CanJump[i][m_ban[Search(pos_, -Direct[i])]]
+            && (m_ban[Search(pos_, -Direct[i])] & isSelfOrEnemy_)
+            && (pin_[Search(pos_, -Direct[i])] == 0
+                || pin_[Search(pos_, -Direct[i])] == Direct[i]
+                || pin_[Search(pos_, -Direct[i])] == -Direct[i])) {
+            ret.set(jumpDir);
+        }
+    }
+
+    return ret;
+}
+
 bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
+    if (isSelfOrEnemy_ == Self) {
+        /// <summary>
+        /// 王の頭に歩を打つ手じゃないなら違う
+        /// </summary>
+		if (m_kingEnemyPos + 1 != to_) {
+			return false;
+		}
+	}
+    else {
+        /// <summary>
+        /// 王の頭に歩を打つ手じゃないなら違う
+        /// </summary>
+        if (m_kingSelfPos - 1 != to_) {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 実際に歩を打って確かめる
+    /// </summary>
+    m_ban[to_] = Fu | isSelfOrEnemy_;
+    if (isSelfOrEnemy_ == Self) {
+        /// <summary>
+        /// 自分の利きがあるなら相手は玉で取れないかつ、
+        /// 取る動きを列挙したら玉で取る手しかない
+        /// </summary>
+        if (m_controlSelf[to_].any() && CountMove(Enemy, to_).test(1)) {
+            /// <summary>
+            /// 王に逃げ場があるかどうか
+            /// </summary>
+            for (uint32 i{}; i < 8; ++i) {
+                uint32 koma{m_ban[m_kingEnemyPos + Direct[i]]};
+                if (!(koma & Enemy) && CountControlSelf(m_kingEnemyPos + Direct[i]).none()) {
+                    /// <summary>
+                    /// 逃げ場があったので、盤面を元の状態に戻す
+                    /// </summary>
+                    m_ban[to_] = Empty;
+                    return false;
+                }
+            }
+
+            /// <summary>
+            /// 王の逃げ場はないので打ち歩詰め。
+            /// 盤面の状態は戻しておく
+            /// </summary>
+            m_ban[to_] = Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// 王以外で取れる、もしくは王で取れる
+        /// </summary>
+        m_ban[to_] = Empty;
+        return false;
+    }
+    else {
+        /// <summary>
+        /// 自分の利きがあるなら相手は玉で取れないかつ、
+        /// 取る動きを列挙したら玉で取る手しかない
+        /// </summary>
+        if (m_controlEnemy[to_].any() && CountMove(Self, to_).test(6)) {
+            /// <summary>
+            /// 王に逃げ場があるかどうか
+            /// </summary>
+            for (uint32 i{}; i < 8; ++i) {
+                uint32 koma{m_ban[m_kingSelfPos + Direct[i]]};
+                if (!(koma & Self) && CountControlEnemy(m_kingSelfPos + Direct[i]).none()) {
+                    /// <summary>
+                    /// 逃げ場があったので、盤面を元の状態に戻す
+                    /// </summary>
+                    m_ban[to_] = Empty;
+                    return false;
+                }
+            }
+            /// <summary>
+            /// 王の逃げ場はないので打ち歩詰め。
+            /// 盤面の状態は戻しておく
+            /// </summary>
+            m_ban[to_] = Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// 王以外で取れる、もしくは王で取れる
+        /// </summary>
+        m_ban[to_] = Empty;
+        return false;
+    }
+}
+
+bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_, array<uint32, 11 * 11>& pin_) {
     if (isSelfOrEnemy_ == Self) {
         /// <summary>
         /// 王の頭に歩を打つ手じゃないなら違う
@@ -743,7 +901,7 @@ void Kyokumen::PutTo(const uint32 isSelfOrEnemy_, const uint32 pos_) {
         /// 歩を打つ手を生成
         /// 二歩チェック
         /// </summary>
-        int32 suji{static_cast<int32>(pos_ / 10)};
+        uint32 suji{pos_ / 10};
         suji *= 10;
         bool nifu{false};
 
@@ -1013,6 +1171,60 @@ void Kyokumen::MoveTo(const uint32 isSelfOrEnemy_, const uint32 to_) {
 }
 
 bool Kyokumen::IsCorrectMove(Te& te_) {
+    if (te_.GetFrom() == 0) {
+        if (m_ban[te_.GetTo()] != Empty) {
+            return false;
+        }
+
+        if (te_.GetKoma() == Sfu) {
+            uint32 suji{te_.GetTo() / 10};
+            suji *= 10;
+
+            /// <summary>
+            /// 二歩と打ち歩詰めのチェック
+            /// </summary>
+            for (uint32 dan{1}; dan <= 9; ++dan) {
+                if (m_ban[suji + dan] == Sfu) {
+                    return false;
+                }
+            }
+
+            if (te_.GetTo() == m_kingEnemyPos + 1) {
+                array<uint32, 11 * 11> pin;
+                MakePinInfo(pin);
+
+                if (Uchifudume(Self, te_.GetTo(), pin)) {
+                    return false;
+                }
+            }
+        }
+
+        if (te_.GetKoma() == Efu) {
+            uint32 suji{te_.GetTo() / 10};
+            suji *= 10;
+
+            /// <summary>
+            /// 二歩と打ち歩詰めのチェック
+            /// </summary>
+            for (uint32 dan{1}; dan <= 9; ++dan) {
+                if (m_ban[suji + dan] == Efu) {
+                    return false;
+                }
+            }
+
+            if (te_.GetTo() == m_kingSelfPos - 1) {
+                array<uint32, 11 * 11> pin;
+                MakePinInfo(pin);
+
+                if (Uchifudume(Enemy, te_.GetTo(), pin)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     if (m_ban[te_.GetFrom()] == Sou) {
         if (m_controlEnemy[te_.GetTo()].any()) {
             return false;
@@ -1335,4 +1547,53 @@ int32 Kyokumen::BestEval(const uint32 isSelfOrEnemy_) {
     }
 
     return best;
+}
+
+bool Kyokumen::IsLegalMove(const uint32 isSelfOrEnemy_, Te& te_) {
+    if (!(te_.GetKoma() & isSelfOrEnemy_)) {
+        /// <summary>
+        /// 自駒ではない駒を動かしてる
+        /// </summary>
+        return false;
+    }
+
+    if (te_.GetFrom() < 10) {
+        if (m_holdingKomas[te_.GetKoma()] == 0) {
+            /// <summary>
+            /// 持ち駒にない駒を動かしてる
+            /// </summary>
+            return false;
+        }
+    }
+
+    if (m_ban[te_.GetFrom()] != te_.GetKoma()) {
+        return false;
+    }
+
+    if (m_ban[te_.GetTo()] & isSelfOrEnemy_) {
+        /// <summary>
+        /// 自駒を取ってる
+        /// </summary>
+        return false;
+    }
+
+    if (!IsCorrectMove(te_)) {
+        return false;
+    }
+    
+    /// <summary>
+    /// 自玉に王手をかけてないか確かめる
+    /// </summary>
+    Kyokumen k{*this};
+    k.Move(isSelfOrEnemy_, te_);
+
+    if (isSelfOrEnemy_ == Self && k.m_controlEnemy[k.m_kingSelfPos].any()) {
+        return false;
+    }
+
+    if (isSelfOrEnemy_ == Enemy && k.m_controlSelf[k.m_kingEnemyPos].any()) {
+        return false;
+    }
+
+    return true;
 }
