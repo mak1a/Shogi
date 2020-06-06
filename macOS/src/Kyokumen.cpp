@@ -712,10 +712,10 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
         /// <summary>
         /// 王の頭に歩を打つ手じゃないなら違う
         /// </summary>
-		if (m_kingEnemyPos + 1 != to_) {
-			return false;
-		}
-	}
+        if (m_kingEnemyPos + 1 != to_) {
+            return false;
+        }
+    }
     else {
         /// <summary>
         /// 王の頭に歩を打つ手じゃないなら違う
@@ -803,10 +803,10 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_, array<u
         /// <summary>
         /// 王の頭に歩を打つ手じゃないなら違う
         /// </summary>
-		if (m_kingEnemyPos + 1 != to_) {
-			return false;
-		}
-	}
+        if (m_kingEnemyPos + 1 != to_) {
+            return false;
+        }
+    }
     else {
         /// <summary>
         /// 王の頭に歩を打つ手じゃないなら違う

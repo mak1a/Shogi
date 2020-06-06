@@ -333,17 +333,17 @@ public:
     /// 千日手かどうかを判断する
     /// </summary>
     /// <returns>千日手かどうか</returns>
-	[[nodiscard]] bool IsSennitite() const noexcept {
-		if (m_hashHistory.empty()) {
-			return false;
-		}
+    [[nodiscard]] bool IsSennitite() const noexcept {
+        if (m_hashHistory.empty()) {
+            return false;
+        }
 
         return (std::max_element(m_hashHistory.begin(), m_hashHistory.end(),
             [](const auto& a, const auto& b) -> bool {
                 return (a.second < b.second);
             }
         )->second >= 4);
-	}
+    }
 
     [[nodiscard]] Winner IsContinuous(const Turn& turn_) {
         uint32 sennitite{};

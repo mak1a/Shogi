@@ -5,20 +5,20 @@
 # include "GameAI.hpp"
 
 void Main() {
-	// タイトルを設定
-	Window::SetTitle(U"将棋");
+    // タイトルを設定
+    Window::SetTitle(U"将棋");
     
     // ウィンドウの大きさを設定
     Window::Resize(1280, 720);
 
-	// 背景色を設定
-	Scene::SetBackground(ColorF(0.2, 0.8, 0.4));
+    // 背景色を設定
+    Scene::SetBackground(ColorF(0.2, 0.8, 0.4));
 
-	// 使用するフォントアセットを登録
-	FontAsset::Register(U"Title", 120, Typeface::Heavy);
-	FontAsset::Register(U"Menu", 30, Typeface::Regular);
-	FontAsset::Register(U"Explain", 36, Typeface::Light);
-	FontAsset::Register(U"Result", 150, Typeface::Regular);
+    // 使用するフォントアセットを登録
+    FontAsset::Register(U"Title", 120, Typeface::Heavy);
+    FontAsset::Register(U"Menu", 30, Typeface::Regular);
+    FontAsset::Register(U"Explain", 36, Typeface::Light);
+    FontAsset::Register(U"Result", 150, Typeface::Regular);
     
     TextureAsset::Register(U"Fu", Resource(U"textures/komas/syougi14_fuhyou.png"), AssetParameter::LoadImmediately());
     TextureAsset::Register(U"To", Resource(U"textures/komas/syougi15_tokin.png"), AssetParameter::LoadImmediately());
@@ -36,34 +36,34 @@ void Main() {
     TextureAsset::Register(U"Kyosha", Resource(U"textures/komas/syougi12_kyousya.png"), AssetParameter::LoadImmediately());
     TextureAsset::Register(U"NariKyosha", Resource(U"textures/komas/syougi13_narikyou.png"), AssetParameter::LoadImmediately());
 
-	AudioAsset::Register(U"Piece", Resource(U"audios/piece1.m4a"), AssetParameter::LoadImmediately());
-	
-	// シーンと遷移時の色を設定
-	MyApp manager;
-	manager
-		.add<Title>(State::Title)
-		.add<Select>(State::Select)
-		.add<Game>(State::Game)
-		.add<GameAI>(State::GameAI)
-		.setFadeColor(ColorF(1.0));
+    AudioAsset::Register(U"Piece", Resource(U"audios/piece1.m4a"), AssetParameter::LoadImmediately());
+    
+    // シーンと遷移時の色を設定
+    MyApp manager;
+    manager
+        .add<Title>(State::Title)
+        .add<Select>(State::Select)
+        .add<Game>(State::Game)
+        .add<GameAI>(State::GameAI)
+        .setFadeColor(ColorF(1.0));
 
-	//manager.init(State::Select);
+    //manager.init(State::Select);
 
-	// ハッシュ値の初期化
-	for (const size_t i : step(48)) {
-		for (const size_t pos : Range(11, 99)) {
-			HashSeeds[i][pos] = RandomUint64();
-		}
-	}
-	for (const size_t i : Range(17, 39)) {
-		for (const size_t maisuu : step(19)) {
-			HashHandSeeds[i][maisuu] = RandomUint64();
-		}
-	}
+    // ハッシュ値の初期化
+    for (const size_t i : step(48)) {
+        for (const size_t pos : Range(11, 99)) {
+            HashSeeds[i][pos] = RandomUint64();
+        }
+    }
+    for (const size_t i : Range(17, 39)) {
+        for (const size_t maisuu : step(19)) {
+            HashHandSeeds[i][maisuu] = RandomUint64();
+        }
+    }
 
-	while (System::Update()) {
-		if (!manager.update()) {
-			break;
-		}
-	}
+    while (System::Update()) {
+        if (!manager.update()) {
+            break;
+        }
+    }
 }

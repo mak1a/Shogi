@@ -142,9 +142,9 @@ private:
     void result();
 public:
 
-	Game(const InitData& init);
+    Game(const InitData& init);
 
-	void update() override;
+    void update() override;
 
-	void draw() const override;
+    void draw() const override;
 };
