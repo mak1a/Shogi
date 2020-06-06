@@ -140,6 +140,15 @@ private:
     [[nodiscard]] bool Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_);
 
     /// <summary>
+    /// 打ち歩詰めの判定
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=to_>駒を置く場所</param>
+    /// <param name=pin_>ピン</param>
+    /// <returns>打ち歩詰めか</returns>
+    [[nodiscard]] bool Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_, array<uint32, 11 * 11>& pin_);
+
+    /// <summary>
     /// 王を利きがない場所に動かす手の生成
     /// </summary>
     /// <param name=isSelfOrEnemy_>手番</param>
@@ -184,6 +193,16 @@ private:
     /// <param name=pos_>指定した場所</param>
     /// <returns>利き情報</returns>
     [[nodiscard]] std::bitset<28> CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_);
+
+    /// <summary>
+    /// 指定した場所に移動できる駒を利き情報にして返す
+    /// ピンされてる駒はピンの方向にしか動けない
+    /// </summary>
+    /// <param name=isSelfOrEnemy_>手番</param>
+    /// <param name=pos_>指定した場所</param>
+    /// <param name=pin_>ピン</param>
+    /// <returns>利き情報</returns>
+    [[nodiscard]] std::bitset<28> CountMove(const uint32 isSelfOrEnemy_, const uint32 pos_, array<uint32, 11 * 11>& pin_);
 
     /// <summary>
     /// 盤面のfrom_ に設定した駒を動かす手を生成する
@@ -240,6 +259,13 @@ private:
     /// ピン(動かすと王を取られるので動きが制限される駒)の状態の設定
     /// </summary>
     void MakePinInfo();
+
+    /// <summary>
+    /// ピン(動かすと王を取られるので動きが制限される駒)の状態の設定
+    /// ピンは引数で指定
+    /// </summary>
+    /// <param name=pin_>ピン</param>
+    void MakePinInfo(array<uint32, 11 * 11>& pin_);
 
     /// <summary>
     /// 王手を受ける手を生成
@@ -300,6 +326,8 @@ public:
     void Move(const uint32 isSelfOrEnemy_, const Te& te_);
 
     int32 BestEval(const uint32 isSelfOrEnemy_);
+
+    [[nodiscard]] bool IsLegalMove(const uint32 isSelfOrEnemy_, Te& te_);
 
     /// <summary>
     /// 千日手かどうかを判断する
