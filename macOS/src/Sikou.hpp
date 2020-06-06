@@ -2,12 +2,6 @@
 
 #include"Kyokumen.hpp"
 
-enum class SearchType {
-    MinMax,
-    AlphaBeta,
-    NegaAlphaBeta
-};
-
 enum class ValueKind {
     Exactly,
     Lower,
@@ -56,6 +50,12 @@ public:
     void ChangeSecondFromBest() noexcept {
         m_second = m_best;
     }
+    void InitBest() noexcept {
+        m_best = Te(0);
+    }
+    void ChangeBestFromBestHand(const Te& te_) noexcept {
+        m_best = te_;
+    }
 
     [[nodiscard]] uint64 GetHashVal() const noexcept {
         return m_hashVal;
@@ -67,21 +67,36 @@ public:
     [[nodiscard]] int32 GetValue() const noexcept {
         return m_value;
     }
+    void SetValue(const int32 val_) noexcept {
+        m_value = val_;
+    }
 
     [[nodiscard]] ValueKind GetValueKind() const noexcept {
         return m_valueKind;
+    }
+    void SetValueKind(const ValueKind val_) noexcept {
+        m_valueKind = val_;
     }
 
     [[nodiscard]] uint32 GetTesu() const noexcept {
         return m_tesu;
     }
+    void SetTesu(const uint32 val_) noexcept {
+        m_tesu = val_;
+    }
 
     [[nodiscard]] uint32 GetDepth() const noexcept {
         return m_depth;
     }
+    void SetDepth(const uint32 val_) noexcept {
+        m_depth = val_;
+    }
 
     [[nodiscard]] uint32 GetRemainDepth() const noexcept {
         return m_remainDepth;
+    }
+    void SetRemainDepth(const uint32 val_) noexcept {
+        m_remainDepth = val_;
     }
 };
 
@@ -96,6 +111,12 @@ private:
     /// 深さの最大
     /// </summary>
     uint32 m_depthMax;
+
+    HashTable<uint64, HashEntry> m_hashTable;
+
+    [[nodiscard]] uint32 MakeMoveFirst(const uint32 isSelfOrEnemy_, const uint32 depth_, Array<Te>& teValids_, Kyokumen k_);
+
+    [[nodiscard]] int32 HashAdd(const int32 retVal_, const Kyokumen& kyokumen_, const int32 alpha_, const int32 beta_, const uint32 depth_, const uint32 depthMax_);
 public:
     Sikou(const uint32 depth_) noexcept
     : m_depthMax(depth_) {
@@ -107,11 +128,8 @@ public:
 
     [[nodiscard]] Te Think(const uint32 isSelfOrEnemy_, Kyokumen kyokumen_) noexcept;
 
-    [[nodiscard]] Te Think(const uint32 isSelfOrEnemy_, Kyokumen kyokumen_, const SearchType type_) noexcept;
+    //[[nodiscard]] int32 NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const bool itDeep_ = true) noexcept;
+    [[nodiscard]] int32 NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const uint32 depthMax_ , const bool itDeep_ = true) noexcept;
 
-    [[nodiscard]] int32 MinMax(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, const uint32 depth_) noexcept;
-
-    [[nodiscard]] int32 AlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_) noexcept;
-
-    [[nodiscard]] int32 NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_) noexcept;
+    [[nodiscard]] int32 ITDeep(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_) noexcept;
 };

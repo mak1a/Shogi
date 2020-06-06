@@ -304,6 +304,9 @@ public:
     [[nodiscard]] uint64 GetHashVal() const noexcept {
         return m_hashVal;
     }
+    [[nodiscard]] uint32 GetTesu() const noexcept {
+        return m_tesu;
+    }
 
     [[nodiscard]] bool IsOute(const Turn& turn_) const noexcept {
         return ((turn_== Turn::Player)

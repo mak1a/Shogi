@@ -58,7 +58,7 @@ void BanSelf::EnemyUpdate() {
         return;
     }
 
-    Te te{m_sikouEnemy.Think(Enemy, m_kyokumen, SearchType::NegaAlphaBeta)};
+    Te te{m_sikouEnemy.Think(Enemy, m_kyokumen)};
     m_kyokumen.Move(Enemy, te);
 
     if (te.GetFrom() > 10) {
@@ -103,7 +103,7 @@ void BanSelf::SelfAIUpdate() {
         return;
     }
 
-    Te te{m_sikouSelf.Think(Self, m_kyokumen, SearchType::NegaAlphaBeta)};
+    Te te{m_sikouSelf.Think(Self, m_kyokumen)};
     m_kyokumen.Move(Self, te);
 
     if (te.GetFrom() > 10) {
@@ -412,8 +412,8 @@ GameAI::GameAI(const InitData& init)
 void GameAI::update() {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        m_ban.SelfUpdate();
-        //m_ban.SelfAIUpdate();
+        //m_ban.SelfUpdate();
+        m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         m_ban.EnemyUpdate();
