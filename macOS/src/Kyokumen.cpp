@@ -734,7 +734,7 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
         /// 自分の利きがあるなら相手は玉で取れないかつ、
         /// 取る動きを列挙したら玉で取る手しかない
         /// </summary>
-        if (m_controlSelf[to_].any() && CountMove(Enemy, to_).test(1)) {
+        if (m_controlSelf[to_].any() && CountMove(Enemy, to_).test(1) && CountMove(Enemy, to_).count() == 1) {
             /// <summary>
             /// 王に逃げ場があるかどうか
             /// </summary>
@@ -768,7 +768,7 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
         /// 自分の利きがあるなら相手は玉で取れないかつ、
         /// 取る動きを列挙したら玉で取る手しかない
         /// </summary>
-        if (m_controlEnemy[to_].any() && CountMove(Self, to_).test(6)) {
+        if (m_controlEnemy[to_].any() && CountMove(Self, to_).test(6) && CountMove(Self, to_).count() == 1) {
             /// <summary>
             /// 王に逃げ場があるかどうか
             /// </summary>

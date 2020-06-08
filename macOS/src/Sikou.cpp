@@ -41,15 +41,17 @@ uint32 Sikou::MakeMoveFirst(const uint32 isSelfOrEnemy_, const uint32 depth_, Ar
 }
 
 int32 Sikou::NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const uint32 depthMax_ , const bool itDeep_) noexcept {
-    if (kyokumen_.IsSennitite()) {
-        if (kyokumen_.IsContinuous(Turn::Enemy) == Winner::Player) {
-            return 999999;
-        }
-        if (kyokumen_.IsContinuous(Turn::Player) == Winner::Enemy) {
-            return -999999;
-        }
+    if (depth_ == 1) {
+        if (kyokumen_.IsSennitite()) {
+            if (kyokumen_.IsContinuous(Turn::Enemy) == Winner::Player) {
+                return 999999;
+            }
+            if (kyokumen_.IsContinuous(Turn::Player) == Winner::Enemy) {
+                return -999999;
+            }
 
-        return 0;
+            return 0;
+        }
     }
 
     if (depth_ >= depthMax_) {
@@ -72,7 +74,7 @@ int32 Sikou::NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int
     }
 
     if (depthMax_ - depth_ > 2 && itDeep_) {
-        return ITDeep(isSelfOrEnemy_, kyokumen_, alpha_, beta_, depth_);
+        return ITDeep(isSelfOrEnemy_, kyokumen_, alpha_, beta_, depth_, depthMax_);
     }
     
     int32 retVal{-1000000};
@@ -173,9 +175,9 @@ int32 Sikou::HashAdd(const int32 retVal_, const Kyokumen& kyokumen_, const int32
     return retVal_;
 }
 
-int32 Sikou::ITDeep(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_) noexcept {
+int32 Sikou::ITDeep(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const uint32 depthMax_) noexcept {
     int32 retVal{};
-    for (uint32 i{depth_+1}; i <= m_depthMax; ++i) {
+    for (uint32 i{depth_+1}; i <= depthMax_; ++i) {
         retVal = NegaAlphaBeta(isSelfOrEnemy_, kyokumen_, alpha_, beta_, depth_, i, false);
     }
 
@@ -190,7 +192,7 @@ Te Sikou::Think(const uint32 isSelfOrEnemy_, Kyokumen kyokumen_) noexcept {
         }
     }
 
-    int32 bestVal{ITDeep(isSelfOrEnemy_, kyokumen_, -999998, 999998, 0)};
+    int32 bestVal{ITDeep(isSelfOrEnemy_, kyokumen_, -999998, 999998, 0, m_depthMax)};
 
     return m_bestHands[0][0];
 }

@@ -12,6 +12,11 @@
 
     C++17
 
+## 開発環境
+
+Windows10 64bit<br>
+macOS Catalina
+
 ## 操作方法
 
     マウス操作のみです。

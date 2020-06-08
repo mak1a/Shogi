@@ -412,8 +412,8 @@ GameAI::GameAI(const InitData& init)
 void GameAI::update() {
     switch (m_ban.GetTurn()) {
     case Turn::Player:
-        //m_ban.SelfUpdate();
-        m_ban.SelfAIUpdate();
+        m_ban.SelfUpdate();
+        //m_ban.SelfAIUpdate();
         break;
     case Turn::Enemy:
         m_ban.EnemyUpdate();
