@@ -62,7 +62,11 @@ Select::Select(const InitData& init)
 , m_isFirstOute(false)
 , m_shogiBan(Arg::center(Scene::CenterF().movedBy(0, -100)), 450.f)
 , m_enemyDai(Arg::center(370.f, 550.f), 420.f, 80.f)
-, m_selfDai(Arg::center(910.f, 550.f), 420.f, 80.f) {
+, m_selfDai(Arg::center(910.f, 550.f), 420.f, 80.f)
+, m_komaDaiSelf(Arg::center(Scene::CenterF()
+    .movedBy(450.f/2+10+200.f/2, (450.f/2-300.f)+200.f/2)), 200.f)
+, m_komaDaiEnemy(Arg::center(Scene::CenterF()
+    .movedBy(-(450.f/2+10+200.f/2), -((450.f/2-100.f)+200.f/2))), 200.f) {
     getData().firstMove = Turn::Player;
     getData().elegance = Elegance::Player;
     getData().handicap = Handicap::Hirate;
@@ -91,6 +95,9 @@ Select::Select(const InitData& init)
             , Point(0, 0)
         );
     }
+
+    m_havingSelfKoma.resize(7);
+    m_havingEnemyKoma.resize(7);
 }
 
 void Select::SetUp() {
@@ -144,12 +151,52 @@ void Select::SetUp() {
     }
 }
 
+
+namespace Custom {
+    constexpr Vec2 selfFu = Vec2(875.0, 285.0);
+    constexpr Vec2 enemyFu = Vec2(355.0, 35.0);
+    
+    constexpr Vec2 selfKyo = Vec2(875.0, 335.0);
+    constexpr Vec2 enemyKyo = Vec2(355.0, 85.0);
+
+    constexpr Vec2 selfKei = Vec2(975.0, 335.0);
+    constexpr Vec2 enemyKei = Vec2(255.0, 85.0);
+
+    constexpr Vec2 selfGin = Vec2(875.0, 385.0);
+    constexpr Vec2 enemyGin = Vec2(355.0, 135.0);
+
+    constexpr Vec2 selfKin = Vec2(975.0, 385.0);
+    constexpr Vec2 enemyKin = Vec2(255.0, 135.0);
+
+    constexpr Vec2 selfKaku = Vec2(875.0, 435.0);
+    constexpr Vec2 enemyKaku = Vec2(355.0, 185.0);
+
+    constexpr Vec2 selfHi = Vec2(975.0, 435.0);
+    constexpr Vec2 enemyHi = Vec2(255.0, 185.0);
+
+    /// <summary>
+    /// 自分の持ち駒の場所
+    /// </summary>
+    constexpr array<const Vec2, 7> selfDaiPoses = {
+        selfFu, selfKyo, selfKei, selfGin, selfKin, selfKaku, selfHi
+    };
+    /// <summary>
+    /// 敵の持ち駒の場所
+    /// </summary>
+    constexpr array<const Vec2, 7> enemyDaiPoses = {
+        enemyFu, enemyKyo, enemyKei, enemyGin, enemyKin, enemyKaku, enemyHi
+    };
+}
+
 void Select::Custom() {
     // 盤面上の処理
     for (auto& square : m_boardSquares) {
         // 盤面から駒を消す処理
         if (!m_holdHand.has_value()) {
             if (!square.leftClicked()) {
+                if (square.mouseOver() && square.GetKomaType() != Empty && square.GetKomaType() != Eou && square.GetKomaType() != Sou) {
+                    Cursor::RequestStyle(CursorStyle::Hand);
+                }
                 continue;
             }
             if (square.GetKomaType() == Empty
@@ -157,7 +204,6 @@ void Select::Custom() {
                 || square.GetKomaType() == Sou) {
                 return;
             }
-            Cursor::RequestStyle(CursorStyle::Hand);
             
             square.ChangeKomaType(Emp);
             m_isNifu = false;
@@ -210,8 +256,35 @@ void Select::Custom() {
             m_holdHand.value().setCenter(Cursor::PosF());
             return;
         }
+
+        if (m_komaDaiSelf.leftClicked()) {
+            if ((m_holdHand.value().GetKomaType() & Self) == 0) {
+                return;
+            }
+            m_havingSelfKoma[m_holdHand.value().GetKomaType() - Self - 1] << KomaSquare(
+                Custom::selfDaiPoses[m_holdHand.value().GetKomaType() - Self - 1]
+                , m_komaDaiSelf.w / 4
+                , m_holdHand.value().GetKomaType()
+                , KomaState::Dai
+                , Point(0, 0)
+            );
+        }
+        else if (m_komaDaiEnemy.leftClicked()) {
+            if ((m_holdHand.value().GetKomaType() & Enemy) == 0) {
+                return;
+            }
+            m_havingEnemyKoma[m_holdHand.value().GetKomaType() - Enemy - 1] << KomaSquare(
+                Custom::enemyDaiPoses[m_holdHand.value().GetKomaType() - Enemy - 1]
+                , m_komaDaiEnemy.w / 4
+                , m_holdHand.value().GetKomaType()
+                , KomaState::Dai
+                , Point(0, 0)
+            );
+        }
         
-        m_holdHand.reset();
+        if (!KeyShift.pressed()) {
+            m_holdHand.reset();
+        }
         return;
     }
     
@@ -237,6 +310,36 @@ void Select::Custom() {
         }
         m_holdHand.emplace(enemyKoma);
         return;
+    }
+
+    // プレイヤーの駒台から駒を取る処理
+    for (auto& havingSelfKoma : m_havingSelfKoma) {
+        for (auto [i, koma] : IndexedRef(havingSelfKoma)) {
+            if (koma.mouseOver()) {
+                Cursor::RequestStyle(CursorStyle::Hand);
+            }
+            if (!koma.leftClicked()) {
+                continue;
+            }
+
+            havingSelfKoma.remove_at(i);
+            return;
+        }
+    }
+    
+    // 敵の駒台から駒を取る処理
+    for (auto& havingEnemyKoma : m_havingEnemyKoma) {
+        for (auto [i, koma] : IndexedRef(havingEnemyKoma)) {
+            if (koma.mouseOver()) {
+                Cursor::RequestStyle(CursorStyle::Hand);
+            }
+            if (!koma.leftClicked()) {
+                continue;
+            }
+
+            havingEnemyKoma.remove_at(i);
+            return;
+        }
     }
 }
 
@@ -316,6 +419,8 @@ void Select::draw() const {
     m_shogiBan.draw(Palette::Burlywood);
     m_enemyDai.draw(Palette::Burlywood);
     m_selfDai.draw(Palette::Burlywood);
+    m_komaDaiEnemy.draw(Palette::Burlywood);
+    m_komaDaiSelf.draw(Palette::Burlywood);
 
     SimpleGUI::Headline(U"敵駒", m_enemyDai.tl().movedBy(0, -40));
     SimpleGUI::Headline(U"自駒", m_selfDai.tr().movedBy(-60, -40));
@@ -337,12 +442,23 @@ void Select::draw() const {
         selfKoma.Draw();
     }
 
+    for (const auto& selfDai : m_havingSelfKoma) {
+        for (const auto [i, koma] : IndexedRefReversed(selfDai)) {
+            koma.Draw(Vec2(i * 10, 0));
+        }
+    }
+    for (const auto& enemyDai : m_havingEnemyKoma) {
+        for (const auto [i, koma] : IndexedRefReversed(enemyDai)) {
+            koma.Draw(Vec2(static_cast<int32>(i) * -10, 0));
+        }
+    }
+
     if (m_holdHand.has_value()) {
         m_holdHand.value().Draw();
     }
 
-    FontAsset(U"Explain")(U"初期盤面を自由に\n制作できます。").draw(50, 80, Palette::Black);
-    FontAsset(U"Explain")(U"Shiftキーを押した\nまま選択した駒を\n置くと連続で\n置けます。").draw(50, 230, Palette::Black);
+    //FontAsset(U"Explain")(U"初期盤面を自由に\n制作できます。").draw(50, 80, Palette::Black);
+    //FontAsset(U"Explain")(U"Shiftキーを押した\nまま選択した駒を\n置くと連続で\n置けます。").draw(50, 230, Palette::Black);
 
     if (m_isNifu) {
         FontAsset(U"Explain")(U"二歩です！置き直してください！").draw(320, 620, Palette::Red);

@@ -73,6 +73,11 @@ struct GameData {
     /// </summary>
     uint32 depthMax = 0;
 
+    /// <summary>
+    /// 持ち駒
+    /// </summary>
+    array<uint32, 40> motigoma;
+
 private:
     /// <summary>
     /// 盤面がカスタムの場合、ここに格納する
@@ -86,6 +91,8 @@ public:
                 m_customKomas[y][x] = Board::Custom[y][x];
             }
         }
+
+        motigoma.fill(0);
     }
 
     /// <summary>

@@ -74,6 +74,9 @@ void Ban::Update() {
         // 盤面から駒を選んで手に持つ処理
         if (!m_holdHand.has_value()) {
             if (!square.leftClicked()) {
+                if (square.mouseOver() && square.GetKomaType() != Empty) {
+                    Cursor::RequestStyle(CursorStyle::Hand);
+                }
                 continue;
             }
             if (square.GetKomaType() == Empty) {
@@ -231,6 +234,9 @@ void Ban::Update() {
     // プレイヤーの駒台から駒を取る処理
     for (auto& havingSelfKoma : m_havingSelfKoma) {
         for (auto [i, koma] : IndexedRef(havingSelfKoma)) {
+            if (koma.mouseOver()) {
+                Cursor::RequestStyle(CursorStyle::Hand);
+            }
             if (!koma.leftClicked()) {
                 continue;
             }
@@ -243,6 +249,9 @@ void Ban::Update() {
     // 敵の駒台から駒を取る処理
     for (auto& havingEnemyKoma : m_havingEnemyKoma) {
         for (auto [i, koma] : IndexedRef(havingEnemyKoma)) {
+            if (koma.mouseOver()) {
+                Cursor::RequestStyle(CursorStyle::Hand);
+            }
             if (!koma.leftClicked()) {
                 continue;
             }
