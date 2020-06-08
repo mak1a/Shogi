@@ -1,7 +1,7 @@
 ﻿
 # include "Game.hpp"
 
-Ban::Ban(const array<array<uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, const double shogiBan_, const double komaDai_) noexcept
+Ban::Ban(const array<array<uint32, 9>, 9>& iniKyokumen_, const array<uint32, 40>& motigomas_, const Turn& turn_, const double shogiBan_, const double komaDai_) noexcept
 : m_shogiBan(Arg::center(Scene::CenterF()), shogiBan_)
 , m_komaDaiSelf(Arg::center(Scene::CenterF()
     .movedBy(shogiBan_/2+10+komaDai_/2, (shogiBan_/2-komaDai_)+komaDai_/2)), komaDai_)
@@ -13,7 +13,7 @@ Ban::Ban(const array<array<uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, cons
     .movedBy(shogiBan_/2+10+komaDai_/2, -((shogiBan_/2-komaDai_)+komaDai_/2))), Vec2(komaDai_, shogiBan_ / 12))
 , m_turn(turn_)
 , m_isBehind((turn_ == Turn::Enemy))
-, m_kyokumen(0, iniKyokumen_) {
+, m_kyokumen(0, iniKyokumen_, motigomas_) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
     
@@ -32,6 +32,32 @@ Ban::Ban(const array<array<uint32, 9>, 9>& iniKyokumen_, const Turn& turn_, cons
 
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
+
+    /// <summary>
+    /// 持ち駒の初期化
+    /// </summary>
+    for (uint32 type{Sfu}; type <= Shi; ++type) {
+        for (uint32 i{}; i < motigomas_[type]; ++i) {
+            m_havingSelfKoma[type - Self - 1] << KomaSquare(
+                KomaPos::selfDaiPoses[type - Self - 1]
+                , m_komaDaiSelf.w / 4
+                , type
+                , KomaState::Dai
+                , Point(0, 0)
+            );
+        }
+    }
+    for (uint32 type{Efu}; type <= Ehi; ++type) {
+        for (uint32 i{}; i < motigomas_[type]; ++i) {
+            m_havingEnemyKoma[type - Enemy - 1] << KomaSquare(
+                KomaPos::enemyDaiPoses[type - Enemy - 1]
+                , m_komaDaiEnemy.w / 4
+                , type
+                , KomaState::Dai
+                , Point(0, 0)
+            );
+        }
+    }
 
     // カスタム設定の場合、初期状態で詰みの可能性が存在するのでその確認
     if (m_kyokumen.MakeLegalMoves((turn_==Turn::Player)?Self:Enemy) <= 0) {
@@ -411,7 +437,7 @@ void Ban::AddHoldKoma(KomaSquare& koma_) {
 
 Game::Game(const InitData& init)
 : IScene(init)
-, m_ban(getData().GetBoard(), getData().firstMove) {}
+, m_ban(getData().GetBoard(), getData().motigomas, getData().firstMove) {}
 
 void Game::update()
 {

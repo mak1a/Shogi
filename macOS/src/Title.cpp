@@ -61,8 +61,8 @@ Select::Select(const InitData& init)
 , m_isNifu(false)
 , m_isFirstOute(false)
 , m_shogiBan(Arg::center(Scene::CenterF().movedBy(0, -100)), 450.f)
-, m_enemyDai(Arg::center(370.f, 550.f), 420.f, 80.f)
-, m_selfDai(Arg::center(910.f, 550.f), 420.f, 80.f)
+, m_enemyDai(Arg::center(345.f, 550.f), 420.f, 80.f)
+, m_selfDai(Arg::center(935.f, 550.f), 420.f, 80.f)
 , m_komaDaiSelf(Arg::center(Scene::CenterF()
     .movedBy(450.f/2+10+200.f/2, (450.f/2-300.f)+200.f/2)), 200.f)
 , m_komaDaiEnemy(Arg::center(Scene::CenterF()
@@ -72,6 +72,7 @@ Select::Select(const InitData& init)
     getData().handicap = Handicap::Hirate;
     getData().depthMax = 1;
     getData().SetCustomBoard(Board::Custom);
+    getData().motigomas.fill(0);
 
     // １マスの大きさ
     const double squareSize = 50.0;
@@ -375,6 +376,19 @@ void Select::update() {
             }
 
             getData().SetCustomBoard(boardCustom);
+
+            // 持ち駒を渡す
+            for (const auto [i, havingSelfKoma] : IndexedRef(m_havingSelfKoma)) {
+                for (const auto& motigoma : havingSelfKoma) {
+                    ++getData().motigomas[(i + 1) + Self];
+                }
+            }
+            for (const auto [i, havingEnemyKoma] : IndexedRef(m_havingEnemyKoma)) {
+                for (const auto& motigoma : havingEnemyKoma) {
+                    ++getData().motigomas[(i + 1) + Enemy];
+                }
+            }
+
             changeScene(getData().gameState);
             return;
         }
@@ -457,13 +471,13 @@ void Select::draw() const {
         m_holdHand.value().Draw();
     }
 
-    //FontAsset(U"Explain")(U"初期盤面を自由に\n制作できます。").draw(50, 80, Palette::Black);
-    //FontAsset(U"Explain")(U"Shiftキーを押した\nまま選択した駒を\n置くと連続で\n置けます。").draw(50, 230, Palette::Black);
+    FontAsset(U"Explain")(U"初期盤面を自由に制作できます。").draw(50, 280, Palette::Black);
+    FontAsset(U"Explain")(U"Shiftキーを押したまま選択した駒を\n置くと連続で置けます。").draw(50, 350, Palette::Black);
 
     if (m_isNifu) {
-        FontAsset(U"Explain")(U"二歩です！置き直してください！").draw(320, 620, Palette::Red);
+        FontAsset(U"Warning")(U"二歩です！置き直してください！").draw(320, 620, Palette::Red);
     }
     if (m_isFirstOute) {
-        FontAsset(U"Explain")(U"先手が王手の状態で\n開始できません。").draw(915, 120, Palette::Red);
+        FontAsset(U"Warning")(U"先手が王手の状態で\n開始できません。").draw(915, 120, Palette::Red);
     }
 }

@@ -76,7 +76,7 @@ struct GameData {
     /// <summary>
     /// 持ち駒
     /// </summary>
-    array<uint32, 40> motigoma;
+    array<uint32, 40> motigomas;
 
 private:
     /// <summary>
@@ -92,7 +92,7 @@ public:
             }
         }
 
-        motigoma.fill(0);
+        motigomas.fill(0);
     }
 
     /// <summary>
