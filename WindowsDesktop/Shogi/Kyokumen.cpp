@@ -734,7 +734,7 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
         /// ©•ª‚Ì—˜‚«‚ª‚ ‚é‚È‚ç‘Šè‚Í‹Ê‚Åæ‚ê‚È‚¢‚©‚ÂA
         /// æ‚é“®‚«‚ğ—ñ‹“‚µ‚½‚ç‹Ê‚Åæ‚éè‚µ‚©‚È‚¢
         /// </summary>
-        if (m_controlSelf[to_].any() && CountMove(Enemy, to_).test(1)) {
+        if (m_controlSelf[to_].any() && CountMove(Enemy, to_).test(1) && CountMove(Enemy, to_).count() == 1) {
             /// <summary>
             /// ‰¤‚É“¦‚°ê‚ª‚ ‚é‚©‚Ç‚¤‚©
             /// </summary>
@@ -768,7 +768,7 @@ bool Kyokumen::Uchifudume(const uint32 isSelfOrEnemy_, const uint32 to_) {
         /// ©•ª‚Ì—˜‚«‚ª‚ ‚é‚È‚ç‘Šè‚Í‹Ê‚Åæ‚ê‚È‚¢‚©‚ÂA
         /// æ‚é“®‚«‚ğ—ñ‹“‚µ‚½‚ç‹Ê‚Åæ‚éè‚µ‚©‚È‚¢
         /// </summary>
-        if (m_controlEnemy[to_].any() && CountMove(Self, to_).test(6)) {
+        if (m_controlEnemy[to_].any() && CountMove(Self, to_).test(6) && CountMove(Self, to_).count() == 1) {
             /// <summary>
             /// ‰¤‚É“¦‚°ê‚ª‚ ‚é‚©‚Ç‚¤‚©
             /// </summary>
