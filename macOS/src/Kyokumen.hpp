@@ -107,7 +107,7 @@ private:
     array<std::bitset<28>, 11 * 11> m_controlSelf, m_controlEnemy;
     
     // 持ち駒の数。
-    array<uint32, 41> m_holdingKomas;
+    array<uint32, 40> m_holdingKomas;
     
     // この局面の手数
     uint32 m_tesu;
@@ -278,7 +278,7 @@ private:
 public:
     Kyokumen() = default;
     
-    Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 41>& motigoma_ = array<uint32, 41>()) noexcept;
+    Kyokumen(const uint32 tesu_, const array<array<uint32, 9>, 9>& board_, const array<uint32, 40>& motigoma_ = array<uint32, 40>()) noexcept;
 
     /// <summary>
     /// 有効"ではない"手かどうか判定
