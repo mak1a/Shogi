@@ -200,15 +200,20 @@ void Select::Custom() {
                 }
                 continue;
             }
-            if (square.GetKomaType() == Empty
-                || square.GetKomaType() == Eou
-                || square.GetKomaType() == Sou) {
+            if (square.GetKomaType() == Empty) {
+                return;
+            }
+
+            m_isNifu = false;
+            m_isFirstOute = false;
+
+            if (square.GetKomaType() == Eou || square.GetKomaType() == Sou) {
+                m_holdHand.emplace(square);
+                square.ChangeKomaType(Emp);
                 return;
             }
             
             square.ChangeKomaType(Emp);
-            m_isNifu = false;
-            m_isFirstOute = false;
             return;
         }
         
@@ -241,22 +246,33 @@ void Select::Custom() {
         if (m_holdHand.value().GetKomaType() == Eke && square.GetKomaCoodinate().y >= 8) {
             return;
         }
+        if (KeySpace.pressed()) {
+            m_holdHand.value().PromoteKoma();
+        }
         square.ChangeKomaType(m_holdHand.value().GetKomaType());
 
-        if (!KeyShift.pressed()) {
+        if (!KeyShift.pressed() || m_holdHand.value().GetKomaType() == Sou || m_holdHand.value().GetKomaType() == Eou) {
             m_holdHand.reset();
+            return;
         }
+
+        m_holdHand.value().ReturnPromoteKoma();
         return;
     }
     
-    // 駒台から取った駒を元の駒台の位置に戻す処理
-    // いわゆるキャンセル処理
+    // 駒台に持ってる駒を置く処理
     if (m_holdHand.has_value()) {
         // 何もクリックしてなかったら、処理リターン
         if (!MouseL.down()) {
             m_holdHand.value().setCenter(Cursor::PosF());
             return;
         }
+        if (m_holdHand.value().GetKomaType() == Eou || m_holdHand.value().GetKomaType() == Sou) {
+            m_holdHand.value().setCenter(Cursor::PosF());
+            return;
+        }
+
+        m_holdHand.value().ReturnPromoteKoma();
 
         if (m_komaDaiSelf.leftClicked()) {
             if ((m_holdHand.value().GetKomaType() & Self) == 0) {
@@ -289,7 +305,7 @@ void Select::Custom() {
         return;
     }
     
-    // プレイヤーの駒台から駒を取る処理
+    // プレイヤーの駒選択台から駒を取る処理
     for (auto& selfKoma : m_selectSelfKomas) {
         if (!selfKoma.leftClicked()) {
             if (selfKoma.mouseOver()) {
@@ -301,7 +317,7 @@ void Select::Custom() {
         return;
     }
     
-    // 敵の駒台から駒を取る処理
+    // 敵の駒選択台から駒を取る処理
     for (auto& enemyKoma : m_selectEnemyKomas) {
         if (!enemyKoma.leftClicked()) {
             if (enemyKoma.mouseOver()) {
@@ -472,7 +488,7 @@ void Select::draw() const {
     }
 
     FontAsset(U"Explain")(U"初期盤面を自由に制作できます。").draw(50, 280, Palette::Black);
-    FontAsset(U"Explain")(U"Shiftキーを押したまま選択した駒を\n置くと連続で置けます。").draw(50, 350, Palette::Black);
+    FontAsset(U"Explain")(U"Shiftキーを押したまま選択した駒を\n置くと連続で置く事ができ、\nSpaceキーを押したまま選択した駒を\n置くと駒を成る事ができます。").draw(50, 320, Palette::Black);
 
     if (m_isNifu) {
         FontAsset(U"Warning")(U"二歩です！置き直してください！").draw(320, 620, Palette::Red);
