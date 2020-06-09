@@ -328,7 +328,13 @@ public:
     }
 
     constexpr void PromoteKoma() noexcept {
-        m_komaType |= Promote;
+        if (m_komaType != Eou && m_komaType != Sou && m_komaType != Eki && m_komaType != Ski) {
+            m_komaType |= Promote;
+        }
+    }
+
+    constexpr void ReturnPromoteKoma() noexcept {
+        m_komaType &= ~Promote;
     }
 
     // ‹î‚ð•`‰æ‚·‚é
