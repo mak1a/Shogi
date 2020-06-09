@@ -253,7 +253,10 @@ void Select::Custom() {
 
         if (!KeyShift.pressed() || m_holdHand.value().GetKomaType() == Sou || m_holdHand.value().GetKomaType() == Eou) {
             m_holdHand.reset();
+            return;
         }
+
+        m_holdHand.value().ReturnPromoteKoma();
         return;
     }
     
@@ -268,6 +271,8 @@ void Select::Custom() {
             m_holdHand.value().setCenter(Cursor::PosF());
             return;
         }
+
+        m_holdHand.value().ReturnPromoteKoma();
 
         if (m_komaDaiSelf.leftClicked()) {
             if ((m_holdHand.value().GetKomaType() & Self) == 0) {

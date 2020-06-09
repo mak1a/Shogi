@@ -332,6 +332,10 @@ public:
             m_komaType |= Promote;
         }
     }
+
+    constexpr void ReturnPromoteKoma() noexcept {
+        m_komaType &= ~Promote;
+    }
     
     // 駒を描画する
     void Draw(const Vec2& difference_ = Vec2::Zero()) const {
