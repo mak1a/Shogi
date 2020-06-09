@@ -72,8 +72,7 @@ int32 Sikou::NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int
             return e.GetValue();
         }
     }
-
-    if (depthMax_ - depth_ > 2 && itDeep_) {
+    else if (depthMax_ - depth_ > 2 && itDeep_) {
         return ITDeep(isSelfOrEnemy_, kyokumen_, alpha_, beta_, depth_, depthMax_);
     }
 

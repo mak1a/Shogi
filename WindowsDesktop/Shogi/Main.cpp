@@ -17,7 +17,8 @@ void Main() {
     // 使用するフォントアセットを登録
     FontAsset::Register(U"Title", 120, Typeface::Heavy);
     FontAsset::Register(U"Menu", 30, Typeface::Regular);
-    FontAsset::Register(U"Explain", 36, Typeface::Light);
+    FontAsset::Register(U"Warning", 36, Typeface::Light);
+    FontAsset::Register(U"Explain", 20, Typeface::Regular);
     FontAsset::Register(U"Result", 150, Typeface::Regular);
 
     TextureAsset::Register(U"Fu", Resource(U"textures/komas/syougi14_fuhyou.png"), AssetParameter::LoadImmediately());

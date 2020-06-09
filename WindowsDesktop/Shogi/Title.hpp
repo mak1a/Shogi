@@ -47,6 +47,16 @@ private:
 
     RectF m_enemyDai, m_selfDai;
 
+    // 敵の駒台
+    RectF m_komaDaiEnemy;
+    // 自分の駒台
+    RectF m_komaDaiSelf;
+
+    // 持ち駒（プレイヤー側）
+    Array<Array<KomaSquare>> m_havingSelfKoma;
+    // 持ち駒（敵側）
+    Array<Array<KomaSquare>> m_havingEnemyKoma;
+
     // 盤上のマス目
     // RectFで保持する事でMouse判定できるようにする。
     Array<KomaSquare> m_boardSquares;
