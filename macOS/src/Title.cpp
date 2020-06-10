@@ -225,6 +225,10 @@ void Select::Custom() {
         if (square.GetKomaType() == Eou || square.GetKomaType() == Sou) {
             return;
         }
+
+        if (KeySpace.pressed()) {
+            m_holdHand.value().PromoteKoma();
+        }
         
         // 持ってる駒を置く
         // ただし、動かせない部分には置けないようにする
@@ -246,9 +250,7 @@ void Select::Custom() {
         if (m_holdHand.value().GetKomaType() == Eke && square.GetKomaCoodinate().y >= 8) {
             return;
         }
-        if (KeySpace.pressed()) {
-            m_holdHand.value().PromoteKoma();
-        }
+        
         square.ChangeKomaType(m_holdHand.value().GetKomaType());
 
         if (!KeyShift.pressed() || m_holdHand.value().GetKomaType() == Sou || m_holdHand.value().GetKomaType() == Eou) {
