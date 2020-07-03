@@ -405,6 +405,7 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/OpenSiv3Dv0_4_3/include,
 					/usr/local/OpenSiv3Dv0_4_3/include/ThirdParty,
+					/usr/local/Photon,
 				);
 				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -422,6 +423,9 @@
 					/usr/local/OpenSiv3Dv0_4_3/lib/macOS/libvorbis,
 					/usr/local/OpenSiv3Dv0_4_3/lib/macOS/opencv,
 					/usr/local/OpenSiv3Dv0_4_3/lib/macOS/zlib,
+					"/usr/local/Photon/Common-cpp/lib",
+					"/usr/local/Photon/Photon-cpp/lib",
+					"/usr/local/Photon/LoadBalancing-cpp/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -429,6 +433,11 @@
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-fvisibility=hidden",
+				);
+				OTHER_LDFLAGS = (
+					"-lCommon-cpp_$(CONFIGURATION)_$(PLATFORM_NAME)",
+					"-lPhoton-cpp_$(CONFIGURATION)_$(PLATFORM_NAME)",
+					"-lLoadBalancing-cpp_$(CONFIGURATION)_$(PLATFORM_NAME)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = game.siv3d;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -474,6 +483,7 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/OpenSiv3Dv0_4_3/include,
 					/usr/local/OpenSiv3Dv0_4_3/include/ThirdParty,
+					/usr/local/Photon,
 				);
 				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -491,12 +501,20 @@
 					/usr/local/OpenSiv3Dv0_4_3/lib/macOS/libvorbis,
 					/usr/local/OpenSiv3Dv0_4_3/lib/macOS/opencv,
 					/usr/local/OpenSiv3Dv0_4_3/lib/macOS/zlib,
+					"/usr/local/Photon/Common-cpp/lib",
+					"/usr/local/Photon/Photon-cpp/lib",
+					"/usr/local/Photon/LoadBalancing-cpp/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-fvisibility=hidden",
+				);
+				OTHER_LDFLAGS = (
+					"-lCommon-cpp_$(CONFIGURATION)_$(PLATFORM_NAME)",
+					"-lLoadBalancing-cpp_$(CONFIGURATION)_$(PLATFORM_NAME)",
+					"-lPhoton-cpp_$(CONFIGURATION)_$(PLATFORM_NAME)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = game.siv3d;
 				PRODUCT_NAME = "$(TARGET_NAME)";
