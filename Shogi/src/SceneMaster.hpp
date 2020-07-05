@@ -70,30 +70,30 @@ namespace shogi {
         SceneMaster<State_t, Data_t>* m_manager;
 
     public:
-        virtual void DebugReturn(int debugLevel, const ExitGames::Common::JString& string) {}
+        virtual void DebugReturn(int /*debugLevel*/, const ExitGames::Common::JString& /*string*/) {}
 
-        virtual void ConnectionErrorReturn(int errorCode) {}
+        virtual void ConnectionErrorReturn(int /*errorCode*/) {}
 
-        virtual void ClientErrorReturn(int errorCode) {}
+        virtual void ClientErrorReturn(int /*errorCode*/) {}
 
-        virtual void WarningReturn(int warningCode) {}
+        virtual void WarningReturn(int /*warningCode*/) {}
 
-        virtual void ServerErrorReturn(int errorCode) {}
+        virtual void ServerErrorReturn(int /*errorCode*/) {}
 
-        virtual void JoinRoomEventAction(int playerNr, const ExitGames::Common::JVector<int>& playernrs, const ExitGames::LoadBalancing::Player& player) {}
+        virtual void JoinRoomEventAction(int /*playerNr*/, const ExitGames::Common::JVector<int>& /*playernrs*/, const ExitGames::LoadBalancing::Player& /*player*/) {}
 
-        virtual void LeaveRoomEventAction(int playerNr, bool isInactive) {}
+        virtual void LeaveRoomEventAction(int /*playerNr*/, bool /*isInactive*/) {}
 
-        virtual void CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent) {}
+        virtual void CustomEventAction(int /*playerNr*/, nByte /*eventCode*/, const ExitGames::Common::Object& /*eventContent*/) {}
 
-        virtual void ConnectReturn(int errorCode,
-                                   const ExitGames::Common::JString& errorString,
-                                   const ExitGames::Common::JString& region,
-                                   const ExitGames::Common::JString& cluster) {}
+        virtual void ConnectReturn(int /*errorCode*/,
+                                   const ExitGames::Common::JString& /*errorString*/,
+                                   const ExitGames::Common::JString& /*region*/,
+                                   const ExitGames::Common::JString& /*cluster*/) {}
 
         virtual void DisconnectReturn() {}
 
-        virtual void LeaveRoomReturn(int errorCode, const ExitGames::Common::JString& errorString) {}
+        virtual void LeaveRoomReturn(int /*errorCode*/, const ExitGames::Common::JString& /*errorString*/) {}
 
         virtual void CreateRoomReturn(int /*localPlayerNr*/,
                                       const ExitGames::Common::Hashtable& /*roomProperties*/,
@@ -431,7 +431,8 @@ namespace shogi {
         /// <param name="option">
         /// シーン管理のオプション
         /// </param>
-        SceneMaster() : m_data(s3d::MakeShared<Data>()), m_loadBalancingClient(*this, L"d4dc7f3d-6f99-437c-b5e3-4f03b0eb4d0f", L"1.0"), m_usePhoton(false) {}
+        SceneMaster(const ExitGames::Common::JString& appID_, const ExitGames::Common::JString& appVersion_)
+        : m_data(s3d::MakeShared<Data>()), m_loadBalancingClient(*this, appID_, appVersion_), m_usePhoton(false) {}
 
         /// <summary>
         /// シーン管理を初期化します。
@@ -442,7 +443,8 @@ namespace shogi {
         /// <param name="option">
         /// シーン管理のオプション
         /// </param>
-        explicit SceneMaster(const std::shared_ptr<Data>& data) : m_data(data), m_loadBalancingClient(*this, L"d4dc7f3d-6f99-437c-b5e3-4f03b0eb4d0f", L"1.0"), m_usePhoton(false) {}
+        explicit SceneMaster(const std::shared_ptr<Data>& data, const ExitGames::Common::JString& appID_, const ExitGames::Common::JString& appVersion_)
+        : m_data(data), m_loadBalancingClient(*this, appID_, appVersion_), m_usePhoton(false) {}
 
         bool UsePhoton() {
             return m_usePhoton;

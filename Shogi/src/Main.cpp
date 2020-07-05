@@ -40,7 +40,7 @@ void Main() {
     s3d::AudioAsset::Register(U"Piece", s3d::Resource(U"audios/piece1.m4a"), s3d::AssetParameter::LoadImmediately());
 
     // シーンと遷移時の色を設定
-    MyApp manager;
+    MyApp manager();
     manager.add<Title>(State::Title).add<Select>(State::Select).add<Game>(State::Game).add<GameAI>(State::GameAI).setFadeColor(s3d::ColorF(1.0));
 
     // manager.init(State::Select);
