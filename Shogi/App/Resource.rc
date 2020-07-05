@@ -75,6 +75,8 @@ Resource(textures/komas/syougi13_narikyou.png)
 
 Resource(audios/piece1.m4a)
 
+Resource(config/appIDString.ini)
+
 /* 
 	//
 	// Define your resource path inside `Resource()` macro.

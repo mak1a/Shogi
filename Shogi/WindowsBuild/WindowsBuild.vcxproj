@@ -99,6 +99,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\yssmh\Documents\Photon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -243,6 +244,7 @@
     <ClInclude Include="..\src\Title.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\appIDChange.cpp" />
     <ClCompile Include="..\src\Game.cpp" />
     <ClCompile Include="..\src\GameAI.cpp" />
     <ClCompile Include="..\src\Kyokumen.cpp" />
