@@ -42,6 +42,7 @@
 		643A63CB23DF5E1500922771 /* Sikou.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 643A63CA23DF5E1500922771 /* Sikou.cpp */; };
 		645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */; };
 		6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6488705123BA0E120061A0D2 /* Kyokumen.cpp */; };
+		64ECFC9324B21BBA0090783F /* appIDChange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64ECFC9224B21BBA0090783F /* appIDChange.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -92,6 +93,7 @@
 		6488705023BA0E110061A0D2 /* Koma.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Koma.hpp; sourceTree = "<group>"; };
 		6488705123BA0E120061A0D2 /* Kyokumen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kyokumen.cpp; sourceTree = "<group>"; };
 		64D8DB952416C47C00F2BF29 /* Board.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Board.hpp; sourceTree = "<group>"; };
+		64ECFC9224B21BBA0090783F /* appIDChange.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = appIDChange.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +172,7 @@
 				643A63CA23DF5E1500922771 /* Sikou.cpp */,
 				64D8DB952416C47C00F2BF29 /* Board.hpp */,
 				6460796224AF9F4F002230EE /* SceneMaster.hpp */,
+				64ECFC9224B21BBA0090783F /* appIDChange.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -279,6 +282,7 @@
 			files = (
 				2C971A5C239732F900E66570 /* Title.cpp in Sources */,
 				2C17789A1CE0AA7C00BB8AD0 /* Main.cpp in Sources */,
+				64ECFC9324B21BBA0090783F /* appIDChange.cpp in Sources */,
 				6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */,
 				2C971A5B239732F900E66570 /* Game.cpp in Sources */,
 				645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */,

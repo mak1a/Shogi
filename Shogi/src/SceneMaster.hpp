@@ -28,6 +28,16 @@ namespace shogi {
     }
 
     /// <summary>
+    /// appIDを正常な文字列に直す
+    /// </summary>
+    /// <param name=str>修正前のappID</param>
+    /// <returns>正常なappID</returns>
+    /// <remarks>
+    /// ここには実装部分は書かないし、gitにも履歴は残さない
+    /// </remarks>
+    [[nodiscard]] ExitGames::Common::JString ChangeAppIDString(s3d::String str);
+
+    /// <summary>
     /// シーン管理
     /// </summary>
     /// <remarks>
