@@ -86,6 +86,7 @@
 		643A63CA23DF5E1500922771 /* Sikou.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sikou.cpp; sourceTree = "<group>"; };
 		645EC46E23B67E1400B0DBB9 /* GameAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameAI.hpp; sourceTree = "<group>"; };
 		645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameAI.cpp; sourceTree = "<group>"; };
+		6460796224AF9F4F002230EE /* SceneMaster.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SceneMaster.hpp; sourceTree = "<group>"; };
 		6488704E23BA0DE70061A0D2 /* Sikou.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Sikou.hpp; sourceTree = "<group>"; };
 		6488704F23BA0E110061A0D2 /* Kyokumen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Kyokumen.hpp; sourceTree = "<group>"; };
 		6488705023BA0E110061A0D2 /* Koma.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Koma.hpp; sourceTree = "<group>"; };
@@ -168,6 +169,7 @@
 				6488704F23BA0E110061A0D2 /* Kyokumen.hpp */,
 				643A63CA23DF5E1500922771 /* Sikou.cpp */,
 				64D8DB952416C47C00F2BF29 /* Board.hpp */,
+				6460796224AF9F4F002230EE /* SceneMaster.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";

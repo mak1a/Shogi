@@ -1,7 +1,7 @@
-﻿#include"Sikou.hpp"
+﻿#include "Sikou.hpp"
 
 
-uint32 Sikou::MakeMoveFirst(const uint32 isSelfOrEnemy_, const uint32 depth_, Array<Te>& teValids_, Kyokumen k_) {
+uint32 Sikou::MakeMoveFirst(const uint32 isSelfOrEnemy_, const uint32 depth_, s3d::Array<Te>& teValids_, Kyokumen k_) {
     if (m_hashTable[k_.GetHashVal()].GetHashVal() != k_.GetHashVal()) {
         /// <summary>
         /// 局面が一致してない
@@ -40,7 +40,7 @@ uint32 Sikou::MakeMoveFirst(const uint32 isSelfOrEnemy_, const uint32 depth_, Ar
     return static_cast<uint32>(teValids_.size());
 }
 
-int32 Sikou::NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const uint32 depthMax_ , const bool itDeep_) noexcept {
+int32 Sikou::NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const uint32 depthMax_, const bool itDeep_) noexcept {
     if (depth_ == 1) {
         if (kyokumen_.IsSennitite()) {
             if (kyokumen_.IsContinuous(Turn::Enemy) == Winner::Player) {
@@ -55,45 +55,43 @@ int32 Sikou::NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int
     }
 
     if (depth_ >= depthMax_) {
-        return ((isSelfOrEnemy_ == Self)
-            ? kyokumen_.GetValue() + kyokumen_.BestEval(isSelfOrEnemy_)
-            : -(kyokumen_.GetValue() + kyokumen_.BestEval(isSelfOrEnemy_)));
+        return ((isSelfOrEnemy_ == Self) ? kyokumen_.GetValue() + kyokumen_.BestEval(isSelfOrEnemy_) : -(kyokumen_.GetValue() + kyokumen_.BestEval(isSelfOrEnemy_)));
     }
 
     if (m_hashTable[kyokumen_.GetHashVal()].GetHashVal() == kyokumen_.GetHashVal()) {
         HashEntry e{m_hashTable[kyokumen_.GetHashVal()]};
-        if (e.GetValue() >= beta_ && e.GetTesu() >= kyokumen_.GetTesu() && e.GetTesu() % 2 == kyokumen_.GetTesu() % 2
-            && e.GetDepth() <= depth_ && e.GetRemainDepth() >= depthMax_ - depth_ && e.GetValueKind() != ValueKind::Upper) {
+        if (e.GetValue() >= beta_ && e.GetTesu() >= kyokumen_.GetTesu() && e.GetTesu() % 2 == kyokumen_.GetTesu() % 2 && e.GetDepth() <= depth_
+            && e.GetRemainDepth() >= depthMax_ - depth_ && e.GetValueKind() != ValueKind::Upper) {
             return e.GetValue();
         }
 
-        if (e.GetValue() <= alpha_ && e.GetTesu() >= kyokumen_.GetTesu() && e.GetTesu() % 2 == kyokumen_.GetTesu() % 2
-            && e.GetDepth() <= depth_ && e.GetRemainDepth() >= depthMax_ - depth_ && e.GetValueKind() != ValueKind::Lower) {
+        if (e.GetValue() <= alpha_ && e.GetTesu() >= kyokumen_.GetTesu() && e.GetTesu() % 2 == kyokumen_.GetTesu() % 2 && e.GetDepth() <= depth_
+            && e.GetRemainDepth() >= depthMax_ - depth_ && e.GetValueKind() != ValueKind::Lower) {
             return e.GetValue();
         }
     }
     else if (depthMax_ - depth_ > 2 && itDeep_) {
         return ITDeep(isSelfOrEnemy_, kyokumen_, alpha_, beta_, depth_, depthMax_);
     }
-    
+
     int32 retVal{-1000000};
     {
-        Array<Te> teValids;
+        s3d::Array<Te> teValids;
         uint32 teNum{MakeMoveFirst(isSelfOrEnemy_, depth_, teValids, kyokumen_)};
-        for (const uint32 i : step(teNum)) {
+        for (const uint32 i : s3d::step(teNum)) {
             Kyokumen k{kyokumen_};
             if (teValids[i].IsNull()) {
                 continue;
             }
 
             k.Move(isSelfOrEnemy_, teValids[i]);
-            int32 value{-NegaAlphaBeta(isSelfOrEnemy_==Self?Enemy:Self, k, -beta_, -Max(alpha_, retVal), depth_+1, depthMax_)};
+            int32 value{-NegaAlphaBeta(isSelfOrEnemy_ == Self ? Enemy : Self, k, -beta_, -s3d::Max(alpha_, retVal), depth_ + 1, depthMax_)};
             if (value > retVal) {
                 retVal = value;
                 m_bestHands[depth_][depth_] = std::move(teValids[i]);
 
-                for (uint32 j{depth_+1}; j < depthMax_; ++j) {
-                    m_bestHands[depth_][j] = m_bestHands[depth_+1][j];
+                for (uint32 j{depth_ + 1}; j < depthMax_; ++j) {
+                    m_bestHands[depth_][j] = m_bestHands[depth_ + 1][j];
                 }
 
                 if (retVal >= beta_) {
@@ -108,21 +106,21 @@ int32 Sikou::NegaAlphaBeta(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int
         return -999999;
     }
 
-    Array<Te> teValids{kyokumen_.GetTeValids()};
+    s3d::Array<Te> teValids{kyokumen_.GetTeValids()};
     teValids.shuffle();
 
 
-    for (const uint32 i : step(teNum)) {
+    for (const uint32 i : s3d::step(teNum)) {
         Kyokumen k{kyokumen_};
         k.Move(isSelfOrEnemy_, teValids[i]);
 
-        int32 value{-NegaAlphaBeta(isSelfOrEnemy_==Self?Enemy:Self, k, -beta_, -Max(alpha_, retVal), depth_+1, depthMax_)};
+        int32 value{-NegaAlphaBeta(isSelfOrEnemy_ == Self ? Enemy : Self, k, -beta_, -s3d::Max(alpha_, retVal), depth_ + 1, depthMax_)};
         if (value > retVal) {
             retVal = value;
             m_bestHands[depth_][depth_] = std::move(teValids[i]);
 
-            for (uint32 j{depth_+1}; j < depthMax_; ++j) {
-                m_bestHands[depth_][j] = m_bestHands[depth_+1][j];
+            for (uint32 j{depth_ + 1}; j < depthMax_; ++j) {
+                m_bestHands[depth_][j] = m_bestHands[depth_ + 1][j];
             }
 
             if (retVal >= beta_) {
@@ -176,7 +174,7 @@ int32 Sikou::HashAdd(const int32 retVal_, const Kyokumen& kyokumen_, const int32
 
 int32 Sikou::ITDeep(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alpha_, int32 beta_, const uint32 depth_, const uint32 depthMax_) noexcept {
     int32 retVal{};
-    for (uint32 i{depth_+1}; i <= depthMax_; ++i) {
+    for (uint32 i{depth_ + 1}; i <= depthMax_; ++i) {
         retVal = NegaAlphaBeta(isSelfOrEnemy_, kyokumen_, alpha_, beta_, depth_, i, false);
     }
 
@@ -185,8 +183,8 @@ int32 Sikou::ITDeep(const uint32 isSelfOrEnemy_, Kyokumen& kyokumen_, int32 alph
 
 
 Te Sikou::Think(const uint32 isSelfOrEnemy_, Kyokumen kyokumen_) noexcept {
-    for (const uint32 i : step(m_depthMax)) {
-        for (const uint32 j : step(m_depthMax)) {
+    for (const uint32 i : s3d::step(m_depthMax)) {
+        for (const uint32 j : s3d::step(m_depthMax)) {
             m_bestHands[i][j] = Te(0);
         }
     }

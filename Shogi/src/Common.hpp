@@ -1,6 +1,6 @@
 ﻿
 #pragma once
-#include <Siv3D.hpp>
+#include "SceneMaster.hpp"
 #include "Board.hpp"
 using std::array;
 
@@ -37,6 +37,8 @@ enum class Handicap {
 /// </summary>
 enum class Elegance { Player, Enemy };
 
+enum class PhotonState { Master, Join, None };
+
 /// <summary>
 /// ゲームデータ
 /// </summary>
@@ -71,14 +73,20 @@ struct GameData {
     /// </summary>
     array<uint32, 40> motigomas;
 
+    PhotonState photonState = PhotonState::None;
+
 private:
     /// <summary>
     /// 盤面がカスタムの場合、ここに格納する
     /// </summary>
     array<array<uint32, 9>, 9> m_customKomas = Board::Custom;
 
+    ExitGames::Common::Hashtable m_hashTable;
+
 public:
     GameData() noexcept {
+        m_hashTable.put(L"version", L"1.0");
+
         for (size_t y{}; y < 9; ++y) {
             for (size_t x{}; x < 9; ++x) {
                 m_customKomas[y][x] = Board::Custom[y][x];
@@ -145,12 +153,16 @@ public:
             }
         }
     }
+
+    ExitGames::Common::Hashtable& GetCustomProperties() {
+        return m_hashTable;
+    }
 };
 
 /// <summary>
 /// シーン管理クラス
 /// </summary>
-using MyApp = SceneManager<State, GameData>;
+using MyApp = shogi::SceneMaster<State, GameData>;
 
 
 /// <summary>
