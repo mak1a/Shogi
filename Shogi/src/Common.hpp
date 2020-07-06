@@ -7,6 +7,7 @@ using std::array;
 // シーンの名前
 enum class State {
     Title,   // タイトルシーン
+    Match,   // マッチアップシーン
     Select,  // 設定シーン
     Game,    // 二人用プレイのシーン
     GameAI   // 一人用プレイのシーン

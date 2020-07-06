@@ -43,6 +43,7 @@
 		645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */; };
 		6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6488705123BA0E120061A0D2 /* Kyokumen.cpp */; };
 		64ECFC9324B21BBA0090783F /* appIDChange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64ECFC9224B21BBA0090783F /* appIDChange.cpp */; };
+		64ECFC9624B23C620090783F /* Match.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64ECFC9424B23C620090783F /* Match.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -94,6 +95,8 @@
 		6488705123BA0E120061A0D2 /* Kyokumen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kyokumen.cpp; sourceTree = "<group>"; };
 		64D8DB952416C47C00F2BF29 /* Board.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Board.hpp; sourceTree = "<group>"; };
 		64ECFC9224B21BBA0090783F /* appIDChange.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = appIDChange.cpp; sourceTree = "<group>"; };
+		64ECFC9424B23C620090783F /* Match.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Match.cpp; sourceTree = "<group>"; };
+		64ECFC9524B23C620090783F /* Match.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Match.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +176,8 @@
 				64D8DB952416C47C00F2BF29 /* Board.hpp */,
 				6460796224AF9F4F002230EE /* SceneMaster.hpp */,
 				64ECFC9224B21BBA0090783F /* appIDChange.cpp */,
+				64ECFC9424B23C620090783F /* Match.cpp */,
+				64ECFC9524B23C620090783F /* Match.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -287,6 +292,7 @@
 				2C971A5B239732F900E66570 /* Game.cpp in Sources */,
 				645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */,
 				643A63CB23DF5E1500922771 /* Sikou.cpp in Sources */,
+				64ECFC9624B23C620090783F /* Match.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

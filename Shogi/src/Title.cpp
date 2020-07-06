@@ -8,7 +8,15 @@ Title::Title(const InitData& init)
 , m_exitButton(s3d::Arg::center(s3d::Scene::Center().movedBy(0, 200)), 300, 60)
 , m_soloMatchTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2))
 , m_twoPlayerMatchTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2))
-, m_exitTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2)) {}
+, m_exitTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2)) {
+    getData().firstMove = Turn::Player;
+    getData().elegance = Elegance::Player;
+    getData().handicap = Handicap::Hirate;
+    getData().depthMax = 1;
+    getData().SetCustomBoard(Board::Custom);
+    getData().motigomas.fill(0);
+    getData().photonState = PhotonState::None;
+}
 
 void Title::update() {
     m_soloMatchTransition.update(m_soloMatchButton.mouseOver());
@@ -26,7 +34,7 @@ void Title::update() {
 
     if (m_twoPlayerMatchButton.leftClicked()) {
         getData().gameState = State::Game;
-        changeScene(State::Select);
+        changeScene(State::Match);
     }
 
     if (m_exitButton.leftClicked()) {
@@ -63,14 +71,6 @@ Select::Select(const InitData& init)
 , m_selfDai(s3d::Arg::center(935.f, 550.f), 420.f, 80.f)
 , m_komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(450.f / 2 + 10 + 200.f / 2, (450.f / 2 - 300.f) + 200.f / 2)), 200.f)
 , m_komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(450.f / 2 + 10 + 200.f / 2), -((450.f / 2 - 100.f) + 200.f / 2))), 200.f) {
-    getData().firstMove = Turn::Player;
-    getData().elegance = Elegance::Player;
-    getData().handicap = Handicap::Hirate;
-    getData().depthMax = 1;
-    getData().SetCustomBoard(Board::Custom);
-    getData().motigomas.fill(0);
-    getData().photonState = PhotonState::None;
-
     // １マスの大きさ
     const double squareSize = 50.0;
 
@@ -128,6 +128,15 @@ void Select::SetUp() {
             }
             return;
         }
+
+        if (getData().gameState == State::Game) {
+            ExitGames::Common::Dictionary<nByte, int32> dic;
+            dic.put(1, static_cast<int32>(getData().firstMove));
+            dic.put(2, static_cast<int32>(getData().elegance));
+            dic.put(3, static_cast<int32>(getData().handicap));
+            GetClient().opRaiseEvent(true, dic, 2);
+        }
+
         changeScene(getData().gameState);
     }
 }

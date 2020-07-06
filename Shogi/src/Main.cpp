@@ -1,6 +1,7 @@
 ﻿
 #include "Common.hpp"
 #include "Title.hpp"
+#include "Match.hpp"
 #include "Game.hpp"
 #include "GameAI.hpp"
 
@@ -43,7 +44,7 @@ void Main() {
 
     // シーンと遷移時の色を設定
     MyApp manager(shogi::ChangeAppIDString(ini[U"Photon.appID"]), L"1.0");
-    manager.add<Title>(State::Title).add<Select>(State::Select).add<Game>(State::Game).add<GameAI>(State::GameAI).setFadeColor(s3d::ColorF(1.0));
+    manager.add<Title>(State::Title).add<Match>(State::Match).add<Select>(State::Select).add<Game>(State::Game).add<GameAI>(State::GameAI).setFadeColor(s3d::ColorF(1.0));
 
     // manager.init(State::Select);
 

@@ -30,7 +30,9 @@ private:
     size_t eleganceIndx = 0;
     size_t depthMaxIndx = 0;
 
-    const s3d::Array<s3d::String> handicaps = {U"平手", U"角落ち", U"飛車落ち", U"2枚落ち", U"4枚落ち", U"6枚落ち", U"8枚落ち", U"10枚落ち", U"カスタム"};
+    const s3d::Array<s3d::String> handicaps
+        = (getData().gameState == State::GameAI ? s3d::Array<s3d::String>{U"平手", U"角落ち", U"飛車落ち", U"2枚落ち", U"4枚落ち", U"6枚落ち", U"8枚落ち", U"10枚落ち", U"カスタム"}
+                                                : s3d::Array<s3d::String>{U"平手", U"角落ち", U"飛車落ち", U"2枚落ち", U"4枚落ち", U"6枚落ち", U"8枚落ち", U"10枚落ち"});
 
     bool m_isCustom;
 
@@ -69,6 +71,16 @@ private:
     void SetUp();
 
     void Custom();
+
+    void DisconnectReturn() override {
+        s3d::Print(U"切断しました1");
+        changeScene(State::Title);
+    }
+
+    void LeaveRoomEventAction(int playerNr, bool isInactive) override {
+        s3d::Print(U"対戦相手が退室しました。");
+        Disconnect();
+    }
 
 public:
     Select(const InitData& init);
