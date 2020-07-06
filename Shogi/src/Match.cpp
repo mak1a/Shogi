@@ -86,8 +86,8 @@ void Match::CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Co
         return;
     }
     auto dic = ExitGames::Common::ValueObject<ExitGames::Common::Dictionary<nByte, int32>>(eventContent).getDataCopy();
-    getData().firstMove = static_cast<Turn>(*dic.getValue(1));
-    getData().elegance = static_cast<Elegance>(*dic.getValue(2));
+    getData().firstMove = static_cast<Turn>(!*dic.getValue(1));
+    getData().elegance = static_cast<Elegance>(!*dic.getValue(2));
     getData().handicap = static_cast<Handicap>(*dic.getValue(3));
 
     changeScene(State::Game);
