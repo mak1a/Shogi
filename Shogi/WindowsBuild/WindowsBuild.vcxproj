@@ -240,6 +240,7 @@
     <ClInclude Include="..\src\GameAI.hpp" />
     <ClInclude Include="..\src\Koma.hpp" />
     <ClInclude Include="..\src\Kyokumen.hpp" />
+    <ClInclude Include="..\src\Match.hpp" />
     <ClInclude Include="..\src\Sikou.hpp" />
     <ClInclude Include="..\src\Title.hpp" />
   </ItemGroup>
@@ -249,6 +250,7 @@
     <ClCompile Include="..\src\GameAI.cpp" />
     <ClCompile Include="..\src\Kyokumen.cpp" />
     <ClCompile Include="..\src\Main.cpp" />
+    <ClCompile Include="..\src\Match.cpp" />
     <ClCompile Include="..\src\Sikou.cpp" />
     <ClCompile Include="..\src\Title.cpp" />
   </ItemGroup>
