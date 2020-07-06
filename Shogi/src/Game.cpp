@@ -362,11 +362,17 @@ void Game::SendOpponent(const Te& te_) {
 }
 
 void Game::update() {
-    if (GetTurn() != Turn::Tsumi) {
+    switch (GetTurn()) {
+    case Turn::Player:
         SelfUpdate();
-    }
-    else {
+        break;
+    case Turn::Enemy:
+        break;
+    case Turn::Tsumi:
         result();
+        break;
+    default:
+        break;
     }
 }
 
