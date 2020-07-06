@@ -103,6 +103,9 @@ void Game::SelfUpdate() {
 
     if (!m_holdHand.has_value() && m_buttonWaited.leftClicked()) {
         RetractingMove();
+        ExitGames::Common::Dictionary<nByte, bool> dic;
+        dic.put(1, true);
+        GetClient().opRaiseEvent(true, dic, 3);
         return;
     }
 

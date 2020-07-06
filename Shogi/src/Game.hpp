@@ -123,10 +123,6 @@ private:
         m_stackPlacedPart.pop();
         m_stackPlacedPart.pop();
         m_placedPart = m_stackPlacedPart.top();
-
-        ExitGames::Common::Dictionary<nByte, bool> dic;
-        dic.put(1, true);
-        GetClient().opRaiseEvent(true, dic, 3);
     }
 
     void SendOpponent(const Te& te_);
