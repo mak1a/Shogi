@@ -352,7 +352,7 @@ void Game::SendOpponent(const Te& te_) {
     ExitGames::Common::Dictionary<nByte, int32> dic;
     dic.put(1, (te_.GetFrom() > 10) ? 110 - te_.GetFrom() : 0);
     dic.put(2, 110 - te_.GetTo());
-    dic.put(3, te_.GetKoma());
+    dic.put(3, (te_.GetKoma() & ~Self | Enemy));
     dic.put(4, te_.GetCapture());
     dic.put(5, te_.GetPromote());
     dic.put(6, te_.GetKind());
