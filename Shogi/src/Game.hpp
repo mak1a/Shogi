@@ -46,12 +46,6 @@ private:
             return;
         }
 
-        m_stackKyokumens.emplace(m_kyokumen);
-        m_stackBoradSquares.emplace(m_boardSquares);
-        m_stackHavingSelf.emplace(m_havingSelfKoma);
-        m_stackHavingEnemy.emplace(m_havingEnemyKoma);
-        m_stackPlacedPart.emplace(m_placedPart);
-
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
         if (GetTurn() == Turn::Player) {
             if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
@@ -67,6 +61,12 @@ private:
                 m_winner = Winner::Player;
             }
         }
+        
+        m_stackKyokumens.emplace(m_kyokumen);
+        m_stackBoradSquares.emplace(m_boardSquares);
+        m_stackHavingSelf.emplace(m_havingSelfKoma);
+        m_stackHavingEnemy.emplace(m_havingEnemyKoma);
+        m_stackPlacedPart.emplace(m_placedPart);
     }
 
     // 盤上のマス目
