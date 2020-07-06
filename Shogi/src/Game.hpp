@@ -2,7 +2,8 @@
 #pragma once
 #include "Kyokumen.hpp"
 
-class Ban {
+// ゲームシーン
+class Game : public MyApp::Scene {
 private:
     // 将棋盤
     s3d::RectF m_shogiBan;
@@ -45,6 +46,12 @@ private:
             return;
         }
 
+        m_stackKyokumens.emplace(m_kyokumen);
+        m_stackBoradSquares.emplace(m_boardSquares);
+        m_stackHavingSelf.emplace(m_havingSelfKoma);
+        m_stackHavingEnemy.emplace(m_havingEnemyKoma);
+        m_stackPlacedPart.emplace(m_placedPart);
+
         m_turn = (m_turn == Turn::Player) ? Turn::Enemy : Turn::Player;
         if (GetTurn() == Turn::Player) {
             if (m_kyokumen.MakeLegalMoves(Self) <= 0) {
@@ -52,12 +59,6 @@ private:
                 m_turn = Turn::Tsumi;
                 m_winner = Winner::Enemy;
             }
-
-            m_stackKyokumens.emplace(m_kyokumen);
-            m_stackBoradSquares.emplace(m_boardSquares);
-            m_stackHavingSelf.emplace(m_havingSelfKoma);
-            m_stackHavingEnemy.emplace(m_havingEnemyKoma);
-            m_stackPlacedPart.emplace(m_placedPart);
         }
         else {
             if (m_kyokumen.MakeLegalMoves(Enemy) <= 0) {
@@ -104,31 +105,52 @@ private:
         }
 
         m_stackKyokumens.pop();
+        m_stackKyokumens.pop();
         m_kyokumen = m_stackKyokumens.top();
 
+        m_stackBoradSquares.pop();
         m_stackBoradSquares.pop();
         m_boardSquares.assign(m_stackBoradSquares.top().begin(), m_stackBoradSquares.top().end());
 
         m_stackHavingSelf.pop();
+        m_stackHavingSelf.pop();
         m_havingSelfKoma.assign(m_stackHavingSelf.top().begin(), m_stackHavingSelf.top().end());
 
+        m_stackHavingEnemy.pop();
         m_stackHavingEnemy.pop();
         m_havingEnemyKoma.assign(m_stackHavingEnemy.top().begin(), m_stackHavingEnemy.top().end());
 
         m_stackPlacedPart.pop();
+        m_stackPlacedPart.pop();
         m_placedPart = m_stackPlacedPart.top();
+
+        ExitGames::Common::Dictionary<nByte, bool> dic;
+        dic.put(1, true);
+        GetClient().opRaiseEvent(true, dic, 3);
     }
 
-public:
-    Ban(const array<array<uint32, 9>, 9>& iniKyokumen_,
-        const array<uint32, 40>& motigomas_,
-        const Turn& turn_,
-        const double shogiBan_ = 540.f,
-        const double komaDai_ = 240.f) noexcept;
+    void SendOpponent(const Te& te_);
 
-    void Update();
+    void result();
+
+    void CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent) override;
+
+    void LeaveRoomEventAction(int playerNr, bool isInactive) override;
+
+    void DisconnectReturn() override;
+
+public:
+    Game(const InitData& init, const double shogiBan_ = 540.f, const double komaDai_ = 240.f);
+
+    void SelfUpdate();
+
+    void EnemyUpdate(const Te& te_);
 
     void Draw() const;
+
+    void update() override;
+
+    void draw() const override;
 
     [[nodiscard]] Turn GetTurn() const noexcept {
         return m_turn;
@@ -137,19 +159,4 @@ public:
     [[nodiscard]] Winner GetWinner() const noexcept {
         return m_winner;
     }
-};
-
-// ゲームシーン
-class Game : public MyApp::Scene {
-private:
-    Ban m_ban;
-
-    void result();
-
-public:
-    Game(const InitData& init);
-
-    void update() override;
-
-    void draw() const override;
 };
