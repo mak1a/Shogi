@@ -434,6 +434,10 @@ void Game::LeaveRoomEventAction(int playerNr, bool isInactive) {
     s3d::Print(U"対戦相手が退室しました。");
     getData().photonState = PhotonState::Master;
 
+    if (GetTurn() == Turn::Tsumi) {
+        return;
+    }
+
     Disconnect();
 }
 

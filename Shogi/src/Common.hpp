@@ -87,7 +87,6 @@ private:
 public:
     GameData() noexcept {
         m_hashTable.put(L"version", L"1.0");
-
         for (size_t y{}; y < 9; ++y) {
             for (size_t x{}; x < 9; ++x) {
                 m_customKomas[y][x] = Board::Custom[y][x];
@@ -157,6 +156,10 @@ public:
 
     ExitGames::Common::Hashtable& GetCustomProperties() {
         return m_hashTable;
+    }
+
+    void SetPlayerName(const s3d::String& str_) {
+        m_hashTable.put(L"name", shogi::ConvertStringToJString(str_));
     }
 };
 

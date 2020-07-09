@@ -4,6 +4,12 @@
 
 class Match : public MyApp::Scene {
 private:
+    s3d::Texture m_hirate;
+    s3d::RectF m_ban, m_gauss;
+    s3d::RenderTexture rtA, rtB;
+    s3d::RenderTexture rtA4, rtB4;
+    s3d::String m_search;
+
     void ConnectReturn(int errorCode, const ExitGames::Common::JString& errorString, const ExitGames::Common::JString& region, const ExitGames::Common::JString& cluster) override;
 
     void DisconnectReturn() override;

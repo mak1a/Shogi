@@ -37,6 +37,7 @@ void Main() {
     s3d::TextureAsset::Register(U"NariKeima", s3d::Resource(U"textures/komas/syougi11_narikei.png"), s3d::AssetParameter::LoadImmediately());
     s3d::TextureAsset::Register(U"Kyosha", s3d::Resource(U"textures/komas/syougi12_kyousya.png"), s3d::AssetParameter::LoadImmediately());
     s3d::TextureAsset::Register(U"NariKyosha", s3d::Resource(U"textures/komas/syougi13_narikyou.png"), s3d::AssetParameter::LoadImmediately());
+    // s3d::TextureAsset::Register(U"Standby", s3d::Resource(U"textures/match/kiban.jpg"), s3d::AssetParameter::LoadImmediately());
 
     s3d::AudioAsset::Register(U"Piece", s3d::Resource(U"audios/piece1.m4a"), s3d::AssetParameter::LoadImmediately());
 
