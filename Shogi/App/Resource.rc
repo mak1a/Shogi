@@ -72,6 +72,7 @@ Resource(textures/komas/syougi10_keima.png)
 Resource(textures/komas/syougi11_narikei.png)
 Resource(textures/komas/syougi12_kyousya.png)
 Resource(textures/komas/syougi13_narikyou.png)
+Resource(textures/match/kiban.jpg)
 
 Resource(audios/piece1.m4a)
 
