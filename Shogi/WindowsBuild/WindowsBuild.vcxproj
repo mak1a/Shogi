@@ -241,6 +241,7 @@
     <ClInclude Include="..\src\Koma.hpp" />
     <ClInclude Include="..\src\Kyokumen.hpp" />
     <ClInclude Include="..\src\Match.hpp" />
+    <ClInclude Include="..\src\SceneMaster.hpp" />
     <ClInclude Include="..\src\Sikou.hpp" />
     <ClInclude Include="..\src\Title.hpp" />
   </ItemGroup>
