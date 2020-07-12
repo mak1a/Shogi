@@ -391,3 +391,7 @@ Screenshot/
 AS_DEBUG/
 
 build/
+
+## appIDPhoton
+appIDChange.cpp
+appIDString.ini

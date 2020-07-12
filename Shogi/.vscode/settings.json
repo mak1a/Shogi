@@ -1,0 +1,26 @@
+{
+	"code-runner.executorMap": {
+		"cpp": "xcodebuild && find . -name \\*.app | xargs open \n",
+	},
+	"clang.cxxflags": [
+		"-std=c++1z"
+	],
+	"terminal.integrated.shell.osx": "/usr/local/bin/zsh",
+	"code-runner.clearPreviousOutput": true,
+	"code-runner.runInTerminal": true,
+	"editor.suggestSelection": "first",
+	"vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+	"C_Cpp.updateChannel": "Insiders",
+	"editor.formatOnSave": true,
+	"editor.formatOnPaste": true,
+	"editor.formatOnType": true,
+	// Insert spaces when pressing Tab.
+	"editor.insertSpaces": true,
+	// The number of spaces a tab is equal to.
+	"editor.tabSize": 4,
+	"terminal.integrated.rendererType": "dom",
+	"files.associations": {
+		"chrono": "cpp",
+		"*.ipp": "cpp"
+	}
+}
