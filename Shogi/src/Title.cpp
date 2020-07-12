@@ -16,6 +16,8 @@ Title::Title(const InitData& init)
     getData().SetCustomBoard(Board::Custom);
     getData().motigomas.fill(0);
     getData().photonState = PhotonState::None;
+
+    s3d::ClearPrint();
 }
 
 void Title::update() {
