@@ -456,6 +456,12 @@ namespace shogi {
         explicit SceneMaster(const std::shared_ptr<Data>& data, const ExitGames::Common::JString& appID_, const ExitGames::Common::JString& appVersion_)
         : m_data(data), m_loadBalancingClient(*this, appID_, appVersion_), m_usePhoton(false) {}
 
+        ~SceneMaster() {
+            if (UsePhoton()) {
+                m_loadBalancingClient.disconnect();
+            }
+        }
+
         bool UsePhoton() {
             return m_usePhoton;
         }

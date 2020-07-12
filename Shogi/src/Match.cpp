@@ -9,7 +9,9 @@ Match::Match(const InitData& init)
 , rtB(s3d::Size(700, 700))
 , rtA4(s3d::Size(700, 700) / 4)
 , rtB4(s3d::Size(700, 700) / 4)
-, m_search(U"対戦相手を探しています...") {
+, m_search(U"対戦相手を探しています...")
+, m_isDisconnect(false)
+, m_disconnectTimer(false) {
     // 背景色を設定
     s3d::Scene::SetBackground(s3d::Palette::Darkgreen);
 
@@ -28,13 +30,26 @@ void Match::update() {
     s3d::Shader::Downsample(rtA, rtA4);
     s3d::Shader::GaussianBlur(rtA4, rtB4, rtA4);
 
-    if (getData().photonState == PhotonState::None) {
+    if (m_isDisconnect) {
+        if (m_disconnectTimer < s3d::SecondsF(1.0)) {
+            return;
+        }
+
+        Disconnect();
+        m_disconnectTimer.restart();
         return;
     }
 
-    if (s3d::KeySpace.down()) {
+    if (s3d::SimpleGUI::Button(U"タイトルに戻る", s3d::Vec2(60, 530), 200)) {
+        m_isDisconnect = true;
+        m_disconnectTimer.start();
+        m_search = U"切断してます...";
         Disconnect();
     }
+}
+
+void Match::updateFadeIn(double) {
+    s3d::SimpleGUI::Button(U"タイトルに戻る", s3d::Vec2(60, 530), 200);
 }
 
 void Match::draw() const {

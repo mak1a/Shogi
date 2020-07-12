@@ -10,6 +10,9 @@ private:
     s3d::RenderTexture rtA4, rtB4;
     s3d::String m_search;
 
+    bool m_isDisconnect;
+    s3d::Stopwatch m_disconnectTimer;
+
     void ConnectReturn(int errorCode, const ExitGames::Common::JString& errorString, const ExitGames::Common::JString& region, const ExitGames::Common::JString& cluster) override;
 
     void DisconnectReturn() override;
@@ -36,6 +39,11 @@ public:
     Match(const InitData& init);
 
     void update() override;
+
+    /// <summary>
+    /// フェードインの時に描画されないので仕方なく
+    /// </summary>
+    void updateFadeIn(double) override;
 
     void draw() const override;
 };

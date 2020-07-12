@@ -139,6 +139,15 @@ void Select::SetUp() {
 
         changeScene(getData().gameState);
     }
+
+    if (s3d::SimpleGUI::Button(U"タイトルに戻る", s3d::Vec2(280, 530), 200)) {
+        if (getData().gameState == State::Game) {
+            Disconnect();
+            return;
+        }
+
+        changeScene(State::Title);
+    }
 }
 
 
@@ -408,6 +417,7 @@ void Select::updateFadeIn(double) {
         { s3d::SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, s3d::Vec2(480, 280)); }
     }
     s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(800, 530), 200);
+    s3d::SimpleGUI::Button(U"タイトルに戻る", s3d::Vec2(280, 530), 200);
 }
 
 void Select::draw() const {
