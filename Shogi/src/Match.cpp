@@ -122,6 +122,8 @@ void Match::JoinRoomEventAction(int playerNr, const ExitGames::Common::JVector<i
 void Match::LeaveRoomEventAction(int playerNr, bool isInactive) {
     s3d::Print(U"対戦相手が退室しました。");
     getData().photonState = PhotonState::Master;
+
+    m_search = U"対戦相手を探しています...";
 }
 
 void Match::CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent) {
