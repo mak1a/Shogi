@@ -52,6 +52,8 @@ Game::Game(const InitData& init, const double shogiBan_, const double komaDai_)
     m_stackHavingSelf.emplace(m_havingSelfKoma);
     m_stackHavingEnemy.emplace(m_havingEnemyKoma);
     m_stackPlacedPart.emplace(m_placedPart);
+
+    s3d::ClearPrint();
 }
 
 void Game::EnemyUpdate(const Te& te_) {
