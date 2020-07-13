@@ -61,7 +61,7 @@ private:
                 m_winner = Winner::Player;
             }
         }
-        
+
         m_stackKyokumens.emplace(m_kyokumen);
         m_stackBoradSquares.emplace(m_boardSquares);
         m_stackHavingSelf.emplace(m_havingSelfKoma);
@@ -97,10 +97,7 @@ private:
     void AddHoldKoma(KomaSquare& koma_);
 
     void RetractingMove() {
-        if (m_stackKyokumens.size() <= 1) {
-            return;
-        }
-        if (m_stackKyokumens.size() == 2 && m_isBehind) {
+        if (m_stackKyokumens.size() <= 2) {
             return;
         }
 
