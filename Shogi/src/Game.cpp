@@ -1,5 +1,6 @@
 ﻿
 #include "Game.hpp"
+#include <thread>
 
 Game::Game(const InitData& init, const double shogiBan_, const double komaDai_)
 : IScene(init)
@@ -181,14 +182,38 @@ void Game::SelfUpdate() {
                     // Print << m_kyokumen.GetTeValids().size();
                     return;
                 }
-                if (s3d::System::ShowMessageBox(U"成りますか？", s3d::MessageBoxButtons::YesNo) == s3d::MessageBoxSelection::Yes) {
-                    te.SetPromote(1);
-                    if (m_kyokumen.IsIllegal(te)) {
-                        // Print << m_kyokumen.GetTeValids().size();
-                        return;
+
+                m_isEndThread = false;
+
+                std::thread serviceThread([&]() {
+                    while (true) {
+                        m_mutex.lock();
+                        if (m_isEndThread) {
+                            m_mutex.unlock();
+                            break;
+                        }
+
+                        m_mutex.unlock();
+                        GetClient().service();
                     }
-                    m_holdHand.value().PromoteKoma();
-                }
+                    s3d::Print(U"ほげ");
+                });
+
+                std::thread promoteThread([&]() {
+                    if (s3d::System::ShowMessageBox(U"成りますか？", s3d::MessageBoxButtons::YesNo) == s3d::MessageBoxSelection::Yes) {
+                        te.SetPromote(1);
+                        if (!m_kyokumen.IsIllegal(te)) {
+                            m_holdHand.value().PromoteKoma();
+                        }
+                    }
+
+                    m_mutex.lock();
+                    m_isEndThread = true;
+                    m_mutex.unlock();
+                });
+
+                serviceThread.join();
+                promoteThread.join();
             }
         }
         if (m_kyokumen.IsIllegal(te)) {
@@ -313,13 +338,38 @@ void Game::AddHoldKoma(KomaSquare& koma_) {
             if (m_kyokumen.IsIllegal(te)) {
                 return;
             }
-            if (s3d::System::ShowMessageBox(U"成りますか？", s3d::MessageBoxButtons::YesNo) == s3d::MessageBoxSelection::Yes) {
-                te.SetPromote(1);
-                if (m_kyokumen.IsIllegal(te)) {
-                    return;
+
+            m_isEndThread = false;
+
+            std::thread serviceThread([&]() {
+                while (true) {
+                    m_mutex.lock();
+                    if (m_isEndThread) {
+                        m_mutex.unlock();
+                        break;
+                    }
+
+                    m_mutex.unlock();
+                    GetClient().service();
                 }
-                m_holdHand.value().PromoteKoma();
-            }
+                s3d::Print(U"ほげ");
+            });
+
+            std::thread promoteThread([&]() {
+                if (s3d::System::ShowMessageBox(U"成りますか？", s3d::MessageBoxButtons::YesNo) == s3d::MessageBoxSelection::Yes) {
+                    te.SetPromote(1);
+                    if (!m_kyokumen.IsIllegal(te)) {
+                        m_holdHand.value().PromoteKoma();
+                    }
+                }
+
+                m_mutex.lock();
+                m_isEndThread = true;
+                m_mutex.unlock();
+            });
+
+            serviceThread.join();
+            promoteThread.join();
         }
     }
     if (m_kyokumen.IsIllegal(te)) {

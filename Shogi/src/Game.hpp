@@ -1,6 +1,7 @@
 ﻿
 #pragma once
 #include "Kyokumen.hpp"
+#include<mutex>
 
 // ゲームシーン
 class Game : public MyApp::Scene {
@@ -34,6 +35,9 @@ private:
     /// 投了ボタン
     /// </summary>
     s3d::RectF m_buttonQuit;
+
+    bool m_isEndThread = false;
+    std::mutex m_mutex;
 
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
