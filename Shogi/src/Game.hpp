@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 #include "Kyokumen.hpp"
-#include<mutex>
+#include <mutex>
 
 // ゲームシーン
 class Game : public MyApp::Scene {
@@ -135,6 +135,8 @@ private:
     void LeaveRoomEventAction(int playerNr, bool isInactive) override;
 
     void DisconnectReturn() override;
+
+    s3d::MessageBoxSelection ShowMessageBox(const s3d::String& text, s3d::MessageBoxButtons buttons);
 
 public:
     Game(const InitData& init, const double shogiBan_ = 540.f, const double komaDai_ = 240.f);
