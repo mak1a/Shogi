@@ -382,21 +382,21 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
     m_placedPart.reset(koma_);
 
     m_holdHand.reset();
-    ChangeCurrentTurn();
 
     // 敵駒にする場合
     if (komaType <= Enemy) {
         komaType = ((komaType - Self + Enemy) & ~Promote);
         m_havingEnemyKoma[komaType - Enemy - 1] << KomaSquare(KomaPos::enemyDaiPoses[komaType - Enemy - 1], m_komaDaiEnemy.w / 4, static_cast<KomaType>(komaType), KomaState::Dai,
                                                               s3d::Point(0, 0));
-        return;
     }
-
-    // 自駒にする場合
-    komaType = ((komaType - Enemy + Self) & ~Promote);
-    m_havingSelfKoma[komaType - Self - 1] << KomaSquare(KomaPos::selfDaiPoses[komaType - Self - 1], m_komaDaiSelf.w / 4, static_cast<KomaType>(komaType), KomaState::Dai,
-                                                        s3d::Point(0, 0));
-    return;
+    else {
+        // 自駒にする場合
+        komaType = ((komaType - Enemy + Self) & ~Promote);
+        m_havingSelfKoma[komaType - Self - 1] << KomaSquare(KomaPos::selfDaiPoses[komaType - Self - 1], m_komaDaiSelf.w / 4, static_cast<KomaType>(komaType), KomaState::Dai,
+                                                            s3d::Point(0, 0));
+    }
+    
+    ChangeCurrentTurn();
 }
 
 void BanSelf::ShowMessageBox() {
