@@ -35,6 +35,18 @@ private:
     /// </summary>
     s3d::RectF m_buttonQuit;
 
+    bool m_isUseMessageBox;
+
+    /// <summary>
+    /// メッセージボックスだとserviceを呼び出せなくなるので代わりのもの
+    /// </summary>
+    MyMessageBox m_promoteMessage;
+
+    /// <summary>
+    /// 成るか判断した後に使う
+    /// </summary>
+    Te m_te;
+
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
         s3d::AudioAsset(U"Piece").playOneShot(0.2);
@@ -131,6 +143,8 @@ private:
     void LeaveRoomEventAction(int playerNr, bool isInactive) override;
 
     void DisconnectReturn() override;
+
+    void ShowMessageBox();
 
 public:
     Game(const InitData& init, const double shogiBan_ = 540.f, const double komaDai_ = 240.f);
