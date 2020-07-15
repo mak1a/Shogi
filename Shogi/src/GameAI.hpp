@@ -44,6 +44,18 @@ private:
     /// </summary>
     s3d::RectF m_buttonQuit;
 
+    bool m_isUseMessageBox;
+
+    /// <summary>
+    /// メッセージボックスだとserviceを呼び出せなくなるので代わりのもの
+    /// </summary>
+    MyMessageBox m_promoteMessage;
+
+    /// <summary>
+    /// 成るか判断した後に使う
+    /// </summary>
+    Te m_te;
+
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
         s3d::AudioAsset(U"Piece").playOneShot(0.2);
@@ -154,6 +166,12 @@ public:
     [[nodiscard]] Winner GetWinner() const noexcept {
         return m_winner;
     }
+
+    [[nodiscard]] bool IsUseMessageBox() const noexcept {
+        return m_isUseMessageBox;
+    }
+
+    void ShowMessageBox();
 };
 
 // ゲームシーン

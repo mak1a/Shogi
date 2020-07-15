@@ -18,7 +18,8 @@ BanSelf::BanSelf(const array<array<uint32, 9>, 9>& iniKyokumen_,
 , m_isBehind((turn_ == Turn::Enemy))
 , m_kyokumen(0, iniKyokumen_, motigomas_)
 , m_sikouSelf(sikouDepth_)
-, m_sikouEnemy(sikouDepth_) {
+, m_sikouEnemy(sikouDepth_)
+, m_isUseMessageBox(false) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
 
@@ -228,14 +229,11 @@ void BanSelf::SelfUpdate() {
                     // Print << m_kyokumen.GetTeValids().size();
                     return;
                 }
-                if (s3d::System::ShowMessageBox(U"成りますか？", s3d::MessageBoxButtons::YesNo) == s3d::MessageBoxSelection::Yes) {
-                    te.SetPromote(1);
-                    if (m_kyokumen.IsIllegal(te)) {
-                        // Print << m_kyokumen.GetTeValids().size();
-                        return;
-                    }
-                    m_holdHand.value().PromoteKoma();
-                }
+
+                m_isUseMessageBox = true;
+                m_te = te;
+
+                return;
             }
         }
         if (m_kyokumen.IsIllegal(te)) {
@@ -328,6 +326,10 @@ void BanSelf::Draw() const {
     if (m_holdHand.has_value()) {
         m_holdHand.value().Draw();
     }
+
+    if (m_isUseMessageBox) {
+        m_promoteMessage.Draw();
+    }
 }
 
 void BanSelf::AddHoldKoma(KomaSquare& koma_) {
@@ -360,13 +362,11 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
             if (m_kyokumen.IsIllegal(te)) {
                 return;
             }
-            if (s3d::System::ShowMessageBox(U"成りますか？", s3d::MessageBoxButtons::YesNo) == s3d::MessageBoxSelection::Yes) {
-                te.SetPromote(1);
-                if (m_kyokumen.IsIllegal(te)) {
-                    return;
-                }
-                m_holdHand.value().PromoteKoma();
-            }
+
+            m_isUseMessageBox = true;
+            m_te = te;
+
+            return;
         }
     }
     if (m_kyokumen.IsIllegal(te)) {
@@ -399,9 +399,60 @@ void BanSelf::AddHoldKoma(KomaSquare& koma_) {
     return;
 }
 
+void BanSelf::ShowMessageBox() {
+    if (m_promoteMessage.Select() == YesNoSelection::None) {
+        return;
+    }
+
+    m_isUseMessageBox = false;
+
+    if (m_promoteMessage.Select() == YesNoSelection::Yes) {
+        m_te.SetPromote(1);
+        if (m_kyokumen.IsIllegal(m_te)) {
+            // Print << m_kyokumen.GetTeValids().size();
+            return;
+        }
+    }
+    m_holdHand.reset();
+
+    m_kyokumen.Move(Self, m_te);
+
+    if (m_te.GetFrom() > 10) {
+        m_boardSquares[(9 - m_te.GetFrom() / 10) + ((m_te.GetFrom() % 10) - 1) * 9].ChangeKomaType(Empty);
+    }
+    else {
+        uint32 komaType{m_te.GetKoma() - Self - 1};
+        m_havingSelfKoma[komaType].pop_back();
+    }
+
+    if (m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9].GetKomaType() != Empty) {
+        uint32 komaType = m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9].GetKomaType();
+        m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9].ChangeKomaType(m_te.GetKoma());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9]);
+
+        komaType = ((komaType - Enemy + Self) & ~Promote);
+        m_havingSelfKoma[komaType - Self - 1] << KomaSquare(KomaPos::selfDaiPoses[komaType - Self - 1], m_komaDaiSelf.w / 4, static_cast<KomaType>(komaType), KomaState::Dai,
+                                                            s3d::Point(0, 0));
+    }
+    else {
+        m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9].ChangeKomaType(m_te.GetKoma());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9]);
+    }
+    ChangeCurrentTurn();
+}
+
 GameAI::GameAI(const InitData& init) : IScene(init), m_ban(getData().GetBoard(), getData().motigomas, getData().firstMove, getData().depthMax) {}
 
 void GameAI::update() {
+    if (m_ban.IsUseMessageBox()) {
+        m_ban.ShowMessageBox();
+        return;
+    }
+
     switch (m_ban.GetTurn()) {
     case Turn::Player:
         m_ban.SelfUpdate();
