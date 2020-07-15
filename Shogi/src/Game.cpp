@@ -1,6 +1,5 @@
 ﻿
 #include "Game.hpp"
-#include <thread>
 
 Game::Game(const InitData& init, const double shogiBan_, const double komaDai_)
 : IScene(init)

@@ -2,9 +2,6 @@
 #pragma once
 #include "Kyokumen.hpp"
 
-
-#include <Siv3D.hpp>
-
 enum class YesNoSelection {
     Yes,  // Yes
     No,   // No
@@ -20,7 +17,7 @@ private:
     YesNoSelection m_selection;
 
 public:
-    constexpr MyMessageBox() noexcept
+    MyMessageBox() noexcept
     : m_messageBox(s3d::Arg::center(s3d::Scene::CenterF().movedBy(0.0, -100.0)), 280.0, 250.0)
     , m_yesButton(s3d::Arg::center(m_messageBox.center().movedBy(-50.0, 50)), 80.0, 30.0)
     , m_noButton(s3d::Arg::center(m_messageBox.center().movedBy(50.0, 50)), 80.0, 30.0)
