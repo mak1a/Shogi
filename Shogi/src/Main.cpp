@@ -45,7 +45,7 @@ void Main() {
     const s3d::INIData ini(s3d::Resource(U"config/appIDString.ini"));
 
     // シーンと遷移時の色を設定
-    MyApp manager(shogi::ChangeAppIDString(ini[U"Photon.appID"]), L"1.4");
+    MyApp manager(shogi::ChangeAppIDString(ini[U"Photon.appID"]), L"1.5");
     manager.add<Title>(State::Title).add<Match>(State::Match).add<Select>(State::Select).add<Game>(State::Game).add<GameAI>(State::GameAI).setFadeColor(s3d::ColorF(1.0));
 
     // manager.init(State::Select);
