@@ -21,6 +21,7 @@ void Main() {
     s3d::FontAsset::Register(U"Warning", 36, s3d::Typeface::Light);
     s3d::FontAsset::Register(U"Explain", 20, s3d::Typeface::Regular);
     s3d::FontAsset::Register(U"Result", 150, s3d::Typeface::Regular);
+    s3d::FontAsset::Register(U"YesNo", 20, s3d::Typeface::Light);
 
     s3d::TextureAsset::Register(U"Fu", s3d::Resource(U"textures/komas/syougi14_fuhyou.png"), s3d::AssetParameter::LoadImmediately());
     s3d::TextureAsset::Register(U"To", s3d::Resource(U"textures/komas/syougi15_tokin.png"), s3d::AssetParameter::LoadImmediately());

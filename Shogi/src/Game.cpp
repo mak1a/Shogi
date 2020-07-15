@@ -13,7 +13,8 @@ Game::Game(const InitData& init, const double shogiBan_, const double komaDai_)
                s3d::Vec2(komaDai_, shogiBan_ / 12))
 , m_turn(getData().firstMove)
 , m_isBehind((getData().firstMove == Turn::Enemy))
-, m_kyokumen(0, getData().GetBoard(), getData().motigomas) {
+, m_kyokumen(0, getData().GetBoard(), getData().motigomas)
+, m_isUseMessageBox(false) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
 
@@ -89,30 +90,51 @@ void Game::EnemyUpdate(const Te& te_) {
     ChangeCurrentTurn();
 }
 
-s3d::MessageBoxSelection Game::ShowMessageBox(const s3d::String& text, s3d::MessageBoxButtons buttons) {
-    m_isEndThread = false;
+void Game::ShowMessageBox() {
+    if (m_promoteMessage.Select() == YesNoSelection::None) {
+        return;
+    }
 
-    std::thread serviceThread([&]() {
-        while (true) {
-            m_mutex.lock();
-            if (m_isEndThread) {
-                m_mutex.unlock();
-                break;
-            }
+    m_isUseMessageBox = false;
 
-            m_mutex.unlock();
-            GetClient().service();
+    if (m_promoteMessage.Select() == YesNoSelection::Yes) {
+        m_te.SetPromote(1);
+        if (m_kyokumen.IsIllegal(m_te)) {
+            // Print << m_kyokumen.GetTeValids().size();
+            return;
         }
-    });
+    }
+    m_holdHand.reset();
 
-    s3d::MessageBoxSelection ret = s3d::System::ShowMessageBox(text, buttons);
+    m_kyokumen.Move(Self, m_te);
+    SendOpponent(m_te);
 
-    m_mutex.lock();
-    m_isEndThread = true;
-    m_mutex.unlock();
+    if (m_te.GetFrom() > 10) {
+        m_boardSquares[(9 - m_te.GetFrom() / 10) + ((m_te.GetFrom() % 10) - 1) * 9].ChangeKomaType(Empty);
+    }
+    else {
+        uint32 komaType{m_te.GetKoma() - Self - 1};
+        m_havingSelfKoma[komaType].pop_back();
+    }
 
-    serviceThread.join();
-    return ret;
+    if (m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9].GetKomaType() != Empty) {
+        uint32 komaType = m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9].GetKomaType();
+        m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9].ChangeKomaType(m_te.GetKoma());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9]);
+
+        komaType = ((komaType - Enemy + Self) & ~Promote);
+        m_havingSelfKoma[komaType - Self - 1] << KomaSquare(KomaPos::selfDaiPoses[komaType - Self - 1], m_komaDaiSelf.w / 4, static_cast<KomaType>(komaType), KomaState::Dai,
+                                                            s3d::Point(0, 0));
+    }
+    else {
+        m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9].ChangeKomaType(m_te.GetKoma());
+
+        // 置いた駒の場所を更新する
+        m_placedPart.reset(m_boardSquares[(9 - m_te.GetTo() / 10) + ((m_te.GetTo() % 10) - 1) * 9]);
+    }
+    ChangeCurrentTurn();
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数
@@ -209,14 +231,10 @@ void Game::SelfUpdate() {
                     return;
                 }
 
-                if (ShowMessageBox(U"成りますか？", s3d::MessageBoxButtons::YesNo) == s3d::MessageBoxSelection::Yes) {
-                    te.SetPromote(1);
-                    if (m_kyokumen.IsIllegal(te)) {
-                        // Print << m_kyokumen.GetTeValids().size();
-                        return;
-                    }
-                    m_holdHand.value().PromoteKoma();
-                }
+                m_isUseMessageBox = true;
+                m_te = te;
+
+                return;
             }
         }
         if (m_kyokumen.IsIllegal(te)) {
@@ -342,37 +360,10 @@ void Game::AddHoldKoma(KomaSquare& koma_) {
                 return;
             }
 
-            m_isEndThread = false;
+            m_isUseMessageBox = true;
+            m_te = te;
 
-            std::thread serviceThread([&]() {
-                while (true) {
-                    m_mutex.lock();
-                    if (m_isEndThread) {
-                        m_mutex.unlock();
-                        break;
-                    }
-
-                    m_mutex.unlock();
-                    GetClient().service();
-                }
-                s3d::Print(U"ほげ");
-            });
-
-            std::thread promoteThread([&]() {
-                if (ShowMessageBox(U"成りますか？", s3d::MessageBoxButtons::YesNo) == s3d::MessageBoxSelection::Yes) {
-                    te.SetPromote(1);
-                    if (!m_kyokumen.IsIllegal(te)) {
-                        m_holdHand.value().PromoteKoma();
-                    }
-                }
-
-                m_mutex.lock();
-                m_isEndThread = true;
-                m_mutex.unlock();
-            });
-
-            serviceThread.join();
-            promoteThread.join();
+            return;
         }
     }
     if (m_kyokumen.IsIllegal(te)) {
@@ -420,6 +411,11 @@ void Game::SendOpponent(const Te& te_) {
 }
 
 void Game::update() {
+    if (m_isUseMessageBox) {
+        ShowMessageBox();
+        return;
+    }
+
     switch (GetTurn()) {
     case Turn::Player:
         SelfUpdate();
@@ -436,6 +432,10 @@ void Game::update() {
 
 void Game::draw() const {
     Draw();
+
+    if (m_isUseMessageBox) {
+        m_promoteMessage.Draw();
+    }
 
     if (GetTurn() == Turn::Tsumi) {
         if (GetWinner() == Winner::Player) {
