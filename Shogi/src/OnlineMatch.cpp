@@ -1,7 +1,7 @@
 ﻿
-#include "Game.hpp"
+#include "OnlineMatch.hpp"
 
-Game::Game(const InitData& init, const double shogiBan_, const double komaDai_)
+OnlineMatch::OnlineMatch(const InitData& init, const double shogiBan_, const double komaDai_)
 : IScene(init)
 , m_shogiBan(s3d::Arg::center(s3d::Scene::CenterF()), shogiBan_)
 , m_komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(shogiBan_ / 2 + 10 + komaDai_ / 2, (shogiBan_ / 2 - komaDai_) + komaDai_ / 2)), komaDai_)
@@ -57,7 +57,7 @@ Game::Game(const InitData& init, const double shogiBan_, const double komaDai_)
     s3d::ClearPrint();
 }
 
-void Game::EnemyUpdate(const Te& te_) {
+void OnlineMatch::EnemyUpdate(const Te& te_) {
     m_kyokumen.Move(Enemy, te_);
 
     if (te_.GetFrom() > 10) {
@@ -89,7 +89,7 @@ void Game::EnemyUpdate(const Te& te_) {
     ChangeCurrentTurn();
 }
 
-void Game::ShowMessageBox() {
+void OnlineMatch::ShowMessageBox() {
     if (m_promoteMessage.Select() == YesNoSelection::None) {
         return;
     }
@@ -137,7 +137,7 @@ void Game::ShowMessageBox() {
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数
-void Game::SelfUpdate() {
+void OnlineMatch::SelfUpdate() {
     if (m_buttonWaited.mouseOver() || m_buttonQuit.mouseOver()) {
         s3d::Cursor::RequestStyle(s3d::CursorStyle::Hand);
     }
@@ -289,7 +289,7 @@ void Game::SelfUpdate() {
     }
 }
 
-void Game::Draw() const {
+void OnlineMatch::Draw() const {
     m_shogiBan.draw(s3d::Palette::Burlywood);
     m_komaDaiSelf.draw(s3d::Palette::Burlywood);
     m_komaDaiEnemy.draw(s3d::Palette::Burlywood);
@@ -328,7 +328,7 @@ void Game::Draw() const {
     }
 }
 
-void Game::AddHoldKoma(KomaSquare& koma_) {
+void OnlineMatch::AddHoldKoma(KomaSquare& koma_) {
     if ((koma_.GetKomaType() <= Enemy && m_holdHand.value().GetKomaType() <= Enemy) || (koma_.GetKomaType() > Enemy && m_holdHand.value().GetKomaType() > Enemy)) {
         return;
     }
@@ -392,11 +392,11 @@ void Game::AddHoldKoma(KomaSquare& koma_) {
         m_havingSelfKoma[komaType - Self - 1] << KomaSquare(KomaPos::selfDaiPoses[komaType - Self - 1], m_komaDaiSelf.w / 4, static_cast<KomaType>(komaType), KomaState::Dai,
                                                             s3d::Point(0, 0));
     }
-    
+
     ChangeCurrentTurn();
 }
 
-void Game::SendOpponent(const Te& te_) {
+void OnlineMatch::SendOpponent(const Te& te_) {
     ExitGames::Common::Dictionary<nByte, int32> dic;
     dic.put(1, (te_.GetFrom() > 10) ? 110 - te_.GetFrom() : 0);
     dic.put(2, 110 - te_.GetTo());
@@ -409,7 +409,7 @@ void Game::SendOpponent(const Te& te_) {
     GetClient().opRaiseEvent(true, dic, 1);
 }
 
-void Game::update() {
+void OnlineMatch::update() {
     if (m_isUseMessageBox) {
         ShowMessageBox();
         return;
@@ -429,7 +429,7 @@ void Game::update() {
     }
 }
 
-void Game::draw() const {
+void OnlineMatch::draw() const {
     Draw();
 
     if (m_isUseMessageBox) {
@@ -450,13 +450,13 @@ void Game::draw() const {
     }
 }
 
-void Game::result() {
+void OnlineMatch::result() {
     if (s3d::MouseL.down()) {
         Disconnect();
     }
 }
 
-void Game::CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent) {
+void OnlineMatch::CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent) {
     if (eventCode == 3) {
         auto dic = ExitGames::Common::ValueObject<ExitGames::Common::Dictionary<nByte, bool>>(eventContent).getDataCopy();
         RetractingMove();
@@ -484,7 +484,7 @@ void Game::CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Com
     EnemyUpdate(te);
 }
 
-void Game::LeaveRoomEventAction(int playerNr, bool isInactive) {
+void OnlineMatch::LeaveRoomEventAction(int playerNr, bool isInactive) {
     s3d::Print(U"対戦相手が退室しました。");
     getData().photonState = PhotonState::Master;
 
@@ -495,7 +495,7 @@ void Game::LeaveRoomEventAction(int playerNr, bool isInactive) {
     Disconnect();
 }
 
-void Game::DisconnectReturn() {
+void OnlineMatch::DisconnectReturn() {
     s3d::Print(U"切断しました");
     changeScene(State::Title, s3d::Seconds(1));
 }

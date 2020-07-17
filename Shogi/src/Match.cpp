@@ -138,5 +138,5 @@ void Match::CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Co
 
     // 背景色を設定
     s3d::Scene::SetBackground(s3d::ColorF(0.2, 0.8, 0.4));
-    changeScene(State::Game);
+    changeScene(State::OnlineMatch);
 }

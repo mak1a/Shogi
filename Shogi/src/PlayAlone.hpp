@@ -1,9 +1,9 @@
 ﻿
 #pragma once
 #include "Kyokumen.hpp"
+#include "Sikou.hpp"
 
-// ゲームシーン
-class Game : public MyApp::Scene {
+class PlayAlone : public MyApp::Scene {
 private:
     // 将棋盤
     s3d::RectF m_shogiBan;
@@ -12,7 +12,16 @@ private:
     // 自分の駒台
     s3d::RectF m_komaDaiSelf;
 
+    /// <summary>
+    /// ストップウォッチ
+    /// AIが考えてる風を出すためのもの
+    /// </summary>
+    s3d::Stopwatch m_thinkingTimer;
+
     Kyokumen m_kyokumen;
+
+    Sikou m_sikouEnemy;
+    Sikou m_sikouSelf;
 
     // どちらの順番か
     Turn m_turn;
@@ -47,6 +56,11 @@ private:
     /// </summary>
     Te m_te;
 
+    /// <summary>
+    /// 検討モードならtrue
+    /// </summary>
+    bool m_isStudyMode;
+
     // 手番を交代する
     void ChangeCurrentTurn() noexcept {
         s3d::AudioAsset(U"Piece").playOneShot(0.2);
@@ -79,6 +93,8 @@ private:
         m_stackHavingSelf.emplace(m_havingSelfKoma);
         m_stackHavingEnemy.emplace(m_havingEnemyKoma);
         m_stackPlacedPart.emplace(m_placedPart);
+
+        m_thinkingTimer.restart();
     }
 
     // 盤上のマス目
@@ -108,6 +124,8 @@ private:
 
     void AddHoldKoma(KomaSquare& koma_);
 
+    void AddEnemyHoldKoma(KomaSquare& koma_);
+
     void RetractingMove() {
         if (m_stackKyokumens.size() <= 2) {
             return;
@@ -134,30 +152,19 @@ private:
         m_placedPart = m_stackPlacedPart.top();
     }
 
-    void SendOpponent(const Te& te_);
-
-    void result();
-
-    void CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent) override;
-
-    void LeaveRoomEventAction(int playerNr, bool isInactive) override;
-
-    void DisconnectReturn() override;
-
-    void ShowMessageBox();
-
 public:
-    Game(const InitData& init, const double shogiBan_ = 540.f, const double komaDai_ = 240.f);
+    PlayAlone(const InitData& init, const double shogiBan_ = 540.f, const double komaDai_ = 240.f);
 
+private:
     void SelfUpdate();
 
-    void EnemyUpdate(const Te& te_);
+    void SelfAIUpdate();
+
+    void EnemyUpdate();
+
+    void EnemyStudyUpdate();
 
     void Draw() const;
-
-    void update() override;
-
-    void draw() const override;
 
     [[nodiscard]] Turn GetTurn() const noexcept {
         return m_turn;
@@ -166,4 +173,13 @@ public:
     [[nodiscard]] Winner GetWinner() const noexcept {
         return m_winner;
     }
+
+    void ShowMessageBox();
+
+    void result();
+
+public:
+    void update() override;
+
+    void draw() const override;
 };

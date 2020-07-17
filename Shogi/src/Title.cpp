@@ -30,12 +30,12 @@ void Title::update() {
     }
 
     if (m_soloMatchButton.leftClicked()) {
-        getData().gameState = State::GameAI;
+        getData().gameState = State::PlayAlone;
         changeScene(State::Select);
     }
 
     if (m_twoPlayerMatchButton.leftClicked()) {
-        getData().gameState = State::Game;
+        getData().gameState = State::OnlineMatch;
         changeScene(State::Match);
     }
 
@@ -107,10 +107,10 @@ void Select::SetUp() {
             getData().handicap = static_cast<Handicap>(handicapIndx);
         }
     }
-    if (getData().gameState == State::GameAI) {
+    if (getData().gameState == State::PlayAlone) {
         s3d::SimpleGUI::Headline(U"強さ", s3d::Vec2(480, 240));
         {
-            if (s3d::SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, s3d::Vec2(480, 280))) {
+            if (s3d::SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級", U"検討モード"}, s3d::Vec2(480, 280))) {
                 getData().depthMax = static_cast<uint32>(depthMaxIndx + 1);
             }
         }
@@ -131,7 +131,7 @@ void Select::SetUp() {
             return;
         }
 
-        if (getData().gameState == State::Game) {
+        if (getData().gameState == State::OnlineMatch) {
             ExitGames::Common::Dictionary<nByte, int32> dic;
             dic.put(1, static_cast<int32>(getData().firstMove));
             dic.put(2, static_cast<int32>(getData().elegance));
@@ -143,7 +143,7 @@ void Select::SetUp() {
     }
 
     if (s3d::SimpleGUI::Button(U"タイトルに戻る", s3d::Vec2(280, 530), 200)) {
-        if (getData().gameState == State::Game) {
+        if (getData().gameState == State::OnlineMatch) {
             Disconnect();
             return;
         }
@@ -414,9 +414,9 @@ void Select::updateFadeIn(double) {
     { s3d::SimpleGUI::HorizontalRadioButtons(eleganceIndx, {U"自分", U"相手"}, s3d::Vec2(740, 90)); }
     // SimpleGUI::Headline(U"手合", Vec2(760, 100));
     { s3d::SimpleGUI::RadioButtons(handicapIndx, handicaps, s3d::Vec2(740, 135)); }
-    if (getData().gameState == State::GameAI) {
+    if (getData().gameState == State::PlayAlone) {
         s3d::SimpleGUI::Headline(U"強さ", s3d::Vec2(480, 240));
-        { s3d::SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級"}, s3d::Vec2(480, 280)); }
+        { s3d::SimpleGUI::RadioButtons(depthMaxIndx, {U"はじめて", U"初級", U"中級", U"上級", U"検討モード"}, s3d::Vec2(480, 280)); }
     }
     s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(800, 530), 200);
     s3d::SimpleGUI::Button(U"タイトルに戻る", s3d::Vec2(280, 530), 200);

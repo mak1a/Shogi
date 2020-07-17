@@ -2,8 +2,8 @@
 #include "Common.hpp"
 #include "Title.hpp"
 #include "Match.hpp"
-#include "Game.hpp"
-#include "GameAI.hpp"
+#include "OnlineMatch.hpp"
+#include "PlayAlone.hpp"
 
 void Main() {
     // タイトルを設定
@@ -45,8 +45,13 @@ void Main() {
     const s3d::INIData ini(s3d::Resource(U"config/appIDString.ini"));
 
     // シーンと遷移時の色を設定
-    MyApp manager(shogi::ChangeAppIDString(ini[U"Photon.appID"]), L"1.61");
-    manager.add<Title>(State::Title).add<Match>(State::Match).add<Select>(State::Select).add<Game>(State::Game).add<GameAI>(State::GameAI).setFadeColor(s3d::ColorF(1.0));
+    MyApp manager(shogi::ChangeAppIDString(ini[U"Photon.appID"]), L"1.62");
+    manager.add<Title>(State::Title)
+        .add<Match>(State::Match)
+        .add<Select>(State::Select)
+        .add<OnlineMatch>(State::OnlineMatch)
+        .add<PlayAlone>(State::PlayAlone)
+        .setFadeColor(s3d::ColorF(1.0));
 
     // manager.init(State::Select);
 
