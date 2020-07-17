@@ -31,7 +31,7 @@
 		2C6906D42298131500A427D0 /* libopencv_imgproc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C6906CE2298131500A427D0 /* libopencv_imgproc.a */; };
 		2C6906D62298131800A427D0 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C6906D52298131800A427D0 /* libz.a */; };
 		2C6906D82298140F00A427D0 /* engine in Resources */ = {isa = PBXBuildFile; fileRef = 2C6906D72298140F00A427D0 /* engine */; };
-		2C971A5B239732F900E66570 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2C971A57239732F900E66570 /* Game.cpp */; };
+		2C971A5B239732F900E66570 /* OnlineMatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2C971A57239732F900E66570 /* OnlineMatch.cpp */; };
 		2C971A5C239732F900E66570 /* Title.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2C971A5A239732F900E66570 /* Title.cpp */; };
 		2CE5C856237FDE3900082EEC /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CE5C855237FDE3900082EEC /* AVFoundation.framework */; };
 		2CE5C858237FDE4600082EEC /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CE5C857237FDE4600082EEC /* CoreAudio.framework */; };
@@ -40,7 +40,7 @@
 		2CEACB67233A61C900C6EE98 /* libgif.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEACB65233A61C900C6EE98 /* libgif.a */; };
 		2CEACB68233A61C900C6EE98 /* libutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEACB66233A61C900C6EE98 /* libutil.a */; };
 		643A63CB23DF5E1500922771 /* Sikou.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 643A63CA23DF5E1500922771 /* Sikou.cpp */; };
-		645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */; };
+		645EC47023B67E2F00B0DBB9 /* PlayAlone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 645EC46F23B67E2F00B0DBB9 /* PlayAlone.cpp */; };
 		6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6488705123BA0E120061A0D2 /* Kyokumen.cpp */; };
 		64ECFC9324B21BBA0090783F /* appIDChange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64ECFC9224B21BBA0090783F /* appIDChange.cpp */; };
 		64ECFC9624B23C620090783F /* Match.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64ECFC9424B23C620090783F /* Match.cpp */; };
@@ -76,9 +76,9 @@
 		2C6906D52298131800A427D0 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../../lib/macOS/zlib/libz.a; sourceTree = "<group>"; };
 		2C6906D72298140F00A427D0 /* engine */ = {isa = PBXFileReference; lastKnownFileType = folder; name = engine; path = App/engine; sourceTree = "<group>"; };
 		2C971A56239732F900E66570 /* Title.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Title.hpp; sourceTree = "<group>"; };
-		2C971A57239732F900E66570 /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
+		2C971A57239732F900E66570 /* OnlineMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnlineMatch.cpp; sourceTree = "<group>"; };
 		2C971A58239732F900E66570 /* Common.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Common.hpp; sourceTree = "<group>"; };
-		2C971A59239732F900E66570 /* Game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Game.hpp; sourceTree = "<group>"; };
+		2C971A59239732F900E66570 /* OnlineMatch.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OnlineMatch.hpp; sourceTree = "<group>"; };
 		2C971A5A239732F900E66570 /* Title.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Title.cpp; sourceTree = "<group>"; };
 		2CE5C855237FDE3900082EEC /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2CE5C857237FDE4600082EEC /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
@@ -86,8 +86,8 @@
 		2CEACB65233A61C900C6EE98 /* libgif.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgif.a; path = ../../lib/macOS/libgif/libgif.a; sourceTree = "<group>"; };
 		2CEACB66233A61C900C6EE98 /* libutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libutil.a; path = ../../lib/macOS/libgif/libutil.a; sourceTree = "<group>"; };
 		643A63CA23DF5E1500922771 /* Sikou.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sikou.cpp; sourceTree = "<group>"; };
-		645EC46E23B67E1400B0DBB9 /* GameAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameAI.hpp; sourceTree = "<group>"; };
-		645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameAI.cpp; sourceTree = "<group>"; };
+		645EC46E23B67E1400B0DBB9 /* PlayAlone.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PlayAlone.hpp; sourceTree = "<group>"; };
+		645EC46F23B67E2F00B0DBB9 /* PlayAlone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlayAlone.cpp; sourceTree = "<group>"; };
 		6460796224AF9F4F002230EE /* SceneMaster.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SceneMaster.hpp; sourceTree = "<group>"; };
 		6488704E23BA0DE70061A0D2 /* Sikou.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Sikou.hpp; sourceTree = "<group>"; };
 		6488704F23BA0E110061A0D2 /* Kyokumen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Kyokumen.hpp; sourceTree = "<group>"; };
@@ -161,13 +161,13 @@
 			isa = PBXGroup;
 			children = (
 				2C971A58239732F900E66570 /* Common.hpp */,
-				2C971A57239732F900E66570 /* Game.cpp */,
-				2C971A59239732F900E66570 /* Game.hpp */,
+				2C971A57239732F900E66570 /* OnlineMatch.cpp */,
+				2C971A59239732F900E66570 /* OnlineMatch.hpp */,
 				2C1778991CE0AA7C00BB8AD0 /* Main.cpp */,
 				2C971A5A239732F900E66570 /* Title.cpp */,
 				2C971A56239732F900E66570 /* Title.hpp */,
-				645EC46E23B67E1400B0DBB9 /* GameAI.hpp */,
-				645EC46F23B67E2F00B0DBB9 /* GameAI.cpp */,
+				645EC46E23B67E1400B0DBB9 /* PlayAlone.hpp */,
+				645EC46F23B67E2F00B0DBB9 /* PlayAlone.cpp */,
 				6488704E23BA0DE70061A0D2 /* Sikou.hpp */,
 				6488705023BA0E110061A0D2 /* Koma.hpp */,
 				6488705123BA0E120061A0D2 /* Kyokumen.cpp */,
@@ -289,8 +289,8 @@
 				2C17789A1CE0AA7C00BB8AD0 /* Main.cpp in Sources */,
 				64ECFC9324B21BBA0090783F /* appIDChange.cpp in Sources */,
 				6488705223BA0E120061A0D2 /* Kyokumen.cpp in Sources */,
-				2C971A5B239732F900E66570 /* Game.cpp in Sources */,
-				645EC47023B67E2F00B0DBB9 /* GameAI.cpp in Sources */,
+				2C971A5B239732F900E66570 /* OnlineMatch.cpp in Sources */,
+				645EC47023B67E2F00B0DBB9 /* PlayAlone.cpp in Sources */,
 				643A63CB23DF5E1500922771 /* Sikou.cpp in Sources */,
 				64ECFC9624B23C620090783F /* Match.cpp in Sources */,
 			);

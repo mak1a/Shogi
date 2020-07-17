@@ -6,11 +6,11 @@ using std::array;
 
 // シーンの名前
 enum class State {
-    Title,   // タイトルシーン
-    Match,   // マッチアップシーン
-    Select,  // 設定シーン
-    Game,    // 二人用プレイのシーン
-    GameAI   // 一人用プレイのシーン
+    Title,        // タイトルシーン
+    Match,        // マッチアップシーン
+    Select,       // 設定シーン
+    OnlineMatch,  // 二人用プレイのシーン
+    PlayAlone     // 一人用プレイのシーン
 };
 
 /// <summary>
@@ -52,7 +52,7 @@ struct GameData {
     /// <summary>
     /// 一人用か二人用プレイの判定
     /// </summary>
-    State gameState = State::GameAI;
+    State gameState = State::PlayAlone;
 
     /// <summary>
     /// 駒落ち
