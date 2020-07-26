@@ -180,6 +180,7 @@ void OnlineMatch::SelfUpdate() {
 
             m_holdHand.emplace(square);
             square.ChangeKomaType(Emp);
+            AddCandidateHand();
             return;
         }
 
@@ -199,6 +200,7 @@ void OnlineMatch::SelfUpdate() {
         if (!m_holdHand.value().IsChangeCoodinate(square)) {
             square.ChangeKomaType(m_holdHand.value().GetKomaType());
             m_holdHand.reset();
+            m_candidateHands.clear();
             return;
         }
 
@@ -270,6 +272,7 @@ void OnlineMatch::SelfUpdate() {
                                                                                     m_holdHand.value().GetKomaType(), KomaState::Dai, s3d::Point(0, 0));
 
         m_holdHand.reset();
+        m_candidateHands.clear();
         return;
     }
 
@@ -284,6 +287,7 @@ void OnlineMatch::SelfUpdate() {
             }
             m_holdHand.emplace(koma);
             havingSelfKoma.remove_at(i);
+            AddCandidateHand();
             return;
         }
     }
@@ -304,6 +308,10 @@ void OnlineMatch::Draw() const {
     // 駒を置いた場所を少し赤くする
     if (m_placedPart.has_value()) {
         m_placedPart.value().draw(s3d::ColorF(s3d::Palette::Red, 0.5f));
+    }
+
+    for (const auto& candidateHand : m_candidateHands) {
+        candidateHand.draw(s3d::ColorF(s3d::Palette::Greenyellow, 0.2 + 0.5 * s3d::Periodic::Sine0_1(s3d::SecondsF(1.2))));
     }
 
     for (const auto& square : m_boardSquares) {

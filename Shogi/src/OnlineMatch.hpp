@@ -52,6 +52,8 @@ private:
         s3d::AudioAsset(U"Piece").playOneShot(0.2);
         s3d::ClearPrint();
 
+        m_candidateHands.clear();
+
         if (m_kyokumen.IsSennitite()) {
             m_winner = m_kyokumen.IsContinuous(m_turn);
             m_turn = Turn::Tsumi;
@@ -89,6 +91,9 @@ private:
     s3d::Array<s3d::Array<KomaSquare>> m_havingSelfKoma;
     // 持ち駒（敵側）
     s3d::Array<s3d::Array<KomaSquare>> m_havingEnemyKoma;
+
+    // 候補手
+    s3d::Array<KomaSquare> m_candidateHands;
 
     // マウスで駒を保持
     s3d::Optional<KomaSquare> m_holdHand;
@@ -132,6 +137,15 @@ private:
         m_stackPlacedPart.pop();
         m_stackPlacedPart.pop();
         m_placedPart = m_stackPlacedPart.top();
+    }
+
+    void AddCandidateHand() {
+        auto candidateHands = m_kyokumen.GetCandidateHand(m_holdHand.value().GetKomaType(),
+                                                          static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10));
+
+        for (const auto& te : candidateHands) {
+            m_candidateHands << m_boardSquares[(9 - te.GetTo() / 10) + ((te.GetTo() % 10) - 1) * 9];
+        }
     }
 
     void SendOpponent(const Te& te_);
