@@ -1,7 +1,7 @@
 ﻿#pragma once
-#define NO_S3D_USING
-#include <Siv3D.hpp>  // OpenSiv3D v0.4.3
+//#define NO_S3D_USING
 #include <LoadBalancing-cpp/inc/Client.h>
+#include <Siv3D.hpp>  // OpenSiv3D v0.4.3
 
 using s3d::int32;
 using s3d::uint32;

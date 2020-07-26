@@ -308,7 +308,7 @@ void PlayAlone::Draw() const {
     }
 
     for (const auto& candidateHand : m_candidateHands) {
-        candidateHand.draw(s3d::ColorF(s3d::Palette::Greenyellow, 0.5f));
+        candidateHand.draw(s3d::ColorF(s3d::Palette::Greenyellow, 0.2 + 0.5 * s3d::Periodic::Sine0_1(1200ms)));
     }
 
     for (const auto& square : m_boardSquares) {

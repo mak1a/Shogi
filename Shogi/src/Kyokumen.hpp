@@ -317,6 +317,19 @@ public:
                     continue;
                 }
 
+                // 候補手のToが成り等の影響で2回pushされるのを防ぐ
+                bool isPut = false;
+
+                for (const auto& candidateHand : candidateHands) {
+                    if (candidateHand.GetTo() == te.GetTo()) {
+                        isPut = true;
+                        break;
+                    }
+                }
+
+                if (isPut) {
+                    continue;
+                }
                 candidateHands.emplace_back(te);
             }
             return candidateHands;
@@ -328,6 +341,19 @@ public:
                 continue;
             }
 
+            // 候補手のToが成り等の影響で2回pushされるのを防ぐ
+            bool isPut = false;
+
+            for (const auto& candidateHand : candidateHands) {
+                if (candidateHand.GetTo() == te.GetTo()) {
+                    isPut = true;
+                    break;
+                }
+            }
+
+            if (isPut) {
+                continue;
+            }
             candidateHands.emplace_back(te);
         }
 

@@ -157,14 +157,12 @@ private:
     }
 
     void AddCandidateHand() {
-        s3d::Print(U"候補手");
         auto candidateHands = m_kyokumen.GetCandidateHand(m_holdHand.value().GetKomaType(),
                                                           static_cast<uint32>(m_holdHand.value().GetKomaCoodinate().y + m_holdHand.value().GetKomaCoodinate().x * 10));
 
         for (const auto& te : candidateHands) {
             m_candidateHands << m_boardSquares[(9 - te.GetTo() / 10) + ((te.GetTo() % 10) - 1) * 9];
         }
-        s3d::Print(candidateHands.size());
     }
 
 public:
