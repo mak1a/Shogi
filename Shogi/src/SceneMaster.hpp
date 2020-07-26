@@ -1,7 +1,8 @@
 ﻿#pragma once
-//#define NO_S3D_USING
-#include <LoadBalancing-cpp/inc/Client.h>
+#define NO_S3D_USING
+//#define NOMINMAX
 #include <Siv3D.hpp>  // OpenSiv3D v0.4.3
+#include <LoadBalancing-cpp/inc/Client.h>
 
 using s3d::int32;
 using s3d::uint32;

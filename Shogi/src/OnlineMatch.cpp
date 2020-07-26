@@ -311,7 +311,7 @@ void OnlineMatch::Draw() const {
     }
 
     for (const auto& candidateHand : m_candidateHands) {
-        candidateHand.draw(s3d::ColorF(s3d::Palette::Greenyellow, 0.2 + 0.5 * s3d::Periodic::Sine0_1(1200ms)));
+        candidateHand.draw(s3d::ColorF(s3d::Palette::Greenyellow, 0.2 + 0.5 * s3d::Periodic::Sine0_1(s3d::SecondsF(1.2))));
     }
 
     for (const auto& square : m_boardSquares) {
