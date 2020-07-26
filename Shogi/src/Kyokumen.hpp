@@ -303,6 +303,37 @@ public:
         return m_tesu;
     }
 
+    [[nodiscard]] s3d::Array<Te> GetCandidateHand(const uint32 komaType_, const uint32 from_) {
+        s3d::Array<Te> candidateHands;
+
+        // 持ち駒の場合
+        if (from_ <= 10) {
+            for (const auto& te : m_teValids) {
+                if (komaType_ != te.GetKoma()) {
+                    continue;
+                }
+
+                if (from_ != te.GetFrom()) {
+                    continue;
+                }
+
+                candidateHands.emplace_back(te);
+            }
+            return candidateHands;
+        }
+
+        // それ以外
+        for (const auto& te : m_teValids) {
+            if (from_ != te.GetFrom()) {
+                continue;
+            }
+
+            candidateHands.emplace_back(te);
+        }
+
+        return candidateHands;
+    }
+
     [[nodiscard]] bool IsOute(const Turn& turn_) const noexcept {
         return ((turn_ == Turn::Player) ? m_controlEnemy[m_kingSelfPos].any() : m_controlSelf[m_kingEnemyPos].any());
     }

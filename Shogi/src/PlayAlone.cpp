@@ -177,6 +177,7 @@ void PlayAlone::SelfUpdate() {
 
             m_holdHand.emplace(square);
             square.ChangeKomaType(Emp);
+            AddCandidateHand();
             return;
         }
 
@@ -196,6 +197,7 @@ void PlayAlone::SelfUpdate() {
         if (!m_holdHand.value().IsChangeCoodinate(square)) {
             square.ChangeKomaType(m_holdHand.value().GetKomaType());
             m_holdHand.reset();
+            m_candidateHands.clear();
             return;
         }
 
@@ -267,6 +269,7 @@ void PlayAlone::SelfUpdate() {
                                                                                     m_holdHand.value().GetKomaType(), KomaState::Dai, s3d::Point(0, 0));
 
         m_holdHand.reset();
+        m_candidateHands.clear();
         return;
     }
 
@@ -281,6 +284,7 @@ void PlayAlone::SelfUpdate() {
             }
             m_holdHand.emplace(koma);
             havingSelfKoma.remove_at(i);
+            AddCandidateHand();
             return;
         }
     }
@@ -301,6 +305,10 @@ void PlayAlone::Draw() const {
     // 駒を置いた場所を少し赤くする
     if (m_placedPart.has_value()) {
         m_placedPart.value().draw(s3d::ColorF(s3d::Palette::Red, 0.5f));
+    }
+
+    for (const auto& candidateHand : m_candidateHands) {
+        candidateHand.draw(s3d::ColorF(s3d::Palette::Greenyellow, 0.5f));
     }
 
     for (const auto& square : m_boardSquares) {
@@ -583,6 +591,7 @@ void PlayAlone::EnemyStudyUpdate() {
 
             m_holdHand.emplace(square);
             square.ChangeKomaType(Emp);
+            AddCandidateHand();
             return;
         }
 
@@ -602,6 +611,7 @@ void PlayAlone::EnemyStudyUpdate() {
         if (!m_holdHand.value().IsChangeCoodinate(square)) {
             square.ChangeKomaType(m_holdHand.value().GetKomaType());
             m_holdHand.reset();
+            m_candidateHands.clear();
             return;
         }
 
@@ -673,6 +683,7 @@ void PlayAlone::EnemyStudyUpdate() {
                                                                                       m_holdHand.value().GetKomaType(), KomaState::Dai, s3d::Point(0, 0));
 
         m_holdHand.reset();
+        m_candidateHands.clear();
         return;
     }
 
@@ -687,6 +698,7 @@ void PlayAlone::EnemyStudyUpdate() {
             }
             m_holdHand.emplace(koma);
             havingEnemyKoma.remove_at(i);
+            AddCandidateHand();
             return;
         }
     }
