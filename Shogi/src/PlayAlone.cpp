@@ -734,7 +734,7 @@ void PlayAlone::draw() const {
     Draw();
 
     if (m_isUseMessageBox) {
-        m_promoteMessage.Draw();
+        m_promoteMessage.Draw(U"成りますか？");
     }
 
     if (GetTurn() == Turn::Tsumi) {

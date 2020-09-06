@@ -13,7 +13,8 @@ OnlineMatch::OnlineMatch(const InitData& init, const double shogiBan_, const dou
 , m_turn(getData().firstMove)
 , m_isBehind((getData().firstMove == Turn::Enemy))
 , m_kyokumen(0, getData().GetBoard(), getData().motigomas)
-, m_isUseMessageBox(false) {
+, m_isUseMessageBox(false)
+, m_messageState(MessageState::None) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
 
@@ -89,12 +90,13 @@ void OnlineMatch::EnemyUpdate(const Te& te_) {
     ChangeCurrentTurn();
 }
 
-void OnlineMatch::ShowMessageBox() {
+void OnlineMatch::AskPromoteKoma() {
     if (m_promoteMessage.Select() == YesNoSelection::None) {
         return;
     }
 
     m_isUseMessageBox = false;
+    m_messageState = MessageState::None;
 
     if (m_promoteMessage.Select() == YesNoSelection::Yes) {
         m_te.SetPromote(1);
@@ -136,6 +138,34 @@ void OnlineMatch::ShowMessageBox() {
     ChangeCurrentTurn();
 }
 
+void OnlineMatch::AskQuitGame() {
+    if (m_promoteMessage.Select() == YesNoSelection::None) {
+        return;
+    }
+
+    m_isUseMessageBox = false;
+    m_messageState = MessageState::None;
+
+    if (m_promoteMessage.Select() == YesNoSelection::No) {
+        return;
+    }
+
+    m_turn = Turn::Tsumi;
+    m_winner = Winner::Enemy;
+    ExitGames::Common::Dictionary<nByte, bool> dic;
+    dic.put(1, true);
+    GetClient().opRaiseEvent(true, dic, 4);
+}
+
+void OnlineMatch::AskWaited() {
+    if (m_promoteMessage.Select() == YesNoSelection::None) {
+        return;
+    }
+
+    m_isUseMessageBox = false;
+    m_messageState = MessageState::None;
+}
+
 // GameクラスのUpdate()で呼び出すメンバ関数
 void OnlineMatch::SelfUpdate() {
     if (m_buttonWaited.mouseOver() || m_buttonQuit.mouseOver()) {
@@ -143,15 +173,15 @@ void OnlineMatch::SelfUpdate() {
     }
 
     if (!m_holdHand.has_value() && m_buttonQuit.leftClicked()) {
-        m_turn = Turn::Tsumi;
-        m_winner = Winner::Enemy;
-        ExitGames::Common::Dictionary<nByte, bool> dic;
-        dic.put(1, true);
-        GetClient().opRaiseEvent(true, dic, 4);
+        m_isUseMessageBox = true;
+        m_messageState = MessageState::Quit;
         return;
     }
 
     if (!m_holdHand.has_value() && m_buttonWaited.leftClicked()) {
+        m_isUseMessageBox = true;
+        m_messageState = MessageState::Waited;
+
         RetractingMove();
         ExitGames::Common::Dictionary<nByte, bool> dic;
         dic.put(1, true);
@@ -233,6 +263,7 @@ void OnlineMatch::SelfUpdate() {
                 }
 
                 m_isUseMessageBox = true;
+                m_messageState = MessageState::Promote;
                 m_te = te;
 
                 return;
@@ -368,6 +399,7 @@ void OnlineMatch::AddHoldKoma(KomaSquare& koma_) {
             }
 
             m_isUseMessageBox = true;
+            m_messageState = MessageState::Promote;
             m_te = te;
 
             return;
@@ -419,7 +451,19 @@ void OnlineMatch::SendOpponent(const Te& te_) {
 
 void OnlineMatch::update() {
     if (m_isUseMessageBox) {
-        ShowMessageBox();
+        switch (m_messageState) {
+        case MessageState::Promote:
+            AskPromoteKoma();
+            break;
+        case MessageState::Quit:
+            AskQuitGame();
+            break;
+        case MessageState::Waited:
+            AskWaited();
+            break;
+        default:
+            break;
+        }
         return;
     }
 
@@ -441,7 +485,19 @@ void OnlineMatch::draw() const {
     Draw();
 
     if (m_isUseMessageBox) {
-        m_promoteMessage.Draw();
+        switch (m_messageState) {
+        case MessageState::Promote:
+            m_promoteMessage.Draw(U"成りますか？");
+            break;
+        case MessageState::Quit:
+            m_promoteMessage.Draw(U"投了しますか？");
+            break;
+        case MessageState::Waited:
+            m_promoteMessage.Draw(U"相手の「待った」を\n　承認しますか？");
+            break;
+        default:
+            break;
+        }
     }
 
     if (GetTurn() == Turn::Tsumi) {

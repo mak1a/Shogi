@@ -37,6 +37,13 @@ private:
 
     bool m_isUseMessageBox;
 
+    enum class MessageState {
+        Promote,  // 成るかどうかのウィンドウ
+        Waited,   // 待ったボタンを押した際のウィンドウ
+        Quit,     // 投了ボタンを押した際のウィンドウ
+        None
+    } m_messageState;
+
     /// <summary>
     /// メッセージボックスだとserviceを呼び出せなくなるので代わりのもの
     /// </summary>
@@ -158,7 +165,11 @@ private:
 
     void DisconnectReturn() override;
 
-    void ShowMessageBox();
+    void AskPromoteKoma();
+
+    void AskQuitGame();
+
+    void AskWaited();
 
 public:
     OnlineMatch(const InitData& init, const double shogiBan_ = 540.f, const double komaDai_ = 240.f);
