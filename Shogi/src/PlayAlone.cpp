@@ -16,6 +16,7 @@ PlayAlone::PlayAlone(const InitData& init, const double shogiBan_, const double 
 , m_sikouSelf(getData().depthMax)
 , m_sikouEnemy(getData().depthMax)
 , m_isUseMessageBox(false)
+, m_messageState(MessageState::None)
 , m_isStudyMode((getData().depthMax == 5)) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
@@ -146,8 +147,8 @@ void PlayAlone::SelfUpdate() {
     }
 
     if (!m_holdHand.has_value() && m_buttonQuit.leftClicked()) {
-        m_turn = Turn::Tsumi;
-        m_winner = Winner::Enemy;
+        m_isUseMessageBox = true;
+        m_messageState = MessageState::Quit;
         return;
     }
 
@@ -230,6 +231,7 @@ void PlayAlone::SelfUpdate() {
                 }
 
                 m_isUseMessageBox = true;
+                m_messageState = MessageState::Promote;
                 m_te = te;
 
                 return;
@@ -365,6 +367,7 @@ void PlayAlone::AddHoldKoma(KomaSquare& koma_) {
             }
 
             m_isUseMessageBox = true;
+            m_messageState = MessageState::Promote;
             m_te = te;
 
             return;
@@ -432,6 +435,7 @@ void PlayAlone::AddEnemyHoldKoma(KomaSquare& koma_) {
             }
 
             m_isUseMessageBox = true;
+            m_messageState = MessageState::Promote;
             m_te = te;
 
             return;
@@ -467,15 +471,16 @@ void PlayAlone::AddEnemyHoldKoma(KomaSquare& koma_) {
     ChangeCurrentTurn();
 }
 
-void PlayAlone::ShowMessageBox() {
-    if (m_promoteMessage.Select() == YesNoSelection::None) {
+void PlayAlone::AskPromoteKoma() {
+    if (m_messageBox.Select() == YesNoSelection::None) {
         return;
     }
 
     m_isUseMessageBox = false;
+    m_messageState = MessageState::None;
 
     if (GetTurn() == Turn::Player) {
-        if (m_promoteMessage.Select() == YesNoSelection::Yes) {
+        if (m_messageBox.Select() == YesNoSelection::Yes) {
             m_te.SetPromote(1);
             if (m_kyokumen.IsIllegal(m_te)) {
                 // Print << m_kyokumen.GetTeValids().size();
@@ -515,7 +520,7 @@ void PlayAlone::ShowMessageBox() {
         return;
     }
 
-    if (m_promoteMessage.Select() == YesNoSelection::Yes) {
+    if (m_messageBox.Select() == YesNoSelection::Yes) {
         m_te.SetPromote(1);
         if (m_kyokumen.IsIllegal(m_te)) {
             // Print << m_kyokumen.GetTeValids().size();
@@ -554,14 +559,39 @@ void PlayAlone::ShowMessageBox() {
     ChangeCurrentTurn();
 }
 
+void PlayAlone::AskQuitGame() {
+    if (m_messageBox.Select() == YesNoSelection::None) {
+        return;
+    }
+
+    m_isUseMessageBox = false;
+    m_messageState = MessageState::None;
+
+    if (m_messageBox.Select() == YesNoSelection::No) {
+        return;
+    }
+
+    if (GetTurn() == Turn::Player) {
+        m_turn = Turn::Tsumi;
+        m_winner = Winner::Enemy;
+        return;
+    }
+
+    if (GetTurn() == Turn::Enemy) {
+        m_turn = Turn::Tsumi;
+        m_winner = Winner::Player;
+        return;
+    }
+}
+
 void PlayAlone::EnemyStudyUpdate() {
     if (m_buttonWaited.mouseOver() || m_buttonQuit.mouseOver()) {
         s3d::Cursor::RequestStyle(s3d::CursorStyle::Hand);
     }
 
     if (!m_holdHand.has_value() && m_buttonQuit.leftClicked()) {
-        m_turn = Turn::Tsumi;
-        m_winner = Winner::Player;
+        m_isUseMessageBox = true;
+        m_messageState = MessageState::Quit;
         return;
     }
 
@@ -644,6 +674,7 @@ void PlayAlone::EnemyStudyUpdate() {
                 }
 
                 m_isUseMessageBox = true;
+                m_messageState = MessageState::Promote;
                 m_te = te;
 
                 return;
@@ -706,7 +737,16 @@ void PlayAlone::EnemyStudyUpdate() {
 
 void PlayAlone::update() {
     if (m_isUseMessageBox) {
-        ShowMessageBox();
+        switch (m_messageState) {
+        case MessageState::Promote:
+            AskPromoteKoma();
+            break;
+        case MessageState::Quit:
+            AskQuitGame();
+            break;
+        default:
+            break;
+        }
         return;
     }
 
@@ -734,7 +774,16 @@ void PlayAlone::draw() const {
     Draw();
 
     if (m_isUseMessageBox) {
-        m_promoteMessage.Draw(U"成りますか？");
+        switch (m_messageState) {
+        case MessageState::Promote:
+            m_messageBox.Draw(U"成りますか？");
+            break;
+        case MessageState::Quit:
+            m_messageBox.Draw(U"投了しますか？");
+            break;
+        default:
+            break;
+        }
     }
 
     if (GetTurn() == Turn::Tsumi) {

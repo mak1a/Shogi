@@ -14,6 +14,7 @@ OnlineMatch::OnlineMatch(const InitData& init, const double shogiBan_, const dou
 , m_isBehind((getData().firstMove == Turn::Enemy))
 , m_kyokumen(0, getData().GetBoard(), getData().motigomas)
 , m_isUseMessageBox(false)
+, m_isUseMessageWindow(false)
 , m_messageState(MessageState::None) {
     // １マスの大きさ
     const double squareSize = shogiBan_ / 9;
@@ -91,14 +92,14 @@ void OnlineMatch::EnemyUpdate(const Te& te_) {
 }
 
 void OnlineMatch::AskPromoteKoma() {
-    if (m_promoteMessage.Select() == YesNoSelection::None) {
+    if (m_messageBox.Select() == YesNoSelection::None) {
         return;
     }
 
     m_isUseMessageBox = false;
     m_messageState = MessageState::None;
 
-    if (m_promoteMessage.Select() == YesNoSelection::Yes) {
+    if (m_messageBox.Select() == YesNoSelection::Yes) {
         m_te.SetPromote(1);
         if (m_kyokumen.IsIllegal(m_te)) {
             // Print << m_kyokumen.GetTeValids().size();
@@ -139,14 +140,14 @@ void OnlineMatch::AskPromoteKoma() {
 }
 
 void OnlineMatch::AskQuitGame() {
-    if (m_promoteMessage.Select() == YesNoSelection::None) {
+    if (m_messageBox.Select() == YesNoSelection::None) {
         return;
     }
 
     m_isUseMessageBox = false;
     m_messageState = MessageState::None;
 
-    if (m_promoteMessage.Select() == YesNoSelection::No) {
+    if (m_messageBox.Select() == YesNoSelection::No) {
         return;
     }
 
@@ -158,12 +159,24 @@ void OnlineMatch::AskQuitGame() {
 }
 
 void OnlineMatch::AskWaited() {
-    if (m_promoteMessage.Select() == YesNoSelection::None) {
+    if (m_messageBox.Select() == YesNoSelection::None) {
         return;
     }
 
     m_isUseMessageBox = false;
     m_messageState = MessageState::None;
+
+    ExitGames::Common::Dictionary<nByte, bool> dic;
+
+    if (m_messageBox.Select() == YesNoSelection::No) {
+        dic.put(1, false);
+        GetClient().opRaiseEvent(true, dic, 5);
+        return;
+    }
+
+    RetractingMove();
+    dic.put(1, true);
+    GetClient().opRaiseEvent(true, dic, 5);
 }
 
 // GameクラスのUpdate()で呼び出すメンバ関数
@@ -179,10 +192,14 @@ void OnlineMatch::SelfUpdate() {
     }
 
     if (!m_holdHand.has_value() && m_buttonWaited.leftClicked()) {
-        m_isUseMessageBox = true;
-        m_messageState = MessageState::Waited;
+        if (m_stackKyokumens.size() <= 2) {
+            return;
+        }
+        // m_isUseMessageBox = true;
+        // m_messageState = MessageState::Waited;
 
-        RetractingMove();
+        // RetractingMove();
+        m_isUseMessageWindow = true;
         ExitGames::Common::Dictionary<nByte, bool> dic;
         dic.put(1, true);
         GetClient().opRaiseEvent(true, dic, 3);
@@ -467,6 +484,10 @@ void OnlineMatch::update() {
         return;
     }
 
+    if (m_isUseMessageWindow) {
+        return;
+    }
+
     switch (GetTurn()) {
     case Turn::Player:
         SelfUpdate();
@@ -487,17 +508,21 @@ void OnlineMatch::draw() const {
     if (m_isUseMessageBox) {
         switch (m_messageState) {
         case MessageState::Promote:
-            m_promoteMessage.Draw(U"成りますか？");
+            m_messageBox.Draw(U"成りますか？");
             break;
         case MessageState::Quit:
-            m_promoteMessage.Draw(U"投了しますか？");
+            m_messageBox.Draw(U"投了しますか？");
             break;
         case MessageState::Waited:
-            m_promoteMessage.Draw(U"相手の「待った」を\n　承認しますか？");
+            m_messageBox.Draw(U"相手の「待った」を\n　承認しますか？");
             break;
         default:
             break;
         }
+    }
+
+    if (m_isUseMessageWindow) {
+        m_messageWindow.Draw(U"待ったを申請中です。\n暫くお待ちください...");
     }
 
     if (GetTurn() == Turn::Tsumi) {
@@ -523,13 +548,24 @@ void OnlineMatch::result() {
 void OnlineMatch::CustomEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent) {
     if (eventCode == 3) {
         auto dic = ExitGames::Common::ValueObject<ExitGames::Common::Dictionary<nByte, bool>>(eventContent).getDataCopy();
-        RetractingMove();
+        m_isUseMessageBox = true;
+        m_messageState = MessageState::Waited;
+        // RetractingMove();
         return;
     }
     if (eventCode == 4) {
         auto dic = ExitGames::Common::ValueObject<ExitGames::Common::Dictionary<nByte, bool>>(eventContent).getDataCopy();
         m_turn = Turn::Tsumi;
         m_winner = Winner::Player;
+        return;
+    }
+    if (eventCode == 5) {
+        auto dic = ExitGames::Common::ValueObject<ExitGames::Common::Dictionary<nByte, bool>>(eventContent).getDataCopy();
+        if (*dic.getValue(1)) {
+            RetractingMove();
+        }
+
+        m_isUseMessageWindow = false;
         return;
     }
 

@@ -36,6 +36,7 @@ private:
     s3d::RectF m_buttonQuit;
 
     bool m_isUseMessageBox;
+    bool m_isUseMessageWindow;
 
     enum class MessageState {
         Promote,  // 成るかどうかのウィンドウ
@@ -47,7 +48,12 @@ private:
     /// <summary>
     /// メッセージボックスだとserviceを呼び出せなくなるので代わりのもの
     /// </summary>
-    MyMessageBox m_promoteMessage;
+    MyMessageBox m_messageBox;
+
+    /// <summary>
+    /// 待ったの申請時に表示するウィンドウ
+    /// </summary>
+    MyMessageWindow m_messageWindow;
 
     /// <summary>
     /// 成るか判断した後に使う

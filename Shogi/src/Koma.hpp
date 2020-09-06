@@ -429,3 +429,16 @@ public:
         }
     }
 };
+
+class MyMessageWindow {
+private:
+    s3d::RectF m_messageBox;
+
+public:
+    MyMessageWindow() noexcept : m_messageBox(s3d::Arg::center(s3d::Scene::CenterF().movedBy(0.0, -100.0)), 280.0, 250.0) {}
+
+    void Draw(s3d::StringView title_) const {
+        m_messageBox.draw(s3d::ColorF(s3d::Palette::Whitesmoke, 0.94));
+        s3d::FontAsset(U"Menu")(title_).drawAt(m_messageBox.center().movedBy(0.0, -20.0), s3d::Palette::Black);
+    }
+};
