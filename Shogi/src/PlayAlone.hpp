@@ -46,10 +46,17 @@ private:
 
     bool m_isUseMessageBox;
 
+    enum class MessageState {
+        Promote,  // 成るかどうかのウィンドウ
+        Waited,   // 待ったボタンを押した際のウィンドウ
+        Quit,     // 投了ボタンを押した際のウィンドウ
+        None
+    } m_messageState;
+
     /// <summary>
     /// メッセージボックスだとserviceを呼び出せなくなるので代わりのもの
     /// </summary>
-    MyMessageBox m_promoteMessage;
+    MyMessageBox m_messageBox;
 
     /// <summary>
     /// 成るか判断した後に使う
@@ -187,7 +194,9 @@ private:
         return m_winner;
     }
 
-    void ShowMessageBox();
+    void AskPromoteKoma();
+
+    void AskQuitGame();
 
     void result();
 

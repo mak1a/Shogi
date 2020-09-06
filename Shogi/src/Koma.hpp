@@ -412,9 +412,9 @@ public:
         return m_selection;
     }
 
-    void Draw() const {
+    void Draw(s3d::StringView title_) const {
         m_messageBox.draw(s3d::ColorF(s3d::Palette::Whitesmoke, 0.94));
-        s3d::FontAsset(U"Menu")(U"成りますか？").drawAt(m_messageBox.center().movedBy(0.0, -50.0), s3d::Palette::Black);
+        s3d::FontAsset(U"Menu")(title_).drawAt(m_messageBox.center().movedBy(0.0, -50.0), s3d::Palette::Black);
 
         m_yesButton.drawFrame(1.0, s3d::ColorF(s3d::Palette::Black, 0.94));
         s3d::FontAsset(U"YesNo")(U"Yes").drawAt(m_yesButton.center(), s3d::Palette::Black);
@@ -427,5 +427,18 @@ public:
         if (m_noButton.mouseOver()) {
             m_noButton.drawFrame(1.6, s3d::ColorF(s3d::Palette::Aqua, 0.6f));
         }
+    }
+};
+
+class MyMessageWindow {
+private:
+    s3d::RectF m_messageBox;
+
+public:
+    MyMessageWindow() noexcept : m_messageBox(s3d::Arg::center(s3d::Scene::CenterF().movedBy(0.0, -100.0)), 280.0, 250.0) {}
+
+    void Draw(s3d::StringView title_) const {
+        m_messageBox.draw(s3d::ColorF(s3d::Palette::Whitesmoke, 0.94));
+        s3d::FontAsset(U"Menu")(title_).drawAt(m_messageBox.center().movedBy(0.0, -20.0), s3d::Palette::Black);
     }
 };
