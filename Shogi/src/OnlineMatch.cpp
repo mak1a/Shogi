@@ -159,6 +159,16 @@ void OnlineMatch::AskQuitGame() {
 }
 
 void OnlineMatch::AskWaited() {
+    if (GetTurn() == Turn::Player && m_messageState == MessageState::Waited) {
+        if (!m_messageWindow.SelectOK()) {
+            return;
+        }
+
+        m_isUseMessageWindow = false;
+        m_messageState = MessageState::None;
+        return;
+    }
+
     if (m_messageBox.Select() == YesNoSelection::None) {
         return;
     }
@@ -200,6 +210,7 @@ void OnlineMatch::SelfUpdate() {
 
         // RetractingMove();
         m_isUseMessageWindow = true;
+        m_messageWindow.SetLabel(U"待ったを申請中です。\n暫くお待ちください...");
         ExitGames::Common::Dictionary<nByte, bool> dic;
         dic.put(1, true);
         GetClient().opRaiseEvent(true, dic, 3);
@@ -485,6 +496,7 @@ void OnlineMatch::update() {
     }
 
     if (m_isUseMessageWindow) {
+        AskWaited();
         return;
     }
 
@@ -522,7 +534,7 @@ void OnlineMatch::draw() const {
     }
 
     if (m_isUseMessageWindow) {
-        m_messageWindow.Draw(U"待ったを申請中です。\n暫くお待ちください...");
+        m_messageWindow.Draw();
     }
 
     if (GetTurn() == Turn::Tsumi) {
@@ -563,9 +575,13 @@ void OnlineMatch::CustomEventAction(int playerNr, nByte eventCode, const ExitGam
         auto dic = ExitGames::Common::ValueObject<ExitGames::Common::Dictionary<nByte, bool>>(eventContent).getDataCopy();
         if (*dic.getValue(1)) {
             RetractingMove();
+            m_messageWindow.SetLabel(U"待ったが承認されました", true);
+            m_messageState = MessageState::Waited;
+            return;
         }
 
-        m_isUseMessageWindow = false;
+        m_messageWindow.SetLabel(U"待ったが拒否されました", true);
+        m_messageState = MessageState::Waited;
         return;
     }
 
