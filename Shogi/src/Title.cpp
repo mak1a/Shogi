@@ -72,7 +72,9 @@ Select::Select(const InitData& init)
 , m_enemyDai(s3d::Arg::center(345.f, 550.f), 420.f, 80.f)
 , m_selfDai(s3d::Arg::center(935.f, 550.f), 420.f, 80.f)
 , m_komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(450.f / 2 + 10 + 200.f / 2, (450.f / 2 - 300.f) + 200.f / 2)), 200.f)
-, m_komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(450.f / 2 + 10 + 200.f / 2), -((450.f / 2 - 100.f) + 200.f / 2))), 200.f) {
+, m_komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(450.f / 2 + 10 + 200.f / 2), -((450.f / 2 - 100.f) + 200.f / 2))), 200.f)
+, m_csv(s3d::Resource(U"config/config.csv"))
+, m_isReadCsv(false) {
     // １マスの大きさ
     const double squareSize = 50.0;
 
@@ -86,6 +88,97 @@ Select::Select(const InitData& init)
 
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
+
+    if (!m_csv) {
+        s3d::Print << U"hoge";
+        return;
+    }
+
+    ParseInit();
+}
+
+void Select::ParseInit() {
+    m_parseData.emplace(U"Sfu", Sfu);
+    m_parseData.emplace(U"Sto", Sto);
+    m_parseData.emplace(U"Sky", Sky);
+    m_parseData.emplace(U"Sny", Sny);
+    m_parseData.emplace(U"Ske", Ske);
+    m_parseData.emplace(U"Snk", Snk);
+    m_parseData.emplace(U"Sgi", Sgi);
+    m_parseData.emplace(U"Sng", Sng);
+    m_parseData.emplace(U"Ski", Ski);
+    m_parseData.emplace(U"Ska", Ska);
+    m_parseData.emplace(U"Sum", Sum);
+    m_parseData.emplace(U"Shi", Shi);
+    m_parseData.emplace(U"Sry", Sry);
+    m_parseData.emplace(U"Sou", Sou);
+
+    m_parseData.emplace(U"Efu", Efu);
+    m_parseData.emplace(U"Eto", Eto);
+    m_parseData.emplace(U"Eky", Eky);
+    m_parseData.emplace(U"Eny", Eny);
+    m_parseData.emplace(U"Eke", Eke);
+    m_parseData.emplace(U"Enk", Enk);
+    m_parseData.emplace(U"Egi", Egi);
+    m_parseData.emplace(U"Eng", Eng);
+    m_parseData.emplace(U"Eki", Eki);
+    m_parseData.emplace(U"Eka", Eka);
+    m_parseData.emplace(U"Eum", Eum);
+    m_parseData.emplace(U"Ehi", Ehi);
+    m_parseData.emplace(U"Ery", Ery);
+    m_parseData.emplace(U"Eou", Eou);
+
+    array<array<uint32, 9>, 9> boardCustom;
+    bool isExitSelfKing{false};
+    bool isExitEnemyKing{false};
+
+    for (uint32 y{}; y < 9; ++y) {
+        for (uint32 x{}; x < 9; ++x) {
+            const auto koma = m_parseData.find(m_csv[y][x]);
+            if (koma == m_parseData.end()) {
+                boardCustom[y][x] = Emp;
+                continue;
+            }
+
+            boardCustom[y][x] = koma.value();
+
+            if (koma.value() == Sou) {
+                isExitSelfKing = true;
+            }
+            if (koma.value() == Eou) {
+                isExitEnemyKing = true;
+            }
+        }
+    }
+
+    if (!isExitSelfKing || !isExitEnemyKing) {
+        return;
+    }
+
+    s3d::Array<s3d::String> motigomaData = m_csv[9][0].split(U',');
+    array<uint32, 40> motigomas;
+    motigomas.fill(0);
+    for (const auto& komaName : motigomaData) {
+        const auto koma = m_parseData.find(komaName);
+        if (koma == m_parseData.end()) {
+            continue;
+        }
+
+        if (koma.value() == Sou || koma.value() == Eou) {
+            continue;
+        }
+        if ((koma.value() & Promote) > 0) {
+            return;
+        }
+
+        ++motigomas[koma.value()];
+    }
+
+    getData().SetCustomBoard(boardCustom);
+    for (uint32 i{}; i < 40; ++i) {
+        getData().motigomas[i] = motigomas[i];
+    }
+    m_isReadCsv = true;
 }
 
 void Select::SetUp() {
@@ -117,6 +210,11 @@ void Select::SetUp() {
     }
     if (s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(800, 530), 200)) {
         if (getData().handicap == Handicap::Custom) {
+            if (m_isReadCsv) {
+                changeScene(getData().gameState);
+                return;
+            }
+
             m_isCustom = true;
             // １マスの大きさ
             const double squareSize = 50.0;
