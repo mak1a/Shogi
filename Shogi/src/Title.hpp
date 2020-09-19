@@ -74,7 +74,7 @@ private:
     // テキストデータのString型をuint32型にするための変換器
     s3d::HashTable<s3d::String, uint32> m_parseData;
 
-    const s3d::CSVData m_csv;
+    s3d::CSVData m_csv;
 
     void ParseInit();
 

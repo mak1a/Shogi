@@ -73,7 +73,8 @@ Select::Select(const InitData& init)
 , m_selfDai(s3d::Arg::center(935.f, 550.f), 420.f, 80.f)
 , m_komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(450.f / 2 + 10 + 200.f / 2, (450.f / 2 - 300.f) + 200.f / 2)), 200.f)
 , m_komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(450.f / 2 + 10 + 200.f / 2), -((450.f / 2 - 100.f) + 200.f / 2))), 200.f)
-, m_csv(s3d::Resource(U"config/config.csv"))
+, m_csv(s3d::Resource(U""))
+//, m_csv(s3d::Dialog::OpenFile().value())
 , m_isReadCsv(false) {
     // １マスの大きさ
     const double squareSize = 50.0;
@@ -88,16 +89,13 @@ Select::Select(const InitData& init)
 
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
-
-    if (!m_csv) {
-        s3d::Print << U"hoge";
-        return;
-    }
-
-    ParseInit();
 }
 
 void Select::ParseInit() {
+    if (!m_csv) {
+        return;
+    }
+
     m_parseData.emplace(U"Sfu", Sfu);
     m_parseData.emplace(U"Sto", Sto);
     m_parseData.emplace(U"Sky", Sky);
@@ -210,6 +208,7 @@ void Select::SetUp() {
     }
     if (s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(800, 530), 200)) {
         if (getData().handicap == Handicap::Custom) {
+            ParseInit();
             if (m_isReadCsv) {
                 changeScene(getData().gameState);
                 return;
@@ -247,6 +246,10 @@ void Select::SetUp() {
         }
 
         changeScene(State::Title);
+    }
+
+    if (s3d::SimpleGUI::Button(U"ファイルを選択", s3d::Vec2(540, 530), 200)) {
+        m_csv = s3d::CSVData(s3d::Dialog::OpenFile().value());
     }
 }
 
@@ -518,6 +521,7 @@ void Select::updateFadeIn(double) {
     }
     s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(800, 530), 200);
     s3d::SimpleGUI::Button(U"タイトルに戻る", s3d::Vec2(280, 530), 200);
+    s3d::SimpleGUI::Button(U"ファイルを選択", s3d::Vec2(540, 530), 200);
 }
 
 void Select::draw() const {

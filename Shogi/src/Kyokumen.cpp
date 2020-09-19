@@ -111,8 +111,9 @@ void Kyokumen::Move(const uint32 isSelfOrEnemy_, const Te& te_) {
             else {
                 m_controlEnemy[te_.GetFrom() + Direct[dir]].reset(moveDir);
             }
-            if (CanJump[dir][te_.GetKoma()]) {
-                int32 j{static_cast<int32>(te_.GetFrom())};
+            Te te{(te_.GetPromote() == 1) ? Te(te_.GetFrom(), te_.GetTo(), (te_.GetKoma() & ~Promote)) : te_};
+            if (CanJump[dir][te.GetKoma()]) {
+                int32 j{static_cast<int32>(te.GetFrom())};
 
                 do {
                     j += Direct[dir];
