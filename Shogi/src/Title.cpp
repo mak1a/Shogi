@@ -96,6 +96,13 @@ void Select::ParseInit() {
         return;
     }
 
+    // s3d::Print << m_csv.rows() << U", " << m_csv.columns(0);
+
+    if (m_csv.rows() < 9) {
+        s3d::Print << U"行数不足 : " << m_csv.rows() + 1 << U"行しかありません。";
+        return;
+    }
+
     m_parseData.emplace(U"Sfu", Sfu);
     m_parseData.emplace(U"Sto", Sto);
     m_parseData.emplace(U"Sky", Sky);
@@ -127,10 +134,14 @@ void Select::ParseInit() {
     m_parseData.emplace(U"Eou", Eou);
 
     array<array<uint32, 9>, 9> boardCustom;
-    bool isExitSelfKing{false};
-    bool isExitEnemyKing{false};
+    bool isExistSelfKing{false};
+    bool isExistEnemyKing{false};
 
     for (uint32 y{}; y < 9; ++y) {
+        if (m_csv.columns(y) != 9) {
+            s3d::Print << U"列数不足 : " << y + 1 << U"行目";
+            return;
+        }
         for (uint32 x{}; x < 9; ++x) {
             const auto koma = m_parseData.find(m_csv[y][x]);
             if (koma == m_parseData.end()) {
@@ -141,15 +152,21 @@ void Select::ParseInit() {
             boardCustom[y][x] = koma.value();
 
             if (koma.value() == Sou) {
-                isExitSelfKing = true;
+                isExistSelfKing = true;
             }
             if (koma.value() == Eou) {
-                isExitEnemyKing = true;
+                isExistEnemyKing = true;
             }
         }
     }
 
-    if (!isExitSelfKing || !isExitEnemyKing) {
+    if (!isExistSelfKing || !isExistEnemyKing) {
+        return;
+    }
+
+    if (m_csv.rows() == 9) {
+        getData().SetCustomBoard(boardCustom);
+        m_isReadCsv = true;
         return;
     }
 
@@ -166,6 +183,7 @@ void Select::ParseInit() {
             continue;
         }
         if ((koma.value() & Promote) > 0) {
+            s3d::Print << U"成駒を持ち駒にできません。";
             return;
         }
 
@@ -249,7 +267,11 @@ void Select::SetUp() {
     }
 
     if (s3d::SimpleGUI::Button(U"ファイルを選択", s3d::Vec2(540, 530), 200)) {
-        m_csv = s3d::CSVData(s3d::Dialog::OpenFile().value());
+        if (s3d::Optional<s3d::String> filePath = s3d::Dialog::OpenFile(); filePath.has_value()) {
+            if (filePath.value().includes(U".csv")) {
+                m_csv = s3d::CSVData(filePath.value());
+            }
+        }
     }
 }
 
