@@ -21,6 +21,7 @@
 	"terminal.integrated.rendererType": "dom",
 	"files.associations": {
 		"chrono": "cpp",
-		"*.ipp": "cpp"
+		"*.ipp": "cpp",
+		"array": "cpp"
 	}
 }

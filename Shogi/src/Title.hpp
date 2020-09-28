@@ -75,6 +75,7 @@ private:
     s3d::HashTable<s3d::String, uint32> m_parseData;
 
     s3d::CSVData m_csv;
+    s3d::String m_saveFileName;
 
     void ParseInit();
 
