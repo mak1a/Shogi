@@ -74,8 +74,8 @@ Select::Select(const InitData& init)
 , m_komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(450.f / 2 + 10 + 200.f / 2, (450.f / 2 - 300.f) + 200.f / 2)), 200.f)
 , m_komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(450.f / 2 + 10 + 200.f / 2), -((450.f / 2 - 100.f) + 200.f / 2))), 200.f)
 , m_csv(s3d::Resource(U""))
-//, m_csv(s3d::Dialog::OpenFile().value())
-, m_isReadCsv(false) {
+, m_isReadCsv(false)
+, m_isSaveFile(false) {
     // １マスの大きさ
     const double squareSize = 50.0;
 
@@ -103,35 +103,38 @@ void Select::ParseInit() {
         return;
     }
 
-    m_parseData.emplace(U"Sfu", Sfu);
-    m_parseData.emplace(U"Sto", Sto);
-    m_parseData.emplace(U"Sky", Sky);
-    m_parseData.emplace(U"Sny", Sny);
-    m_parseData.emplace(U"Ske", Ske);
-    m_parseData.emplace(U"Snk", Snk);
-    m_parseData.emplace(U"Sgi", Sgi);
-    m_parseData.emplace(U"Sng", Sng);
-    m_parseData.emplace(U"Ski", Ski);
-    m_parseData.emplace(U"Ska", Ska);
-    m_parseData.emplace(U"Sum", Sum);
-    m_parseData.emplace(U"Shi", Shi);
-    m_parseData.emplace(U"Sry", Sry);
-    m_parseData.emplace(U"Sou", Sou);
+    // テキストデータのString型をuint32型にするための変換器
+    s3d::HashTable<s3d::String, uint32> parseData;
 
-    m_parseData.emplace(U"Efu", Efu);
-    m_parseData.emplace(U"Eto", Eto);
-    m_parseData.emplace(U"Eky", Eky);
-    m_parseData.emplace(U"Eny", Eny);
-    m_parseData.emplace(U"Eke", Eke);
-    m_parseData.emplace(U"Enk", Enk);
-    m_parseData.emplace(U"Egi", Egi);
-    m_parseData.emplace(U"Eng", Eng);
-    m_parseData.emplace(U"Eki", Eki);
-    m_parseData.emplace(U"Eka", Eka);
-    m_parseData.emplace(U"Eum", Eum);
-    m_parseData.emplace(U"Ehi", Ehi);
-    m_parseData.emplace(U"Ery", Ery);
-    m_parseData.emplace(U"Eou", Eou);
+    parseData.emplace(U"Sfu", Sfu);
+    parseData.emplace(U"Sto", Sto);
+    parseData.emplace(U"Sky", Sky);
+    parseData.emplace(U"Sny", Sny);
+    parseData.emplace(U"Ske", Ske);
+    parseData.emplace(U"Snk", Snk);
+    parseData.emplace(U"Sgi", Sgi);
+    parseData.emplace(U"Sng", Sng);
+    parseData.emplace(U"Ski", Ski);
+    parseData.emplace(U"Ska", Ska);
+    parseData.emplace(U"Sum", Sum);
+    parseData.emplace(U"Shi", Shi);
+    parseData.emplace(U"Sry", Sry);
+    parseData.emplace(U"Sou", Sou);
+
+    parseData.emplace(U"Efu", Efu);
+    parseData.emplace(U"Eto", Eto);
+    parseData.emplace(U"Eky", Eky);
+    parseData.emplace(U"Eny", Eny);
+    parseData.emplace(U"Eke", Eke);
+    parseData.emplace(U"Enk", Enk);
+    parseData.emplace(U"Egi", Egi);
+    parseData.emplace(U"Eng", Eng);
+    parseData.emplace(U"Eki", Eki);
+    parseData.emplace(U"Eka", Eka);
+    parseData.emplace(U"Eum", Eum);
+    parseData.emplace(U"Ehi", Ehi);
+    parseData.emplace(U"Ery", Ery);
+    parseData.emplace(U"Eou", Eou);
 
     array<array<uint32, 9>, 9> boardCustom;
     bool isExistSelfKing{false};
@@ -143,8 +146,8 @@ void Select::ParseInit() {
             return;
         }
         for (uint32 x{}; x < 9; ++x) {
-            const auto koma = m_parseData.find(m_csv[y][x]);
-            if (koma == m_parseData.end()) {
+            const auto koma = parseData.find(m_csv[y][x]);
+            if (koma == parseData.end()) {
                 boardCustom[y][x] = Emp;
                 continue;
             }
@@ -174,8 +177,8 @@ void Select::ParseInit() {
     array<uint32, 40> motigomas;
     motigomas.fill(0);
     for (const auto& komaName : motigomaData) {
-        const auto koma = m_parseData.find(komaName);
-        if (koma == m_parseData.end()) {
+        const auto koma = parseData.find(komaName);
+        if (koma == parseData.end()) {
             continue;
         }
 
@@ -292,9 +295,9 @@ void Select::SetUp() {
 
     if (getData().handicap == Handicap::Custom) {
         if (s3d::SimpleGUI::Button(U"ファイルを選択", s3d::Vec2(540, 530), 200)) {
-            if (s3d::Optional<s3d::String> filePath = s3d::Dialog::OpenFile(); filePath.has_value()) {
-                if (filePath.value().includes(U".csv")) {
-                    m_csv = s3d::CSVData(filePath.value());
+            if (m_loadFileName = s3d::Dialog::OpenFile(); m_loadFileName.has_value()) {
+                if (m_loadFileName.value().includes(U".csv")) {
+                    m_csv = s3d::CSVData(m_loadFileName.value());
                 }
             }
         }
@@ -351,6 +354,7 @@ void Select::Custom() {
 
             m_isNifu = false;
             m_isFirstOute = false;
+            m_isSaveFile = false;
 
             if (square.GetKomaType() == Eou || square.GetKomaType() == Sou) {
                 m_holdHand.emplace(square);
@@ -367,6 +371,8 @@ void Select::Custom() {
             m_holdHand.value().setCenter(s3d::Cursor::PosF());
             continue;
         }
+
+        m_isSaveFile = false;
         if (square.GetKomaType() == Eou || square.GetKomaType() == Sou) {
             return;
         }
@@ -414,6 +420,8 @@ void Select::Custom() {
             m_holdHand.value().setCenter(s3d::Cursor::PosF());
             return;
         }
+
+        m_isSaveFile = false;
         if (m_holdHand.value().GetKomaType() == Eou || m_holdHand.value().GetKomaType() == Sou) {
             m_holdHand.value().setCenter(s3d::Cursor::PosF());
             return;
@@ -450,6 +458,8 @@ void Select::Custom() {
             }
             continue;
         }
+
+        m_isSaveFile = false;
         m_holdHand.emplace(selfKoma);
         return;
     }
@@ -462,6 +472,8 @@ void Select::Custom() {
             }
             continue;
         }
+
+        m_isSaveFile = false;
         m_holdHand.emplace(enemyKoma);
         return;
     }
@@ -476,6 +488,7 @@ void Select::Custom() {
                 continue;
             }
 
+            m_isSaveFile = false;
             havingSelfKoma.remove_at(i);
             return;
         }
@@ -491,6 +504,7 @@ void Select::Custom() {
                 continue;
             }
 
+            m_isSaveFile = false;
             havingEnemyKoma.remove_at(i);
             return;
         }
@@ -500,6 +514,7 @@ void Select::Custom() {
 void Select::update() {
     if (m_isCustom) {
         if (s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(900, 620), 200) && !m_holdHand.has_value()) {
+            m_isSaveFile = false;
             array<array<uint32, 9>, 9> boardCustom;
 
             // 盤面に駒を設置
@@ -525,6 +540,7 @@ void Select::update() {
             k.MakeLegalMoves((getData().firstMove == Turn::Player) ? Enemy : Self);
             if (k.IsOute((getData().firstMove == Turn::Player) ? Turn::Enemy : Turn::Player)) {
                 m_isFirstOute = true;
+                m_isSaveFile = false;
                 return;
             }
 
@@ -547,7 +563,9 @@ void Select::update() {
         }
 
         if (s3d::SimpleGUI::Button(U"保存する", s3d::Vec2(100, 620), 200)) {
+            // テキストデータのString型をuint32型にするための変換器
             s3d::HashTable<uint32, s3d::String> toStrData;
+
             toStrData.emplace(Sfu, U"Sfu");
             toStrData.emplace(Sto, U"Sto");
             toStrData.emplace(Sky, U"Sky");
@@ -639,6 +657,7 @@ void Select::update() {
             }
             m_csv.write(writeStr);
             m_csv.save(m_saveFileName);
+            m_isSaveFile = true;
             return;
         }
 
@@ -670,6 +689,11 @@ void Select::updateFadeIn(double) {
 
 void Select::draw() const {
     if (!m_isCustom) {
+        if (!m_loadFileName.has_value() || getData().handicap != Handicap::Custom) {
+            return;
+        }
+
+        s3d::FontAsset(U"Explain")(U"ファイルパス : " + m_loadFileName.value()).drawAt(s3d::Scene::CenterF().movedBy(0.0, 275.0), s3d::Palette::Black);
         return;
     }
 
@@ -723,5 +747,8 @@ void Select::draw() const {
     }
     if (m_isFirstOute) {
         s3d::FontAsset(U"Warning")(U"先手が王手の状態で\n開始できません。").draw(915, 120, s3d::Palette::Red);
+    }
+    if (m_isSaveFile) {
+        s3d::FontAsset(U"Explain")(U"保存しました。").draw(350.0, 625.0, s3d::Palette::Black);
     }
 }
