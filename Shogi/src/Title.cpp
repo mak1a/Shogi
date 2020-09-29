@@ -72,7 +72,10 @@ Select::Select(const InitData& init)
 , m_enemyDai(s3d::Arg::center(345.f, 550.f), 420.f, 80.f)
 , m_selfDai(s3d::Arg::center(935.f, 550.f), 420.f, 80.f)
 , m_komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(450.f / 2 + 10 + 200.f / 2, (450.f / 2 - 300.f) + 200.f / 2)), 200.f)
-, m_komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(450.f / 2 + 10 + 200.f / 2), -((450.f / 2 - 100.f) + 200.f / 2))), 200.f) {
+, m_komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(450.f / 2 + 10 + 200.f / 2), -((450.f / 2 - 100.f) + 200.f / 2))), 200.f)
+, m_csv(s3d::Resource(U""))
+, m_isReadCsv(false)
+, m_isSaveFile(false) {
     // １マスの大きさ
     const double squareSize = 50.0;
 
@@ -86,6 +89,139 @@ Select::Select(const InitData& init)
 
     m_havingSelfKoma.resize(7);
     m_havingEnemyKoma.resize(7);
+}
+
+void Select::ParseInit() {
+    if (!m_csv) {
+        return;
+    }
+
+    // s3d::Print << m_csv.rows() << U", " << m_csv.columns(0);
+
+    if (m_csv.rows() < 9) {
+        s3d::Print << U"行数不足 : " << m_csv.rows() + 1 << U"行しかありません。";
+        return;
+    }
+
+    // テキストデータのString型をuint32型にするための変換器
+    s3d::HashTable<s3d::String, uint32> parseData;
+
+    parseData.emplace(U"Sfu", Sfu);
+    parseData.emplace(U"Sto", Sto);
+    parseData.emplace(U"Sky", Sky);
+    parseData.emplace(U"Sny", Sny);
+    parseData.emplace(U"Ske", Ske);
+    parseData.emplace(U"Snk", Snk);
+    parseData.emplace(U"Sgi", Sgi);
+    parseData.emplace(U"Sng", Sng);
+    parseData.emplace(U"Ski", Ski);
+    parseData.emplace(U"Ska", Ska);
+    parseData.emplace(U"Sum", Sum);
+    parseData.emplace(U"Shi", Shi);
+    parseData.emplace(U"Sry", Sry);
+    parseData.emplace(U"Sou", Sou);
+
+    parseData.emplace(U"Efu", Efu);
+    parseData.emplace(U"Eto", Eto);
+    parseData.emplace(U"Eky", Eky);
+    parseData.emplace(U"Eny", Eny);
+    parseData.emplace(U"Eke", Eke);
+    parseData.emplace(U"Enk", Enk);
+    parseData.emplace(U"Egi", Egi);
+    parseData.emplace(U"Eng", Eng);
+    parseData.emplace(U"Eki", Eki);
+    parseData.emplace(U"Eka", Eka);
+    parseData.emplace(U"Eum", Eum);
+    parseData.emplace(U"Ehi", Ehi);
+    parseData.emplace(U"Ery", Ery);
+    parseData.emplace(U"Eou", Eou);
+
+    array<array<uint32, 9>, 9> boardCustom;
+    bool isExistSelfKing{false};
+    bool isExistEnemyKing{false};
+
+    for (uint32 y{}; y < 9; ++y) {
+        if (m_csv.columns(y) != 9) {
+            s3d::Print << U"列数不足 : " << y + 1 << U"行目";
+            return;
+        }
+        for (uint32 x{}; x < 9; ++x) {
+            const auto koma = parseData.find(m_csv[y][x]);
+            if (koma == parseData.end()) {
+                boardCustom[y][x] = Emp;
+                continue;
+            }
+
+            boardCustom[y][x] = koma.value();
+
+            if (koma.value() == Sou) {
+                isExistSelfKing = true;
+            }
+            if (koma.value() == Eou) {
+                isExistEnemyKing = true;
+            }
+        }
+    }
+
+    if (!isExistSelfKing || !isExistEnemyKing) {
+        return;
+    }
+
+    if (m_csv.rows() == 9) {
+        getData().SetCustomBoard(boardCustom);
+        m_isReadCsv = true;
+        return;
+    }
+
+    s3d::Array<s3d::String> motigomaData = m_csv[9][0].split(U',');
+    array<uint32, 40> motigomas;
+    motigomas.fill(0);
+    for (const auto& komaName : motigomaData) {
+        const auto koma = parseData.find(komaName);
+        if (koma == parseData.end()) {
+            continue;
+        }
+
+        if (koma.value() == Sou || koma.value() == Eou) {
+            continue;
+        }
+        if ((koma.value() & Promote) > 0) {
+            s3d::Print << U"成駒を持ち駒にできません。";
+            return;
+        }
+
+        ++motigomas[koma.value()];
+    }
+
+    // 盤面に駒を設置
+    for (size_t x{}; x < 9; ++x) {
+        uint32 selfFuNum{}, enemyFuNum{};
+        for (size_t y{}; y < 9; ++y) {
+            if (boardCustom[y][x] == KomaType::Sfu) {
+                ++selfFuNum;
+            }
+            if (boardCustom[y][x] == KomaType::Efu) {
+                ++enemyFuNum;
+            }
+            if (selfFuNum >= 2 || enemyFuNum >= 2) {
+                m_isNifu = true;
+                return;
+            }
+        }
+    }
+    // 初期状態で先手が王手の場合、ゲームを開始しない
+    Kyokumen k(0, boardCustom);
+    k.MakeLegalMoves((getData().firstMove == Turn::Player) ? Enemy : Self);
+    if (k.IsOute((getData().firstMove == Turn::Player) ? Turn::Enemy : Turn::Player)) {
+        m_isFirstOute = true;
+        return;
+    }
+
+    getData().SetCustomBoard(boardCustom);
+    for (uint32 i{}; i < 40; ++i) {
+        getData().motigomas[i] = motigomas[i];
+    }
+    m_isReadCsv = true;
 }
 
 void Select::SetUp() {
@@ -117,6 +253,12 @@ void Select::SetUp() {
     }
     if (s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(800, 530), 200)) {
         if (getData().handicap == Handicap::Custom) {
+            ParseInit();
+            if (m_isReadCsv) {
+                changeScene(getData().gameState);
+                return;
+            }
+
             m_isCustom = true;
             // １マスの大きさ
             const double squareSize = 50.0;
@@ -149,6 +291,16 @@ void Select::SetUp() {
         }
 
         changeScene(State::Title);
+    }
+
+    if (getData().handicap == Handicap::Custom) {
+        if (s3d::SimpleGUI::Button(U"ファイルを選択", s3d::Vec2(540, 530), 200)) {
+            if (m_loadFileName = s3d::Dialog::OpenFile(); m_loadFileName.has_value()) {
+                if (m_loadFileName.value().includes(U".csv")) {
+                    m_csv = s3d::CSVData(m_loadFileName.value());
+                }
+            }
+        }
     }
 }
 
@@ -202,6 +354,7 @@ void Select::Custom() {
 
             m_isNifu = false;
             m_isFirstOute = false;
+            m_isSaveFile = false;
 
             if (square.GetKomaType() == Eou || square.GetKomaType() == Sou) {
                 m_holdHand.emplace(square);
@@ -218,6 +371,8 @@ void Select::Custom() {
             m_holdHand.value().setCenter(s3d::Cursor::PosF());
             continue;
         }
+
+        m_isSaveFile = false;
         if (square.GetKomaType() == Eou || square.GetKomaType() == Sou) {
             return;
         }
@@ -265,6 +420,8 @@ void Select::Custom() {
             m_holdHand.value().setCenter(s3d::Cursor::PosF());
             return;
         }
+
+        m_isSaveFile = false;
         if (m_holdHand.value().GetKomaType() == Eou || m_holdHand.value().GetKomaType() == Sou) {
             m_holdHand.value().setCenter(s3d::Cursor::PosF());
             return;
@@ -301,6 +458,8 @@ void Select::Custom() {
             }
             continue;
         }
+
+        m_isSaveFile = false;
         m_holdHand.emplace(selfKoma);
         return;
     }
@@ -313,6 +472,8 @@ void Select::Custom() {
             }
             continue;
         }
+
+        m_isSaveFile = false;
         m_holdHand.emplace(enemyKoma);
         return;
     }
@@ -327,6 +488,7 @@ void Select::Custom() {
                 continue;
             }
 
+            m_isSaveFile = false;
             havingSelfKoma.remove_at(i);
             return;
         }
@@ -342,6 +504,7 @@ void Select::Custom() {
                 continue;
             }
 
+            m_isSaveFile = false;
             havingEnemyKoma.remove_at(i);
             return;
         }
@@ -350,7 +513,8 @@ void Select::Custom() {
 
 void Select::update() {
     if (m_isCustom) {
-        if (s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(900, 620), 200)) {
+        if (s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(900, 620), 200) && !m_holdHand.has_value()) {
+            m_isSaveFile = false;
             array<array<uint32, 9>, 9> boardCustom;
 
             // 盤面に駒を設置
@@ -376,6 +540,7 @@ void Select::update() {
             k.MakeLegalMoves((getData().firstMove == Turn::Player) ? Enemy : Self);
             if (k.IsOute((getData().firstMove == Turn::Player) ? Turn::Enemy : Turn::Player)) {
                 m_isFirstOute = true;
+                m_isSaveFile = false;
                 return;
             }
 
@@ -394,6 +559,105 @@ void Select::update() {
             }
 
             changeScene(getData().gameState);
+            return;
+        }
+
+        if (s3d::SimpleGUI::Button(U"保存する", s3d::Vec2(100, 620), 200)) {
+            // テキストデータのString型をuint32型にするための変換器
+            s3d::HashTable<uint32, s3d::String> toStrData;
+
+            toStrData.emplace(Sfu, U"Sfu");
+            toStrData.emplace(Sto, U"Sto");
+            toStrData.emplace(Sky, U"Sky");
+            toStrData.emplace(Sny, U"Sny");
+            toStrData.emplace(Ske, U"Ske");
+            toStrData.emplace(Snk, U"Snk");
+            toStrData.emplace(Sgi, U"Sgi");
+            toStrData.emplace(Sng, U"Sng");
+            toStrData.emplace(Ski, U"Ski");
+            toStrData.emplace(Ska, U"Ska");
+            toStrData.emplace(Sum, U"Sum");
+            toStrData.emplace(Shi, U"Shi");
+            toStrData.emplace(Sry, U"Sry");
+            toStrData.emplace(Sou, U"Sou");
+
+            toStrData.emplace(Efu, U"Efu");
+            toStrData.emplace(Eto, U"Eto");
+            toStrData.emplace(Eky, U"Eky");
+            toStrData.emplace(Eny, U"Eny");
+            toStrData.emplace(Eke, U"Eke");
+            toStrData.emplace(Enk, U"Enk");
+            toStrData.emplace(Egi, U"Egi");
+            toStrData.emplace(Eng, U"Eng");
+            toStrData.emplace(Eki, U"Eki");
+            toStrData.emplace(Eka, U"Eka");
+            toStrData.emplace(Eum, U"Eum");
+            toStrData.emplace(Ehi, U"Ehi");
+            toStrData.emplace(Ery, U"Ery");
+            toStrData.emplace(Eou, U"Eou");
+
+            m_csv = s3d::CSVData(m_saveFileName);
+            if (!m_csv) {
+                m_saveFileName = U"data/init/" + s3d::Date::Today().format(U"yyyy_M_d_") + s3d::ToString(1) + U".csv";
+                for (uint32 num{2}; s3d::FileSystem::Exists(m_saveFileName); ++num) {
+                    m_saveFileName = U"data/init/" + s3d::Date::Today().format(U"yyyy_M_d_") + s3d::ToString(num) + U".csv";
+                }
+
+                s3d::Serializer<s3d::BinaryWriter>{m_saveFileName}(0);
+                m_csv = s3d::CSVData(m_saveFileName);
+                if (!m_csv) {
+                    s3d::Print << U"読み込めませんでした。";
+                    return;
+                }
+            }
+
+            m_csv.clear();
+
+            for (uint32 y{}; y < 9; ++y) {
+                for (uint32 x{}; x < 9; ++x) {
+                    const auto komaStr = toStrData.find(m_boardSquares[9 * y + x].GetKomaType());
+                    if (komaStr == toStrData.end()) {
+                        m_csv.write(U"Emp");
+                        continue;
+                    }
+
+                    m_csv.write(komaStr.value());
+                }
+
+                m_csv.newLine();
+            }
+
+            s3d::Array<s3d::String> motigomas;
+
+            for (const auto [i, havingSelfKoma] : s3d::IndexedRef(m_havingSelfKoma)) {
+                for (const auto& motigoma : havingSelfKoma) {
+                    const auto komaStr = toStrData.find((i + 1) + Self);
+                    if (komaStr == toStrData.end()) {
+                        continue;
+                    }
+                    motigomas.emplace_back(komaStr.value());
+                }
+            }
+            for (const auto [i, havingEnemyKoma] : s3d::IndexedRef(m_havingEnemyKoma)) {
+                for (const auto& motigoma : havingEnemyKoma) {
+                    const auto komaStr = toStrData.find((i + 1) + Enemy);
+                    if (komaStr == toStrData.end()) {
+                        continue;
+                    }
+                    motigomas.emplace_back(komaStr.value());
+                }
+            }
+
+            s3d::String writeStr;
+            for (const auto [i, str] : s3d::IndexedRef(motigomas)) {
+                writeStr += str;
+                if (i < motigomas.size() - 1) {
+                    writeStr += U",";
+                }
+            }
+            m_csv.write(writeStr);
+            m_csv.save(m_saveFileName);
+            m_isSaveFile = true;
             return;
         }
 
@@ -420,10 +684,16 @@ void Select::updateFadeIn(double) {
     }
     s3d::SimpleGUI::Button(U"ゲームスタート", s3d::Vec2(800, 530), 200);
     s3d::SimpleGUI::Button(U"タイトルに戻る", s3d::Vec2(280, 530), 200);
+    // s3d::SimpleGUI::Button(U"ファイルを選択", s3d::Vec2(540, 530), 200);
 }
 
 void Select::draw() const {
     if (!m_isCustom) {
+        if (!m_loadFileName.has_value() || getData().handicap != Handicap::Custom) {
+            return;
+        }
+
+        s3d::FontAsset(U"Explain")(U"ファイルパス : " + m_loadFileName.value()).drawAt(s3d::Scene::CenterF().movedBy(0.0, 275.0), s3d::Palette::Black);
         return;
     }
 
@@ -477,5 +747,8 @@ void Select::draw() const {
     }
     if (m_isFirstOute) {
         s3d::FontAsset(U"Warning")(U"先手が王手の状態で\n開始できません。").draw(915, 120, s3d::Palette::Red);
+    }
+    if (m_isSaveFile) {
+        s3d::FontAsset(U"Explain")(U"保存しました。").draw(350.0, 625.0, s3d::Palette::Black);
     }
 }

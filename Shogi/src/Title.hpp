@@ -40,6 +40,10 @@ private:
     bool m_isNifu;
     bool m_isFirstOute;
 
+    bool m_isReadCsv;
+
+    bool m_isSaveFile;
+
     // カスタムを選んだ時に使うメンバ変数
 
     // 将棋盤
@@ -68,6 +72,13 @@ private:
 
     // マウスで駒を保持
     s3d::Optional<KomaSquare> m_holdHand;
+
+    s3d::CSVData m_csv;
+    s3d::String m_saveFileName;
+
+    s3d::Optional<s3d::String> m_loadFileName;
+
+    void ParseInit();
 
     void SetUp();
 
