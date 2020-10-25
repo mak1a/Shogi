@@ -10,7 +10,8 @@ enum class State {
     Match,        // マッチアップシーン
     Select,       // 設定シーン
     OnlineMatch,  // 二人用プレイのシーン
-    PlayAlone     // 一人用プレイのシーン
+    PlayAlone,    // 一人用プレイのシーン
+    Replay        // 棋譜再生モード
 };
 
 /// <summary>
@@ -39,6 +40,8 @@ enum class Handicap {
 enum class Elegance { Player, Enemy };
 
 enum class PhotonState { Master, Join, None };
+
+class KomaSquare;
 
 /// <summary>
 /// ゲームデータ
@@ -76,6 +79,12 @@ struct GameData {
 
     PhotonState photonState = PhotonState::None;
 
+    // リプレイデータ
+    s3d::Array<s3d::Array<KomaSquare>> stackBoradSquares;
+    s3d::Array<s3d::Array<s3d::Array<KomaSquare>>> stackHavingSelf;
+    s3d::Array<s3d::Array<s3d::Array<KomaSquare>>> stackHavingEnemy;
+    s3d::Array<s3d::Optional<KomaSquare>> stackPlacedPart;
+
 private:
     /// <summary>
     /// 盤面がカスタムの場合、ここに格納する
@@ -94,6 +103,13 @@ public:
         }
 
         motigomas.fill(0);
+    }
+
+    void InitReplayData() {
+        stackBoradSquares.clear();
+        stackHavingSelf.clear();
+        stackHavingEnemy.clear();
+        stackPlacedPart.clear();
     }
 
     /// <summary>

@@ -52,11 +52,11 @@ PlayAlone::PlayAlone(const InitData& init, const double shogiBan_, const double 
         return;
     }
 
-    m_stackKyokumens.emplace(m_kyokumen);
-    m_stackBoradSquares.emplace(m_boardSquares);
-    m_stackHavingSelf.emplace(m_havingSelfKoma);
-    m_stackHavingEnemy.emplace(m_havingEnemyKoma);
-    m_stackPlacedPart.emplace(m_placedPart);
+    m_stackKyokumens.emplace_back(m_kyokumen);
+    m_stackBoradSquares.emplace_back(m_boardSquares);
+    m_stackHavingSelf.emplace_back(m_havingSelfKoma);
+    m_stackHavingEnemy.emplace_back(m_havingEnemyKoma);
+    m_stackPlacedPart.emplace_back(m_placedPart);
 
     m_thinkingTimer.start();
 }
@@ -802,6 +802,11 @@ void PlayAlone::draw() const {
 
 void PlayAlone::result() {
     if (s3d::MouseL.down()) {
-        changeScene(State::Title, s3d::Seconds(1));
+        getData().InitReplayData();
+        getData().stackBoradSquares = m_stackBoradSquares;
+        getData().stackHavingSelf = m_stackHavingSelf;
+        getData().stackHavingEnemy = m_stackHavingEnemy;
+        getData().stackPlacedPart = m_stackPlacedPart;
+        changeScene(State::Replay, s3d::Seconds(1));
     }
 }

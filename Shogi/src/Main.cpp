@@ -4,6 +4,7 @@
 #include "Match.hpp"
 #include "OnlineMatch.hpp"
 #include "PlayAlone.hpp"
+#include "Replay.hpp"
 
 void Main() {
     // タイトルを設定
@@ -51,6 +52,7 @@ void Main() {
         .add<Select>(State::Select)
         .add<OnlineMatch>(State::OnlineMatch)
         .add<PlayAlone>(State::PlayAlone)
+        .add<Replay>(State::Replay)
         .setFadeColor(s3d::ColorF(1.0));
 
     // manager.init(State::Select);
