@@ -20,6 +20,9 @@ private:
     // 駒を置いた部分の色をちょっと赤くするための変数
     s3d::Optional<KomaSquare> m_placedPart;
 
+    // マウスで駒を保持
+    s3d::Optional<KomaSquare> m_holdHand;
+
     uint32 m_moveNum;
 
     void MoveNext() {
