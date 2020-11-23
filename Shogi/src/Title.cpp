@@ -167,7 +167,7 @@ void Select::ParseInit() {
         return;
     }
 
-    if (m_csv.rows() == 9) {
+    if (m_csv[9].size() == 0) {
         getData().SetCustomBoard(boardCustom);
         m_isReadCsv = true;
         return;
