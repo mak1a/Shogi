@@ -21,10 +21,12 @@ Replay::Replay(const InitData& init, const double shogiBan_, const double komaDa
                s3d::Vec2(komaDai_, shogiBan_ / 12))
 , m_buttonQuit(s3d::Arg::center(s3d::Scene::CenterF().movedBy(shogiBan_ / 2 + 10 + komaDai_ / 2, -((shogiBan_ / 2 - komaDai_) + komaDai_ / 2))),
                s3d::Vec2(komaDai_, shogiBan_ / 12)) {
-    m_boardSquares.assign(getData().stackBoradSquares.front().begin(), getData().stackBoradSquares.front().end());
-    m_havingSelfKoma.assign(getData().stackHavingSelf.front().begin(), getData().stackHavingSelf.front().end());
-    m_havingEnemyKoma.assign(getData().stackHavingEnemy.front().begin(), getData().stackHavingEnemy.front().end());
-    m_placedPart = getData().stackPlacedPart.front();
+    if (getData().gameState == State::Title) {
+        MoveFirst();
+        return;
+    }
+
+    MoveLast();
 }
 
 void Replay::update() {
@@ -201,7 +203,7 @@ void Replay::draw() const {
     m_buttonQuit.draw(s3d::Palette::White);
     m_buttonQuit.drawFrame(1.0, s3d::Palette::Black);
 
-    s3d::FontAsset(U"Menu")(U"保存する").drawAt(m_buttonSave.center(), s3d::Palette::Black);
+    s3d::FontAsset(U"Menu")(U"今の局面を保存").drawAt(m_buttonSave.center(), s3d::Palette::Black);
     s3d::FontAsset(U"Menu")(U"タイトルに戻る").drawAt(m_buttonQuit.center(), s3d::Palette::Black);
 
     s3d::TextureAsset(U"firstButton").drawAt(m_firstButton.center(), s3d::Palette::Black);

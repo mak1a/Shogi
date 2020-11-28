@@ -95,7 +95,7 @@ private:
 
 public:
     GameData() noexcept {
-        m_hashTable.put(L"version", L"1.82");
+        m_hashTable.put(L"kind", L"shogi");
         for (size_t y{}; y < 9; ++y) {
             for (size_t x{}; x < 9; ++x) {
                 m_customKomas[y][x] = Board::Custom[y][x];

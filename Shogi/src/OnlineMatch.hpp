@@ -89,11 +89,11 @@ private:
             }
         }
 
-        m_stackKyokumens.emplace(m_kyokumen);
-        m_stackBoradSquares.emplace(m_boardSquares);
-        m_stackHavingSelf.emplace(m_havingSelfKoma);
-        m_stackHavingEnemy.emplace(m_havingEnemyKoma);
-        m_stackPlacedPart.emplace(m_placedPart);
+        m_stackKyokumens.emplace_back(m_kyokumen);
+        m_stackBoradSquares.emplace_back(m_boardSquares);
+        m_stackHavingSelf.emplace_back(m_havingSelfKoma);
+        m_stackHavingEnemy.emplace_back(m_havingEnemyKoma);
+        m_stackPlacedPart.emplace_back(m_placedPart);
     }
 
     // 盤上のマス目
@@ -115,14 +115,14 @@ private:
     s3d::Optional<KomaSquare> m_placedPart;
 
     // 待ったの為に局面クラスを保持
-    std::stack<Kyokumen> m_stackKyokumens;
+    s3d::Array<Kyokumen> m_stackKyokumens;
 
-    std::stack<s3d::Array<KomaSquare>> m_stackBoradSquares;
+    s3d::Array<s3d::Array<KomaSquare>> m_stackBoradSquares;
 
-    std::stack<s3d::Array<s3d::Array<KomaSquare>>> m_stackHavingSelf;
-    std::stack<s3d::Array<s3d::Array<KomaSquare>>> m_stackHavingEnemy;
+    s3d::Array<s3d::Array<s3d::Array<KomaSquare>>> m_stackHavingSelf;
+    s3d::Array<s3d::Array<s3d::Array<KomaSquare>>> m_stackHavingEnemy;
 
-    std::stack<s3d::Optional<KomaSquare>> m_stackPlacedPart;
+    s3d::Array<s3d::Optional<KomaSquare>> m_stackPlacedPart;
 
     void AddHoldKoma(KomaSquare& koma_);
 
@@ -131,25 +131,25 @@ private:
             return;
         }
 
-        m_stackKyokumens.pop();
-        m_stackKyokumens.pop();
-        m_kyokumen = m_stackKyokumens.top();
+        m_stackKyokumens.pop_back();
+        m_stackKyokumens.pop_back();
+        m_kyokumen = m_stackKyokumens.back();
 
-        m_stackBoradSquares.pop();
-        m_stackBoradSquares.pop();
-        m_boardSquares.assign(m_stackBoradSquares.top().begin(), m_stackBoradSquares.top().end());
+        m_stackBoradSquares.pop_back();
+        m_stackBoradSquares.pop_back();
+        m_boardSquares.assign(m_stackBoradSquares.back().begin(), m_stackBoradSquares.back().end());
 
-        m_stackHavingSelf.pop();
-        m_stackHavingSelf.pop();
-        m_havingSelfKoma.assign(m_stackHavingSelf.top().begin(), m_stackHavingSelf.top().end());
+        m_stackHavingSelf.pop_back();
+        m_stackHavingSelf.pop_back();
+        m_havingSelfKoma.assign(m_stackHavingSelf.back().begin(), m_stackHavingSelf.back().end());
 
-        m_stackHavingEnemy.pop();
-        m_stackHavingEnemy.pop();
-        m_havingEnemyKoma.assign(m_stackHavingEnemy.top().begin(), m_stackHavingEnemy.top().end());
+        m_stackHavingEnemy.pop_back();
+        m_stackHavingEnemy.pop_back();
+        m_havingEnemyKoma.assign(m_stackHavingEnemy.back().begin(), m_stackHavingEnemy.back().end());
 
-        m_stackPlacedPart.pop();
-        m_stackPlacedPart.pop();
-        m_placedPart = m_stackPlacedPart.top();
+        m_stackPlacedPart.pop_back();
+        m_stackPlacedPart.pop_back();
+        m_placedPart = m_stackPlacedPart.back();
     }
 
     void AddCandidateHand() {

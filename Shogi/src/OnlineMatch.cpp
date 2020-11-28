@@ -50,11 +50,11 @@ OnlineMatch::OnlineMatch(const InitData& init, const double shogiBan_, const dou
         return;
     }
 
-    m_stackKyokumens.emplace(m_kyokumen);
-    m_stackBoradSquares.emplace(m_boardSquares);
-    m_stackHavingSelf.emplace(m_havingSelfKoma);
-    m_stackHavingEnemy.emplace(m_havingEnemyKoma);
-    m_stackPlacedPart.emplace(m_placedPart);
+    m_stackKyokumens.emplace_back(m_kyokumen);
+    m_stackBoradSquares.emplace_back(m_boardSquares);
+    m_stackHavingSelf.emplace_back(m_havingSelfKoma);
+    m_stackHavingEnemy.emplace_back(m_havingEnemyKoma);
+    m_stackPlacedPart.emplace_back(m_placedPart);
 
     s3d::ClearPrint();
 }
@@ -547,12 +547,18 @@ void OnlineMatch::draw() const {
         else {
             s3d::FontAsset(U"Result")(U"千日手です").drawAt(s3d::Scene::CenterF().movedBy(0, -100), s3d::Palette::Black);
         }
-        s3d::FontAsset(U"Explain")(U"画面をクリックでタイトルに戻る").drawAt(s3d::Scene::CenterF().movedBy(0, 50), s3d::Palette::Darkred);
+        s3d::FontAsset(U"Explain")(U"画面をクリックしてください。").drawAt(s3d::Scene::CenterF().movedBy(0, 50), s3d::Palette::Darkred);
     }
 }
 
 void OnlineMatch::result() {
     if (s3d::MouseL.down()) {
+        getData().InitReplayData();
+        getData().stackBoradSquares = m_stackBoradSquares;
+        getData().stackHavingSelf = m_stackHavingSelf;
+        getData().stackHavingEnemy = m_stackHavingEnemy;
+        getData().stackPlacedPart = m_stackPlacedPart;
+        changeScene(State::Replay, s3d::Seconds(1));
         Disconnect();
     }
 }
@@ -613,5 +619,5 @@ void OnlineMatch::LeaveRoomEventAction(int playerNr, bool isInactive) {
 
 void OnlineMatch::DisconnectReturn() {
     s3d::Print(U"切断しました");
-    changeScene(State::Title, s3d::Seconds(1));
+    changeScene(State::Replay, s3d::Seconds(0));
 }

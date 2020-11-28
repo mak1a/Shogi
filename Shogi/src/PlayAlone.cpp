@@ -796,7 +796,7 @@ void PlayAlone::draw() const {
         else {
             s3d::FontAsset(U"Result")(U"千日手です").drawAt(s3d::Scene::CenterF().movedBy(0, -100), s3d::Palette::Black);
         }
-        s3d::FontAsset(U"Explain")(U"画面をクリックでタイトルに戻る").drawAt(s3d::Scene::CenterF().movedBy(0, 50), s3d::Palette::Darkred);
+        s3d::FontAsset(U"Explain")(U"画面をクリックしてください。").drawAt(s3d::Scene::CenterF().movedBy(0, 50), s3d::Palette::Darkred);
     }
 }
 
@@ -807,6 +807,6 @@ void PlayAlone::result() {
         getData().stackHavingSelf = m_stackHavingSelf;
         getData().stackHavingEnemy = m_stackHavingEnemy;
         getData().stackPlacedPart = m_stackPlacedPart;
-        changeScene(State::Replay, s3d::Seconds(1));
+        changeScene(State::Replay, s3d::Seconds(0));
     }
 }
