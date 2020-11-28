@@ -57,6 +57,7 @@ void Title::update() {
                 m_csv = s3d::CSVData(m_loadFileName.value());
             }
         }
+        getData().gameState = State::Title;
         ReplayInit();
     }
 }
@@ -68,7 +69,7 @@ void Title::ReplayInit() {
 
     // s3d::Print << m_csv.rows() << U", " << m_csv.columns(0);
 
-    if (m_csv.rows() < 10) {
+    if (m_csv.rows() <= 10) {
         s3d::Print << U"行数不足 : " << m_csv.rows() + 1 << U"行しかありません。";
         return;
     }
@@ -113,7 +114,7 @@ void Title::ReplayInit() {
     const s3d::RectF komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(shogiBan / 2 + 10 + komaDai / 2, (shogiBan / 2 - komaDai) + komaDai / 2)), komaDai);
     const s3d::RectF komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(shogiBan / 2 + 10 + komaDai / 2), -((shogiBan / 2 - komaDai) + komaDai / 2))), komaDai);
 
-    for (uint32 csvRow{}; csvRow <= m_csv.rows(); csvRow += 11) {
+    for (uint32 csvRow{}; csvRow < m_csv.rows(); csvRow += 11) {
         // 盤上のマス目
         // RectFで保持する事でMouse判定できるようにする。
         s3d::Array<KomaSquare> boardSquares;

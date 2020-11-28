@@ -241,6 +241,7 @@
     <ClInclude Include="..\src\Match.hpp" />
     <ClInclude Include="..\src\OnlineMatch.hpp" />
     <ClInclude Include="..\src\PlayAlone.hpp" />
+    <ClInclude Include="..\src\Replay.hpp" />
     <ClInclude Include="..\src\SceneMaster.hpp" />
     <ClInclude Include="..\src\Sikou.hpp" />
     <ClInclude Include="..\src\Title.hpp" />
@@ -252,6 +253,7 @@
     <ClCompile Include="..\src\Match.cpp" />
     <ClCompile Include="..\src\OnlineMatch.cpp" />
     <ClCompile Include="..\src\PlayAlone.cpp" />
+    <ClCompile Include="..\src\Replay.cpp" />
     <ClCompile Include="..\src\Sikou.cpp" />
     <ClCompile Include="..\src\Title.cpp" />
   </ItemGroup>

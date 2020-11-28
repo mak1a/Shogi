@@ -59,7 +59,9 @@ void Replay::update() {
 
     if (m_buttonQuit.leftClicked()) {
         m_saveInitNum = 0;
-        SaveFile(U"match");
+        if (getData().gameState != State::Title) {
+            SaveFile(U"match");
+        }
         changeScene(State::Title);
         return;
     }
@@ -170,7 +172,7 @@ void Replay::SaveFile(s3d::StringView str_) {
         m_csv.write(writeStr);
         m_csv.newLine();
 
-        if (!getData().stackPlacedPart[tesu].has_value()) {
+        if (!getData().stackPlacedPart[tesu].has_value() || tesu == m_saveInitNum) {
             m_csv.newLine();
             continue;
         }
