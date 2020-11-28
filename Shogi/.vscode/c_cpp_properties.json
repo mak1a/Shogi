@@ -14,7 +14,7 @@
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
             ],
-            "compilerPath": "/usr/local/bin/gcc",
+            "compilerPath": "/usr/local/bin/gcc-10",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "gcc-x64"

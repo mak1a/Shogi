@@ -4,6 +4,7 @@
 #include "Match.hpp"
 #include "OnlineMatch.hpp"
 #include "PlayAlone.hpp"
+#include "Replay.hpp"
 
 void Main() {
     // タイトルを設定
@@ -39,18 +40,23 @@ void Main() {
     s3d::TextureAsset::Register(U"Kyosha", s3d::Resource(U"textures/komas/syougi12_kyousya.png"), s3d::AssetParameter::LoadImmediately());
     s3d::TextureAsset::Register(U"NariKyosha", s3d::Resource(U"textures/komas/syougi13_narikyou.png"), s3d::AssetParameter::LoadImmediately());
     // s3d::TextureAsset::Register(U"Standby", s3d::Resource(U"textures/match/kiban.jpg"), s3d::AssetParameter::LoadImmediately());
+    s3d::TextureAsset::Register(U"firstButton", s3d::Icon(0xf100, 60), s3d::AssetParameter::LoadImmediately());
+    s3d::TextureAsset::Register(U"prevButton", s3d::Icon(0xf104, 60), s3d::AssetParameter::LoadImmediately());
+    s3d::TextureAsset::Register(U"nextButton", s3d::Icon(0xf105, 60), s3d::AssetParameter::LoadImmediately());
+    s3d::TextureAsset::Register(U"lastButton", s3d::Icon(0xf101, 60), s3d::AssetParameter::LoadImmediately());
 
     s3d::AudioAsset::Register(U"Piece", s3d::Resource(U"audios/piece1.m4a"), s3d::AssetParameter::LoadImmediately());
 
     const s3d::INIData ini(s3d::Resource(U"config/appIDString.ini"));
 
     // シーンと遷移時の色を設定
-    MyApp manager(shogi::ChangeAppIDString(ini[U"Photon.appID"]), L"1.82");
+    MyApp manager(shogi::ChangeAppIDString(ini[U"Photon.appID"]), L"1.90");
     manager.add<Title>(State::Title)
         .add<Match>(State::Match)
         .add<Select>(State::Select)
         .add<OnlineMatch>(State::OnlineMatch)
         .add<PlayAlone>(State::PlayAlone)
+        .add<Replay>(State::Replay)
         .setFadeColor(s3d::ColorF(1.0));
 
     // manager.init(State::Select);

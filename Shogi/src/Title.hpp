@@ -14,6 +14,14 @@ private:
     s3d::Rect m_exitButton;
     s3d::Transition m_exitTransition;
 
+    s3d::Rect m_replayButton;
+    s3d::Transition m_replayTransition;
+
+    s3d::CSVData m_csv;
+    s3d::Optional<s3d::String> m_loadFileName;
+
+    void ReplayInit();
+
 public:
     Title(const InitData& init);
 
