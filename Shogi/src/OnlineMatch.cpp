@@ -558,7 +558,6 @@ void OnlineMatch::result() {
         getData().stackHavingSelf = m_stackHavingSelf;
         getData().stackHavingEnemy = m_stackHavingEnemy;
         getData().stackPlacedPart = m_stackPlacedPart;
-        changeScene(State::Replay, s3d::Seconds(1));
         Disconnect();
     }
 }
