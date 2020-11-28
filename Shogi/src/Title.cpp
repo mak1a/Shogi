@@ -3,12 +3,15 @@
 
 Title::Title(const InitData& init)
 : IScene(init)
-, m_soloMatchButton(s3d::Arg::center(s3d::Scene::Center().movedBy(0, 0)), 300, 60)
-, m_twoPlayerMatchButton(s3d::Arg::center(s3d::Scene::Center().movedBy(0, 100)), 300, 60)
-, m_exitButton(s3d::Arg::center(s3d::Scene::Center().movedBy(0, 200)), 300, 60)
+, m_soloMatchButton(s3d::Arg::center(s3d::Scene::Center().movedBy(0, -30)), 300, 60)
+, m_twoPlayerMatchButton(s3d::Arg::center(s3d::Scene::Center().movedBy(0, 70)), 300, 60)
+, m_exitButton(s3d::Arg::center(s3d::Scene::Center().movedBy(0, 270)), 300, 60)
+, m_replayButton(s3d::Arg::center(s3d::Scene::Center().movedBy(0, 170)), 300, 60)
 , m_soloMatchTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2))
 , m_twoPlayerMatchTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2))
-, m_exitTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2)) {
+, m_exitTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2))
+, m_replayTransition(s3d::SecondsF(0.4), s3d::SecondsF(0.2))
+, m_csv(U"") {
     getData().firstMove = Turn::Player;
     getData().elegance = Elegance::Player;
     getData().handicap = Handicap::Hirate;
@@ -16,6 +19,10 @@ Title::Title(const InitData& init)
     getData().SetCustomBoard(Board::Custom);
     getData().motigomas.fill(0);
     getData().photonState = PhotonState::None;
+    getData().stackBoradSquares.clear();
+    getData().stackHavingSelf.clear();
+    getData().stackHavingEnemy.clear();
+    getData().stackPlacedPart.clear();
 
     s3d::ClearPrint();
 }
@@ -24,8 +31,9 @@ void Title::update() {
     m_soloMatchTransition.update(m_soloMatchButton.mouseOver());
     m_twoPlayerMatchTransition.update(m_twoPlayerMatchButton.mouseOver());
     m_exitTransition.update(m_exitButton.mouseOver());
+    m_replayTransition.update(m_replayButton.mouseOver());
 
-    if (m_soloMatchButton.mouseOver() || m_exitButton.mouseOver() || m_twoPlayerMatchButton.mouseOver()) {
+    if (m_soloMatchButton.mouseOver() || m_exitButton.mouseOver() || m_twoPlayerMatchButton.mouseOver() || m_replayButton.mouseOver()) {
         s3d::Cursor::RequestStyle(s3d::CursorStyle::Hand);
     }
 
@@ -42,6 +50,191 @@ void Title::update() {
     if (m_exitButton.leftClicked()) {
         s3d::System::Exit();
     }
+
+    if (m_replayButton.leftClicked()) {
+        if (m_loadFileName = s3d::Dialog::OpenFile(); m_loadFileName.has_value()) {
+            if (m_loadFileName.value().includes(U".csv")) {
+                m_csv = s3d::CSVData(m_loadFileName.value());
+            }
+        }
+        ReplayInit();
+    }
+}
+
+void Title::ReplayInit() {
+    if (!m_csv) {
+        return;
+    }
+
+    // s3d::Print << m_csv.rows() << U", " << m_csv.columns(0);
+
+    if (m_csv.rows() < 10) {
+        s3d::Print << U"行数不足 : " << m_csv.rows() + 1 << U"行しかありません。";
+        return;
+    }
+
+    // テキストデータのString型をuint32型にするための変換器
+    s3d::HashTable<s3d::String, uint32> parseData;
+
+    parseData.emplace(U"Sfu", Sfu);
+    parseData.emplace(U"Sto", Sto);
+    parseData.emplace(U"Sky", Sky);
+    parseData.emplace(U"Sny", Sny);
+    parseData.emplace(U"Ske", Ske);
+    parseData.emplace(U"Snk", Snk);
+    parseData.emplace(U"Sgi", Sgi);
+    parseData.emplace(U"Sng", Sng);
+    parseData.emplace(U"Ski", Ski);
+    parseData.emplace(U"Ska", Ska);
+    parseData.emplace(U"Sum", Sum);
+    parseData.emplace(U"Shi", Shi);
+    parseData.emplace(U"Sry", Sry);
+    parseData.emplace(U"Sou", Sou);
+
+    parseData.emplace(U"Efu", Efu);
+    parseData.emplace(U"Eto", Eto);
+    parseData.emplace(U"Eky", Eky);
+    parseData.emplace(U"Eny", Eny);
+    parseData.emplace(U"Eke", Eke);
+    parseData.emplace(U"Enk", Enk);
+    parseData.emplace(U"Egi", Egi);
+    parseData.emplace(U"Eng", Eng);
+    parseData.emplace(U"Eki", Eki);
+    parseData.emplace(U"Eka", Eka);
+    parseData.emplace(U"Eum", Eum);
+    parseData.emplace(U"Ehi", Ehi);
+    parseData.emplace(U"Ery", Ery);
+    parseData.emplace(U"Eou", Eou);
+
+    constexpr double shogiBan = 540.f;
+    constexpr double komaDai = 240.f;
+
+    const s3d::RectF shogiBanRect(s3d::Arg::center(s3d::Scene::CenterF()), shogiBan);
+    const s3d::RectF komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(shogiBan / 2 + 10 + komaDai / 2, (shogiBan / 2 - komaDai) + komaDai / 2)), komaDai);
+    const s3d::RectF komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(shogiBan / 2 + 10 + komaDai / 2), -((shogiBan / 2 - komaDai) + komaDai / 2))), komaDai);
+
+    for (uint32 csvRow{}; csvRow <= m_csv.rows(); csvRow += 11) {
+        // 盤上のマス目
+        // RectFで保持する事でMouse判定できるようにする。
+        s3d::Array<KomaSquare> boardSquares;
+        // 持ち駒（プレイヤー側）
+        s3d::Array<s3d::Array<KomaSquare>> havingSelfKoma;
+        // 持ち駒（敵側）
+        s3d::Array<s3d::Array<KomaSquare>> havingEnemyKoma;
+        // 駒を置いた部分の色をちょっと赤くするための変数
+        s3d::Optional<KomaSquare> placedPart;
+
+        array<array<uint32, 9>, 9> boardCustom;
+        bool isExistSelfKing{false};
+        bool isExistEnemyKing{false};
+
+        for (uint32 y{}; y < 9; ++y) {
+            if (m_csv.columns(y + csvRow) != 9) {
+                s3d::Print << U"列数不足 : " << y + 1 << U"行目";
+                return;
+            }
+            for (uint32 x{}; x < 9; ++x) {
+                const auto koma = parseData.find(m_csv[y + csvRow][x]);
+                if (koma == parseData.end()) {
+                    boardCustom[y][x] = Emp;
+                    continue;
+                }
+
+                boardCustom[y][x] = koma.value();
+
+                if (koma.value() == Sou) {
+                    isExistSelfKing = true;
+                }
+                if (koma.value() == Eou) {
+                    isExistEnemyKing = true;
+                }
+            }
+        }
+
+        if (!isExistSelfKing || !isExistEnemyKing) {
+            s3d::Print << U"玉が見つかりませんでした。";
+            return;
+        }
+
+        array<uint32, 40> motigomas;
+        motigomas.fill(0);
+        if (m_csv[9 + csvRow].size() != 0) {
+            s3d::Array<s3d::String> motigomaData = m_csv[9 + csvRow][0].split(U',');
+            for (const auto& komaName : motigomaData) {
+                const auto koma = parseData.find(komaName);
+                if (koma == parseData.end()) {
+                    continue;
+                }
+
+                if (koma.value() == Sou || koma.value() == Eou) {
+                    continue;
+                }
+                if ((koma.value() & Promote) > 0) {
+                    s3d::Print << U"成駒を持ち駒にできません。";
+                    return;
+                }
+
+                ++motigomas[koma.value()];
+            }
+
+            // 盤面に駒を設置
+            for (size_t x{}; x < 9; ++x) {
+                uint32 selfFuNum{}, enemyFuNum{};
+                for (size_t y{}; y < 9; ++y) {
+                    if (boardCustom[y][x] == KomaType::Sfu) {
+                        ++selfFuNum;
+                    }
+                    if (boardCustom[y][x] == KomaType::Efu) {
+                        ++enemyFuNum;
+                    }
+                    if (selfFuNum >= 2 || enemyFuNum >= 2) {
+                        s3d::Print << U"二歩です。";
+                        return;
+                    }
+                }
+            }
+        }
+
+        // １マスの大きさ
+        constexpr double squareSize = shogiBan / 9;
+
+        // 盤面に駒を設置
+        for (size_t y = 0; y < 9; ++y) {
+            for (size_t x = 0; x < 9; ++x) {
+                boardSquares << KomaSquare(shogiBanRect.tl().x + x * squareSize, shogiBanRect.tl().y + y * squareSize, squareSize, boardCustom[y][x], s3d::Point(9 - x, y + 1));
+            }
+        }
+
+        havingSelfKoma.resize(7);
+        havingEnemyKoma.resize(7);
+
+        /// <summary>
+        /// 持ち駒の初期化
+        /// </summary>
+        for (uint32 type{Sfu}; type <= Shi; ++type) {
+            for (uint32 i{}; i < motigomas[type]; ++i) {
+                havingSelfKoma[type - Self - 1] << KomaSquare(KomaPos::selfDaiPoses[type - Self - 1], komaDaiSelf.w / 4, type, KomaState::Dai, s3d::Point(0, 0));
+            }
+        }
+        for (uint32 type{Efu}; type <= Ehi; ++type) {
+            for (uint32 i{}; i < motigomas[type]; ++i) {
+                havingEnemyKoma[type - Enemy - 1] << KomaSquare(KomaPos::enemyDaiPoses[type - Enemy - 1], komaDaiEnemy.w / 4, type, KomaState::Dai, s3d::Point(0, 0));
+            }
+        }
+
+        getData().stackBoradSquares.emplace_back(boardSquares);
+        getData().stackHavingSelf.emplace_back(havingSelfKoma);
+        getData().stackHavingEnemy.emplace_back(havingEnemyKoma);
+
+        if (m_csv[10 + csvRow].size() != 0) {
+            const uint32 x = s3d::Parse<uint32>(m_csv[10 + csvRow][0]);
+            const uint32 y = s3d::Parse<uint32>(m_csv[10 + csvRow][1]);
+            placedPart.emplace(boardSquares[y * 9 + x]);
+        }
+        getData().stackPlacedPart.emplace_back(placedPart);
+    }
+
+    changeScene(State::Replay);
 }
 
 void Title::draw() const {
@@ -53,10 +246,12 @@ void Title::draw() const {
     m_soloMatchButton.draw(s3d::ColorF(1.0, m_soloMatchTransition.value())).drawFrame(2);
     m_twoPlayerMatchButton.draw(s3d::ColorF(1.0, m_twoPlayerMatchTransition.value())).drawFrame(2);
     m_exitButton.draw(s3d::ColorF(1.0, m_exitTransition.value())).drawFrame(2);
+    m_replayButton.draw(s3d::ColorF(1.0, m_replayTransition.value())).drawFrame(2);
 
     s3d::FontAsset(U"Menu")(U"ひとりで").drawAt(m_soloMatchButton.center(), s3d::ColorF(0.25));
     s3d::FontAsset(U"Menu")(U"ふたりで").drawAt(m_twoPlayerMatchButton.center(), s3d::ColorF(0.25));
     s3d::FontAsset(U"Menu")(U"おわる").drawAt(m_exitButton.center(), s3d::ColorF(0.25));
+    s3d::FontAsset(U"Menu")(U"感想戦").drawAt(m_replayButton.center(), s3d::ColorF(0.25));
 
     s3d::Rect(0, 500, s3d::Scene::Width(), s3d::Scene::Height() - 500).draw(s3d::Arg::top = s3d::ColorF(0.0, 0.0), s3d::Arg::bottom = s3d::ColorF(0.0, 0.5));
 }
@@ -73,7 +268,7 @@ Select::Select(const InitData& init)
 , m_selfDai(s3d::Arg::center(935.f, 550.f), 420.f, 80.f)
 , m_komaDaiSelf(s3d::Arg::center(s3d::Scene::CenterF().movedBy(450.f / 2 + 10 + 200.f / 2, (450.f / 2 - 300.f) + 200.f / 2)), 200.f)
 , m_komaDaiEnemy(s3d::Arg::center(s3d::Scene::CenterF().movedBy(-(450.f / 2 + 10 + 200.f / 2), -((450.f / 2 - 100.f) + 200.f / 2))), 200.f)
-, m_csv(s3d::Resource(U""))
+, m_csv(U"")
 , m_isReadCsv(false)
 , m_isSaveFile(false) {
     // １マスの大きさ
